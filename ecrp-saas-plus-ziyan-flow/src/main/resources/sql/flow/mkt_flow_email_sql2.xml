@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot source="">
+  <sqlGroup name="flow.email">
+    <!-- SMS START-->
+    <sql id="createFilterTable" value="CREATE TEMPORARY TABLE `temp_marketing_filter_member${table}` (
+				`id` INT(10) NOT NULL AUTO_INCREMENT,
+				`target` VARCHAR(50) NULL DEFAULT NULL COMMENT '发送目标',
+				`remark` VARCHAR(50) NULL COMMENT '备注',
+				`sys_customer_id` BIGINT(20) NULL DEFAULT NULL COMMENT '客户ID',
+				`name` VARCHAR(50) NULL DEFAULT '' COMMENT '客户名称',
+				PRIMARY KEY (`id`),
+				INDEX `Target` (`target`)
+			)">
+    </sql>
+    <sql id="createSendMemberTable" value="CREATE TEMPORARY TABLE `temp_marketing_send_member${table}` (
+				`id` INT(10) NOT NULL AUTO_INCREMENT,
+				`target` VARCHAR(50) NULL DEFAULT NULL COMMENT '发送目标',
+				`sys_customer_id` BIGINT(20) NULL DEFAULT NULL COMMENT '客户ID',
+				`name` VARCHAR(50) NULL DEFAULT '' COMMENT '客户名称',
+				PRIMARY KEY (`id`),
+				INDEX `Target` (`target`)
+			)">
+    </sql>
+    <sql id="insertSendCidTable" value="
+				insert into temp_marketing_send_member${table}(sys_customer_id)
+				values(#{sysCustomerId})
+			">
+    </sql>
+    <sql id="updateSendCidTable" value="
+				update temp_marketing_send_member${table} a,kd_customer b set a.target = b.email,a.name = b.customer_name where a.sys_customer_id = b.sys_customer_id
+			">
+    </sql>
+    <sql id="blackFilter" value="insert into temp_marketing_filter_member${table}(target,sys_customer_id,remark,name)
+			select b.target,b.sys_customer_id,'[黑名单或邮件退订]',b.name from kd_touch_black a
+			inner join temp_marketing_send_member${table} b on a.target = b.target
+			where a.type = 2 and b.target is not null
+			">
+    </sql>
+    <sql id="sendTargetFilter" value="insert into temp_marketing_filter_member${table}(target,sys_customer_id,remark,name)
+			select a.target,a.sys_customer_id,'[邮件格式错误]',a.name from  temp_marketing_send_member${table} a
+			WHERE a.target NOT REGEXP '^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$'
+			">
+    </sql>
+    <sql id="saveSMSSendLog" value="insert into temp_marketing_detail${table}(data_from,target,name,sys_customer_id,marketing_type,instance_id,node_id,create_time,update_time,state,failure_reason)
+			 select 0,a.target,a.name,a.sys_customer_id,1,#{instanceId},#{nodeId},now(),now(),1,''
+			 from temp_marketing_send_member${table} a
+			 where a.target is not null
+			 and not exists(select c.target
+								 from temp_marketing_filter_member${table} c
+								 where a.target = c.target)
+			 group by a.target
+			">
+    </sql>
+    <sql id="saveSMSSendLog2" value="insert into temp_marketing_detail${table}(data_from,target,name,sys_customer_id,marketing_type,instance_id,node_id,create_time,update_time,state,failure_reason)
+			 select 0,a.target,a.name,a.sys_customer_id,1,#{instanceId},#{nodeId},now(),now(),0,a.remark
+			 from temp_marketing_filter_member${table} a
+			">
+    </sql>
+    <sql id="getEmailJson4Member" value="
+			select a.target as SendObjectAddress, a.name as Name from temp_marketing_detail${table} a
+			where  a.state = 1
+			group by a.target
+			">
+    </sql>
+  </sqlGroup>
+
+</sqlRoot>

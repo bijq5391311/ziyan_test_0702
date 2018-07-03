@@ -1,0 +1,308 @@
+<% include ../../../include/layout/start.ejs %>
+<div id="example" v-cloak>
+  <div class="template-page">
+    <div class="tmp-page__content">
+          <el-row>
+            <el-col :span="24">
+              <bus-multi-filter @submit-search="submitSearch"
+                                @reset-search="resetSearch"
+                                @recover-search="recoverSearch"
+                                @clean-search="cleanSearch">
+                <!-- 按钮组 -->
+                <template slot="btns">
+                  <el-button type="primary" @click="addDialog"><i class="bui-add"></i>新增</el-button>
+                </template>
+                <!-- end/按钮组 -->
+                <!-- 单条件表单 -->
+                <el-form slot="singleform" :inline="true" class="pull-right">
+                  <el-form-item>
+                    <el-input
+                      placeholder="请输入姓名"
+                      icon="search"
+                      v-model="multipleForm.user"
+                      :on-icon-click="filterSubmit">
+                    </el-input>
+                  </el-form-item>
+                </el-form>
+                <!-- end/单条件表单 -->
+                <!-- 多条件表单 -->
+                <el-form :model="multipleForm" label-width="80px" :inline="true">
+                  <el-form-item label="关键词：">
+                    <el-form-grid size="xmd">
+                      <el-input placeholder="请输入关键词" v-model="multipleForm.user"></el-input>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="交易来源：">
+                    <el-form-grid size="xmd">
+                      <el-select placeholder="请选择交易来源" v-model="multipleForm.source">
+                        <el-option label="区域一" value="shanghai"></el-option>
+                        <el-option label="区域二" value="beijing"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                  </el-form-item>
+                </el-form>
+                <!-- end/多条件表单 -->
+                <!-- 搜索结果 -->
+                <template slot="result">
+                  <el-tag v-for="(tag,index) in 10" :key="index" type="primary" :closable="true">tag</el-tag>
+                </template>
+                <!-- end/搜索结果 -->
+              </bus-multi-filter>
+              <el-table
+                tooltip-effect="light"
+                border
+                :data="tableData"
+                class="template-table"
+                @selection-change="handleSelectionChange"
+                v-loading.lock="loadingtable"
+                element-loading-icon="<img src='<%= require('V/xenon/images/logo-loading.png') %>' />"
+                element-loading-text="拼命加载中">
+                <el-table-column type="selection" width="40" align="center"></el-table-column>
+                <el-table-column
+                  prop="name"
+                  align="center"
+                  label="已选品牌">
+                  <template scope="scope">
+                    <a class="is-link">查看</a>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  prop="name"
+                  align="center"
+                  label="已选店铺">
+                  <template scope="scope">
+                    <a class="is-link">查看</a>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  prop="name"
+                  label="创建人"
+                  sortable
+                  width="180">
+                </el-table-column>
+                <el-table-column
+                  prop="province"
+                  label="创建部门"
+                  width="180">
+                </el-table-column>
+                <el-table-column
+                  prop="date"
+                  align="center"
+                  label="创建时间"
+                  width="100">
+                </el-table-column>
+                <el-table-column prop="address" label="是否启用"
+                                 width="90"
+                                 align="center">
+                  <template scope="scope">
+                    <el-switch on-text="开" off-text="关" v-model="scope.row.address" :width="44"></el-switch>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  label="操作"
+                  align="center"
+                  width="50"
+                  align="center">
+                  <template scope="scope">
+                    <div class="tmp-cell__buttons">
+                      <el-button type="text">修改</el-button>
+                    </div>
+                  </template>
+                </el-table-column>
+              </el-table>
+              <el-pagination
+                class="template-table-pagination"
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                :current-page="currentPage4"
+                :page-sizes="[10, 20, 30, 50, 100]"
+                :page-size="10"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="100">
+              </el-pagination>
+            </el-col>
+          </el-row>
+          <el-dialog title="新增" v-model="addDialogVisible" :modal-append-to-body="false" response-limit vetically>
+            <el-form :model="addForm" placement="right" label-width="140px">
+              <el-form-item label="客道精灵-品牌选择：">
+                <el-form-grid size="xmd">
+                  <el-select placeholder="请选择" clearable v-model="addForm.defaultSelect">
+                    <el-option label="区域一" value="shanghai"></el-option>
+                    <el-option label="区域二" value="beijing"></el-option>
+                    <el-option label="区域一" value="shangdhai"></el-option>
+                    <el-option label="区域二" value="beijsing"></el-option>
+                    <el-option label="区域一" value="dhai"></el-option>
+                    <el-option label="区域二" value="beng"></el-option>
+                  </el-select>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="客道精灵-店铺选择：">
+                <el-form-grid>
+                  <el-button type="primary"><i class="bui-select-shops"></i>选择店铺</el-button>
+                </el-form-grid>
+              </el-form-item>
+              <div class="jl-title"></div>
+              <el-form-item label="订单智能称重：">
+                <el-form-grid>
+                  <el-radio-group v-model="addForm.formRadio">
+                    <el-radio label="开"></el-radio>
+                    <el-radio label="关"></el-radio>
+                  </el-radio-group>
+                </el-form-grid>
+                <el-form-grid class="text-warning"><i class="bui-bell"></i>通过商品信息中设置的宝贝重量，自动计算每笔订单的总数量，方便邮费计算
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="多客服接待报警：">
+                <el-form-grid>
+                  <el-radio-group v-model="addForm.formRadio">
+                    <el-radio label="开"></el-radio>
+                    <el-radio label="关"></el-radio>
+                  </el-radio-group>
+                </el-form-grid>
+                <el-form-grid class="text-warning"><i class="bui-bell"></i>当一个买家同时与多个客服进行交流的时候，系统会自动提醒客服</el-form-grid>
+              </el-form-item>
+              <el-form-item label="转发附带订单备注：">
+                <el-form-grid>
+                  <el-radio-group v-model="addForm.formRadio">
+                    <el-radio label="是"></el-radio>
+                    <el-radio label="否"></el-radio>
+                  </el-radio-group>
+                </el-form-grid>
+                <el-form-grid class="text-warning"><i class="bui-bell"></i>给买家发送送货地址确认时，同时转发订单备注（自动过滤客服签名）
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="附加客服昵称：">
+                <el-form-grid>
+                  <el-radio-group v-model="addForm.formRadio">
+                    <el-radio label="是"></el-radio>
+                    <el-radio label="否"></el-radio>
+                  </el-radio-group>
+                </el-form-grid>
+                <el-form-grid class="text-warning"><i class="bui-bell"></i>订单备注附加客服昵称，自动添加在备注内容最后</el-form-grid>
+              </el-form-item>
+              <el-form-item label="附加时间：">
+                <el-form-grid>
+                  <el-radio-group v-model="addForm.formRadio">
+                    <el-radio label="是"></el-radio>
+                    <el-radio label="否"></el-radio>
+                  </el-radio-group>
+                </el-form-grid>
+                <el-form-grid class="text-warning"><i class="bui-bell"></i>订单备注附加当前时间，自动添加在备注内容最后</el-form-grid>
+              </el-form-item>
+              <el-form-item label="自动插旗：">
+                <el-form-grid>
+                  <el-radio-group v-model="addForm.formFlag">
+                    <el-radio label="1">不限</el-radio>
+                    <el-radio label="2"><i class="bui-flag text-gray"></i></el-radio>
+                    <el-radio label="3"><i class="bui-flag text-danger"></i></el-radio>
+                    <el-radio label="4"><i class="bui-flag text-warning"></i></el-radio>
+                    <el-radio label="5"><i class="bui-flag text-success"></i></el-radio>
+                    <el-radio label="6"><i class="bui-flag text-info"></i></el-radio>
+                    <el-radio label="7"><i class="bui-flag text-purple"></i></el-radio>
+                  </el-radio-group>
+                </el-form-grid>
+                <el-form-grid class="text-warning"><i class="bui-bell"></i>订单备注自动插旗，设置灰色不自动插旗</el-form-grid>
+              </el-form-item>
+              <el-form-item label="精灵公告：">
+                <el-form-grid>
+                  <el-radio-group v-model="addForm.formFlag">
+                    <el-checkbox label="1">启用</el-checkbox>
+                  </el-radio-group>
+                </el-form-grid>
+                <el-form-grid size="xmd">
+                  <el-input type=""></el-input>
+                </el-form-grid>
+                <el-form-grid class="text-warning"><i class="bui-bell"></i>在精灵工作台显示公告信息</el-form-grid>
+              </el-form-item>
+              <el-form-item label="地址核对附加：">
+                <el-form-grid>
+                  <el-radio-group v-model="addForm.formFlag">
+                    <el-checkbox label="1">启用</el-checkbox>
+                  </el-radio-group>
+                </el-form-grid>
+                <el-form-grid size="xmd">
+                  <el-input type=""></el-input>
+                </el-form-grid>
+                <el-form-grid class="text-warning"><i class="bui-bell"></i>在点击发送地址进行核对时，附加设置的短语</el-form-grid>
+              </el-form-item>
+              <el-form-item label="乡镇自治区地址确认：">
+                <el-form-grid>
+                  <el-radio-group v-model="addForm.formFlag">
+                    <el-checkbox label="1">启用</el-checkbox>
+                  </el-radio-group>
+                </el-form-grid>
+                <el-form-grid size="xmd">
+                  <el-input type=""></el-input>
+                </el-form-grid>
+                <el-form-grid class="text-warning"><i class="bui-bell"></i>对收货地址中含有村、镇、乡、自治区..的地址进行提示</el-form-grid>
+              </el-form-item>
+              <div class="jl-title">
+                <span>设置本店铺发货所在地区，用于查询快递可达区域</span>
+              </div>
+              <el-form-item label="所在地区：">
+                <el-form-grid size="xmd">
+                  <el-cascader
+                    @active-item-change="handleItemChange"
+                    :options="addForm.options2"
+                    :props="addForm.props"
+                  ></el-cascader>
+                </el-form-grid>
+                <el-form-grid>
+                  <el-button type="primary">新增</el-button>
+                  <el-button type="text">默认地址</el-button>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="合作物流公司：">
+                <el-form-grid>
+                  <el-button type="primary">选择</el-button>
+                </el-form-grid>
+                <div class="mt-sm">
+                  <el-form-grid size="xmd">
+                    <el-input type=""></el-input>
+                  </el-form-grid>
+                </div>
+                <el-form-grid block class="text-warning"><i class="bui-bell"></i>点击<i class="bui-edit"></i>设置本店铺的合作物流公司，查询快递将优先显示
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item>
+                <el-form-grid>
+                  <el-button type="primary">保存</el-button>
+                </el-form-grid>
+              </el-form-item>
+              <div class="jl-title">
+                <span>设置精灵需要同步到ECRP的数据</span>
+              </div>
+              <el-form-item>
+                <el-form-grid class="el-block-box" block>
+                  <el-form-item>
+                    <el-checkbox label="知识库" v-model="addForm.formCheck" name="type"></el-checkbox>
+                    <span></span>
+                  </el-form-item>
+                  <el-form-item>
+                    <el-checkbox label="备注短语" name="type"></el-checkbox>
+                    <span></span>
+                  </el-form-item>
+                  <el-form-item>
+                    <el-checkbox label="分类短语" name="type"></el-checkbox>
+                    <span></span>
+                  </el-form-item>
+                  <el-form-item>
+                    <el-checkbox label="客户标签" name="type"></el-checkbox>
+                    <span>上一次同步时间：2017-08-10 12:32:43，同步结果：新增 1 条客户标签</span>
+                  </el-form-item>
+                  <el-form-item>
+                    <el-checkbox label="买家备注" name="type"></el-checkbox>
+                    <span></span>
+                  </el-form-item>
+                </el-form-grid>
+              </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+              <el-button @click="addDialogVisible = false">取 消</el-button>
+              <el-button type="primary" @click="addDialogVisible = false">保 存</el-button>
+            </div>
+          </el-dialog>
+    </div>
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

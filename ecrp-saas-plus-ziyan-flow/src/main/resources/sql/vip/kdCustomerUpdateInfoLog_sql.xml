@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="vip.KdCustomerUpdateInfoLog">
+		<sql id="queryLogList" value="select * from kd_customer_update_info_log where state =1">
+			<bind name="create_account" value="#create_account == null ? null : ('%'+#create_account+'%')"></bind>
+			<if value="and operate_type=#{operate_type}"></if>
+			<if value="and operate_state=#{operate_state}"></if>
+			<if test="#create_account != null and #create_account != '%%'" value="and create_account like #{create_account}"></if>
+			<if value="and update_time between #{updateStartTime} and #{updateEndTime}"></if>
+			<if value="order by update_time desc"></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>

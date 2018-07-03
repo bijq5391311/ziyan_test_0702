@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="vip.SysCustomerRule">
+		<sql id="queryMaxCustomerID" value="select max(sys_customer_id) sys_customer_id from sys_customerid_rule"></sql>
+		<sql id="saveCheckSysCustomerID" value="insert into check_sys_customer_id(sys_customer_id) values(#{sysCustomerId})"></sql>
+	</sqlGroup>
+</sqlRoot>

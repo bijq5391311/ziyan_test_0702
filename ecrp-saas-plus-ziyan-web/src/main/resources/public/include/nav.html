@@ -1,0 +1,53 @@
+<th:block th:fragment="nav">
+<div  th:class="${(null!=#session && null!= #session.getAttribute('isOpenSidebar') && #session.getAttribute('isOpenSidebar')=='1')?'sidebar-menu toggle-others fixed collapsed':'sidebar-menu toggle-others fixed'}">
+  <div class="sidebar-menu-inner">
+    <!-- <header class="logo-env">
+      logo
+      <div class="logo">
+        <a href="/" class="logo-expanded">
+            <img alt="ECRP" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGwAAAAoBAMAAADpgQKEAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAbUExURQAAAP///////////////////////////////+tNPsIAAAAIdFJOUwBLL+rAC6N4xJkMfAAAAflJREFUSMetlj1vwjAQhg+L0JVUqsiYUtEy8yFlhH5IjJGgaseKoWJEVCpZm0TBP7t3Zzt2EKrkqB7ixOTJe37vbAOg230y64N360gpy9QbixCTL23EWsixmLecEvOW02Keciw2S/BSpZ5iVcrwh6cYvp9hd/IUw35MpvBIEHKL8fbh+4BXQY8jvLkNw+tRQ4xxhfWUQQuAL+wejWdbCLhf2pmBG2TXYBvu+/yTlEUs1A97LUbGX1lLurKYYlvATpafK5kjNnt+wu8gNkXHf3RoRqwCjS10/EWMlxKyAp82MhdEvOGASLSY63+3Vp3w92LGkBGoDLArYG3EIitWY2OaBbzLfRPLJId2LlZjkaQciGHK2BUFqdVWaNC5GGLkyDTGz6qWFSIc7MiSnOZWgX67WVk6AfGusBgPCLKYnHRF4A+McrCFOm8myDNsSdWUOkEqV4Wpkqy5yobYRrUlGVvSCSkBIikJO6naXDcWtZ7ixQRk+KCcJHcTV077eTHdXTm3GNw5csZPg+niKri4AozSYh1nDzHJ06U8oVI+rtBvTnck+xaztWyTpxOQ64WzV1hPzh3MytWVUmO8TJegsCCpHKxep7ZShNoUbvB2cDzwXgB8feWxphHRxYr57w1PyZXe22vLzbzt0dHyoGp7LLY8hNse+Z5/MH4BLK0+bMjZapMAAAAASUVORK5CYII="/>
+        </a>
+
+        <a href="/" class="logo-collapsed">
+          <img alt="" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACYAAAAkBAMAAAAX21WWAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAhUExURQAAAP///////////////////////////////////////88h6/kAAAAKdFJOUwAm4siLZfUPP6nU2ZxPAAABFklEQVQoz12SMQvCMBCFU7CoW+0/UBd1E0HBSRydMjm4W6RTwclNHJzFQcFNa4vmV3p3ucQktyR5/Zrce4kQuqLl8CiCOin1DqQ4V0otfG0DUgDGisoDV1pzwQasX1MffMCyG81d8ABSmYi9AzYRmwnRguHDGn7/Fvrwil3BPuoOkzWMT62l3AT1KDU24q2xx+0fq7jH+mgt1JKxHZ8Kv35haKMVk2BOJ9DhA2MCFq9CxJNJr5+4yV3IDrQtOlAJbWStN7Isgx6bc8f6ihvb/8G2sUKgtAFtbS6VmbCViEGvx1SHmbpWMJpaUkBdeyFIlDfErBWdIdbYf0FYZeForZy0mfdgzoovLwTvwQM867h98NqXZv4Dwk2m4qMiqkwAAAAASUVORK5CYII="/>
+        </a>
+      </div>
+     </header> -->
+     <ul id="main-menu" class="main-menu">
+     <th:block th:if="${(null!=#session && #session.getAttribute('USER_SESSION$')!=null && #session.getAttribute('USER_SESSION$').get('menus')!=null)}">
+      <th:block th:with="menus = ${#session.getAttribute('USER_SESSION$').get('menus')}">
+      	 <th:block th:each="item,stat : ${menus}">
+      	     <th:block th:if="${item.index ==true || item.select==true}">
+      	          <th:block th:if="${(null!=item.childMenus && #lists.size(item.childMenus)>0)}">
+      	               <th:block th:each="child,start:${item.childMenus}">
+	      	                  <th:block th:if="${(null!=child.childMenus && #lists.size(child.childMenus)>0 && child.childMenuCount > 0) }">
+	      	                    <li th:class="${child.select}?' has-sub opened active':'has-sub'">
+	      	                  </th:block>
+	      	                  <th:block th:if="${(null==child.childMenus || #lists.size(child.childMenus)==0 || child.childMenuCount == 0)}">
+	      	                    <li th:class="${child.select}?' opened active':''">
+	      	                  </th:block>
+		      	                    <a th:href="${child.url==null?'javascript:void':child.url}">
+							          	<span class="title" th:text="${child.name}"></span>
+							        </a>
+							        <th:block th:if="${(null!=child.childMenus && #lists.size(child.childMenus)>0 && child.childMenuCount > 0)}">
+								         <ul>
+									        <th:block th:each="threeMenu,start:${child.childMenus}">
+									            <li th:if="${threeMenu.type == 1}" th:class="${threeMenu.select}?'opened active'">
+									                <a th:href="${threeMenu.url==null?'javascript:void':threeMenu.url}">
+									                  <span class="title" th:text="${threeMenu.name}"></span>
+									                </a>
+									            </li>
+									        </th:block>
+								         </ul>
+							        </th:block>
+	      	                    </li>
+      	               </th:block>
+      	          </th:block>
+      	     </th:block>
+      	 </th:block>
+      </th:block>
+     </th:block> 
+    </ul>
+  </div>
+</div>
+</th:block>

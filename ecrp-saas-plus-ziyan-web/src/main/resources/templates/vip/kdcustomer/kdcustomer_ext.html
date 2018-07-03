@@ -1,0 +1,643 @@
+<!-- 会员弹窗模板 -->
+<th:block >
+    	<el-dialog :modal-append-to-body=false title="会员详情" custom-class="userinfo has-tabs" :lock-scroll="false"
+					:visible.sync="customerdialog"  :close-on-click-modal="false" element-loading-text="拼命加载中"
+					:before-close="closeDialog"   :vetically="true"   size="large" >
+    	<el-tabs v-model="activeName2" type="card" @tab-click="fromClick" id="userinfo-tabs">
+					<el-tab-pane label="会员详情" name="first">
+						<el-form >
+						   <el-row  :gutter="20">
+								<!--  左边会员头像 -->
+						      <el-col :span="12" >
+						      		<div class="tmp-userinfo__sidebar">
+						      			<div class="tmp-userinfo__header text-center">
+					                        <p><a><img class="img-cirlce avatar" src='/public/user.png' width="32" height="32" /><span class="name">{{userInfo.customer_name}}</span></a></p>					                        
+					                     </div>
+					                     <div class="tmp-userinfo__content">
+					                     	 <el-form ref="usetInfo" class="tmp-userinfo__form" label-width="80px" @edit-save='editsave' :edit-save='editsave'>
+					                     	 	 <el-row>
+                           							 <el-col :span="12" v-model="userInfo">
+                           								 <el-form-item label="会员ID："> 
+                           								 	<el-tooltip effect="dark" :content="userInfo.sys_customer_id+''" placement="top-start">
+														   	 	<span class="show_hide">{{userInfo.sys_customer_id}}</span>
+														    </el-tooltip>
+														 </el-form-item>
+                           								 <el-form-item label="性别："> 
+														    	<span style="padding-top: 1px;" v-if="userInfo.sex===1">男</span>
+														    	<span style="padding-top: 1px;" v-if="userInfo.sex===0">女</span>
+														    	<span style="padding-top: 1px;" v-if="userInfo.sex===-1">保密</span>
+														 </el-form-item>
+                           								 <el-form-item label="生日："> 
+													    		<span>{{userInfo.birthday}}</span>
+														 </el-form-item>
+                           								 <el-form-item label="手机："> 
+                           							 	   
+                           							 	   <!--显示正常手机号  -->
+														    	<el-tooltip  effect="dark" :content="userInfo.mobile" placement="top-start">
+														    		<span>{{userInfo.mobile}}</span>
+														    	</el-tooltip>
+														 </el-form-item>
+                           								 <el-form-item label="QQ："> 
+														    <el-tooltip effect="dark" :content="userInfo.qq+''" placement="top-start">	
+													    		<span class="show_hide">{{userInfo.qq=='NULL'?"":userInfo.qq}}</span>
+													    	</el-tooltip>
+														 </el-form-item>
+                           								 
+                           								 <el-form-item label="地区："> 
+						                                  	 <el-tooltip effect="dark" :content="show_zone+''" placement="top-start" >	
+						                                  		<span class="show_hide">
+						                                  			<span v-for="val in zone.value">{{val}}</span>
+						                                  		</span>
+						                                  	 </el-tooltip>
+														 </el-form-item>
+                           								
+                           							 </el-col>
+                           							 
+                           							 <el-col :span="12" >
+                           							 	 <el-form-item label="会员姓名："> 
+														    {{userInfo.customer_name}}
+														  </el-form-item>
+														  <el-form-item label="会员卡号："> 
+														  		<el-tooltip effect="dark" :content="userInfo.member_card+''" placement="top-start">
+														  			<span class="show_hide">{{userInfo.member_card=="NULL"?"":userInfo.member_card}}</span>
+														  		</el-tooltip>
+														  </el-form-item>
+														  <el-form-item label="会员状态："> {{userInfo.is_activate==0?"未激活":"激活"}}
+														 </el-form-item>
+                           							 	 <el-form-item label="身份证：" > 
+													    	<el-tooltip effect="dark" :content="userInfo.idcard+''" placement="top-start">
+													    			<span class="show_hide">{{userInfo.idcard=="NULL"?"":userInfo.idcard}}</span>
+													    	</el-tooltip>
+														 </el-form-item>
+                           							 	 <el-form-item label="固定电话："> 
+													    	<el-tooltip effect="dark" :content="userInfo.telphone+''" placement="top-start">
+													    		<span class="show_hide">{{userInfo.telphone}}</span>
+													    	</el-tooltip>
+														 </el-form-item>
+                           							 	 <el-form-item label="Email："> 
+													    	<el-tooltip effect="dark" :content="userInfo.email + ''" placement="top-start">
+													    		<span class="show_hide">{{userInfo.email}}</span>
+													    	</el-tooltip>
+														 </el-form-item>
+                           							 </el-col>
+                           							 
+                           						</el-row>
+                           						<el-form-item label="详细地址："> 
+											    	<el-tooltip  effect="dark" :content="userInfo.address + ''" placement="top-start" >
+											    		<span  width="360">{{userInfo.address}}</span>
+											    	</el-tooltip>
+												</el-form-item>
+												
+					                     	 </el-form>
+					                     </div>
+						      		</div>
+						        </el-col>
+						        <!--  右边会员属性 -->
+						      <el-col :span="12" class="userinfo-content" >
+							  
+                    <el-scrollbar  wrap-class="tmp-userinfo__scrollbar" outsider>
+						      	<el-collapse @change="aa" v-model="activeName3" accordion class="userinfo-collapse" >
+								  <el-collapse-item  title="品牌属性" name="1">
+								  <div style="margin-left: 10px;">
+<!-- 	开始	 						 2017年7月28日11:36:19 -->
+								    <el-table class="tmp-userinfo__table" :data="userinfoMassage" >
+			                          
+			                          <el-table-column prop="brand" label="品牌"></el-table-column>
+			                          
+			                          <el-table-column prop="vip" label="VIP"  width="90"> </el-table-column>
+			                          <el-table-column prop="score" label="可用积分"> </el-table-column>
+			                          <el-table-column prop="right"  width="90" align="center" label="权益黑名单">
+			                            <template scope="scope">{{userinfoTable[scope.$index]}}
+			                              <el-switch v-model="userinfoMassage[scope.$index].right" 
+			                              	@change="handleSwitch(scope.$index, scope)"
+			                                :width="55" on-text="启用" off-text="禁用">
+			                              </el-switch>
+			                            </template>
+			                          </el-table-column>
+			                          <el-table-column prop="touchState"  width="90" align="center" label="触达黑名单">
+			                            <template scope="scope">
+			                              <el-switch v-model="userinfoMassage[scope.$index].touchState" 
+			                              	@change="handleSwitch(scope.$index, userinfoMassage)"
+			                                :width="55" on-text="启用" off-text="禁用">
+			                              </el-switch>
+			                            </template>
+			                          </el-table-column>
+			                        </el-table>
+			                        </div>
+								  </el-collapse-item>
+<!-- 	结束	 						 2017年7月28日11:36:54 -->
+								  <el-collapse-item title="集团属性" name="2">
+								  <div style="margin-left: 10px;">
+								    <el-form class="tmp-userinfo__form" >
+<!-- 			                            <span style="height:20px; line-height:20px; text-align:center; display:block;" v-if="groupProperties=='' || typeof(groupProperties)==='undefined'"> 暂无数据</span> -->
+			                            <span style="height:20px; line-height:20px; text-align:center; display:block;" v-if="groupAttributes.length==0"> 暂无数据</span>
+
+			                        	<template v-else>
+											<el-form >
+											
+												 <template scope="scope">
+												 
+													 <el-row>
+															<!--	一部分 -->
+														      <el-col :span="12" :key="item.group_id" v-for="(item, index) in groupAttributes">
+																			 <!--文本-->
+										            <el-form-item v-if="item.type==0"  label-width="80px"    class="mt-sm mb-sm" >
+										                <el-tooltip slot="label" effect="light" placement="top" :content="item.NAME+''" :disabled="!(item.NAME.length > 6)">
+														        <span v-text="(item.NAME.length > 6 ) ? item.NAME.substring(0,6) + '：' : item.NAME + '：'"></span>
+														  </el-tooltip>
+										            	 <business-form-edit  :type="index+''" :editable="is_edit" v-model="item.model">
+										            	 	<el-form-grid slot="content">{{item.model}}</el-form-grid>
+										            	 	<el-form-grid size="sm" slot="edit">
+												            	<el-input v-model="item.model" ></el-input>
+												            </el-form-grid>
+										            	 </business-form-edit>
+										            </el-form-item>
+										            
+										            <!--下拉-->
+										            <el-form-item v-if="item.type==1" label-width="80px"  class="mt-sm mb-sm" >
+										             	<el-tooltip slot="label" effect="light" placement="top" :content="item.NAME+''" :disabled="!(item.NAME.length > 6)">
+														        <span v-text="(item.NAME.length > 6 ) ? item.NAME.substring(0,6) + '：' : item.NAME + '：'"></span>
+														 			
+														  </el-tooltip>
+										            	 <business-form-edit :editable="is_edit" :type="index+''"  v-model="item.model">
+										            	 	<el-form-grid slot="content">{{item.model}}</el-form-grid>
+										            	 	<el-form-grid size="sm" slot="edit">
+												            	<el-select placeholder="请选择" v-model="item.model" >
+												            		<el-option v-for="a in item.value" :key="a" :label="a" :value="a"></el-option>
+												            	</el-select>
+												            </el-form-grid>
+										            	 </business-form-edit>
+										            </el-form-item>
+										            
+										            <!--日期-->
+										            <el-form-item v-if="item.type==2"  label-width="80px"  class="mt-sm mb-sm" >
+										           		 <el-tooltip slot="label"  effect="light" placement="top" :content="item.NAME+''" :disabled="!(item.NAME.length > 6)">
+														        <span v-text="(item.NAME.length > 6 ) ? item.NAME.substring(0,6) + '：' : item.NAME + '：'"></span>
+														 			
+														  </el-tooltip>
+														
+										            	 <business-form-edit :editable="is_edit" :type="index+''" v-model="item.model">
+										            	 	<el-form-grid slot="content">{{item.model}}</el-form-grid>
+										            	 	<el-form-grid size="sm" slot="edit">
+													            <el-date-picker  ref='item.id' type="datetime" 
+																	placeholder="请选择日期" 
+																	v-model="item.model" 
+																	format="yyyy-MM-dd hh:mm:ss">
+																</el-date-picker>
+												            </el-form-grid>
+										            	 </business-form-edit>
+										            </el-form-item>
+														
+														
+									            	<!--单选-->
+									            	<el-form-item v-if="item.type==3"  label-width="80px"   class="mt-sm mb-sm" >
+									            		 <el-tooltip slot="label" effect="light" placement="top" :content="item.NAME+''" :disabled="!(item.NAME.length > 6)">
+														        <span v-text="(item.NAME.length > 6 ) ? item.NAME.substring(0,6) + '：' : item.NAME + '：'"></span>
+														 			
+														  </el-tooltip>
+									            		 <business-form-edit :type="index+''" :editable="is_edit"  v-model="item.model" >
+									            		 	<el-form-grid slot="content">{{item.model}}</el-form-grid>
+									            		 	<el-form-grid size="sm" slot="edit">
+													            <el-radio-group  v-model="item.model">
+														            <el-radio v-for="a in item.value" :key="a" ref='item.id' :label="a" :value="a"></el-radio>
+													            </el-radio-group>
+												            </el-form-grid>
+									            		 	
+									            		 </business-form-edit>
+											            
+										            </el-form-item>
+										           
+										            <!--多选-->
+										            <el-form-item  v-if="item.type==4" label-width="80px"  class="mt-sm mb-sm" >
+										            	
+										            	 <el-tooltip slot="label" effect="light" placement="top" :content="item.NAME+''" :disabled="!(item.NAME.length > 6)">
+														        <span v-text="(item.NAME.length > 6 ) ? item.NAME.substring(0,6) + '：' : item.NAME + '：'"></span>
+														 			
+														  </el-tooltip>
+										            	
+										            	 <business-form-edit :type="index+''" :editable="is_edit" v-model="item.model">
+										            	 	<el-form-grid slot="content">{{item.showValue}}</el-form-grid>
+										            	 	<el-form-grid size="sm" slot="edit">
+													            <el-checkbox-group   v-model="item.model" >
+														            <el-checkbox  v-for="(a, i) in item.value" ref='item.id' :key="i" :label="a" ></el-checkbox>
+													            </el-checkbox-group>
+												            </el-form-grid>
+										            	 </business-form-edit>
+										            </el-form-item>
+														      </el-col>
+													 </el-row>
+							                  </template>
+											
+											</el-form>
+											
+										</template>
+			                        </el-form>
+			                        </div>
+								  </el-collapse-item>
+								  <el-collapse-item title="RFM属性" name="3" >
+								  	<div style="margin-left: 10px;">
+								  	<el-form-grid  size="sm">  
+	                     					 <el-select @change="selectChange(selectOne,one)" v-model="selectOne"  placeholder="请选择">
+			                                      <el-option 
+			                                        v-for="(item, index) in selectInfo"
+			                                        :label="item.label"
+			                                        :key="item.value"
+			                                        :value="item.value">
+			                                      </el-option>
+			                                 </el-select>
+			                        </el-form-grid>
+			                        
+			                        
+			                        <el-form-grid size="lg">
+				                        		<ns-droptree v-show="selectOne==2"  v-model="label"
+										     		url = "/base/common/loadDeptTree"
+										     		:show-checkbox="false" @current-change="aclicka" >
+										        </ns-droptree>
+<!-- 											/base/common/loadChannelTree -->
+				                        		<ns-droptree v-show="selectOne==3" v-model="channelabel"
+										     		url = '/base/common/loadChannelTree' @current-change="aclicka"
+										     		:show-checkbox="false" >
+										        </ns-droptree>
+			                        
+	                     					 <el-select v-if="secondType!==1 " @change="selectChange(selectTow,tow)" v-model="selectTow" placeholder="请选择">
+<!-- 			                                     	获取品牌 -->
+			                                      <el-option v-if="selectOne==1"
+			                                        v-for="(item, index) in userinfoMassage"
+			                                        :label="item.brand"
+			                                        :key="item.brand_id"
+			                                        :value="item.brand_id">
+			                                      </el-option>
+			                                 </el-select>
+			                                 
+			                                 
+<!-- 			                                 <el-tree v-if="secondType==1" :data="selectTow"  @node-click="handleNodeClick"></el-tree> -->
+								  	</el-form-grid>
+								  	
+								  	
+								  	
+			                        <el-form class="tmp-userinfo__form" label-width="100px">
+			                          <el-row>
+			                            <el-col :span="12">
+			                              <el-form-item label="付款金额:" >
+			                                <el-form-grid>{{rfmInfo.pay_amount}}</el-form-grid>
+			                              </el-form-item>
+			                              <el-form-item label="成功付款金额:" >
+			                                <el-form-grid>{{rfmInfo.trade_amount}}</el-form-grid>
+			                              </el-form-item>
+			                              <el-form-item label="退款金额:" >
+			                                <el-form-grid>{{rfmInfo.refund_amount}}</el-form-grid>
+			                              </el-form-item>
+			                              <el-form-item label="客单价:" >
+			                                <el-form-grid>{{rfmInfo.price_unit}}</el-form-grid>
+			                              </el-form-item>
+			                              <el-form-item label="最后付款时间:">
+			                                <el-form-grid>{{rfmInfo.last_pay_time}}</el-form-grid>
+			                              </el-form-item>
+			                            </el-col>
+			                            <el-col :span="12">
+			                              <el-form-item label="付款次数:" >
+			                                <el-form-grid>{{rfmInfo.pay_times}}</el-form-grid>
+			                              </el-form-item>
+			                              <el-form-item label="成功次数:" >
+			                                <el-form-grid>{{rfmInfo.trade_times}}</el-form-grid>
+			                              </el-form-item>
+			                              <el-form-item label="退款次数:" >
+			                                <el-form-grid>{{rfmInfo.refund_times}}</el-form-grid>
+			                              </el-form-item>
+			                              <el-form-item label="客件数:" >
+			                                <el-form-grid>{{rfmInfo.item_unit}}</el-form-grid>
+			                              </el-form-item>
+			                              <el-form-item label="付款休眠天数:">
+			                                <el-form-grid>{{rfmInfo.dormant_day}}</el-form-grid>
+			                              </el-form-item>
+			                            </el-col>
+			                          </el-row>
+			                        </el-form>
+			                        </div>
+								  </el-collapse-item>
+								  <el-collapse-item @change="aa()" title="自定义属性" name="4">
+<!-- 								 	 <span style="height:20px; line-height:20px; text-align:center; display:block;" v-if="brandInfo==''"> 暂无数据</span> -->
+									 
+									 
+									 <span style="height:20px; line-height:20px; text-align:center; display:block;" v-if="brandList.length == 0"> 暂无数据</span>
+									<div v-else>
+										 <template>
+										  <el-select  @change="customSelect()" v-model="brandValue" placeholder="请选择">
+										    <el-option  v-for="item in brandList" :key="item.brand_id"  :label="item.brand"  :value="item.brand_id">
+										    </el-option>
+										  </el-select>
+										</template>
+										<div  v-if="CustomProperties.length == 0" style="height:20px; line-height:20px; text-align:center; display:block;">
+											该品牌暂未设置自定义属性
+										</div>
+										<br/>
+										<template>
+											<el-form >
+												 <template scope="scope">
+												 <el-row>
+												 	<el-col :span="12" v-for="(item, index) in CustomProperties" :key="index">
+												 								 <!--文本-->
+										            <el-form-item v-if="item.type==0"  label-width="80px"   :label="item.NAME" class="mt-sm mb-sm" >:
+										            	 <business-form-edit :label="item.NAME" :type="index+''" :editable="is_edit" v-model="item.model">:
+										            	 	<el-form-grid slot="content">{{item.model}}</el-form-grid>
+										            	 	<el-form-grid size="sm" slot="edit">
+												            	<el-input v-model="item.model" ></el-input>
+												            </el-form-grid>
+										            	 </business-form-edit>
+										            </el-form-item>
+										            
+										            <!--下拉-->
+										            <el-form-item v-if="item.type==1" label-width="80px"    class="mt-sm mb-sm" >
+										            	 <el-tooltip slot="label" effect="light" placement="top" :content="item.NAME+''" :disabled="!(item.NAME.length > 6)">
+														        <span v-text="(item.NAME.length > 6 ) ? item.NAME.substring(0,6) + '：' : item.NAME + '：'"></span>
+														 			
+														  </el-tooltip>
+										            	 <business-form-edit :editable="is_edit" :type="index+''"  v-model="item.model">
+										            	 	<el-form-grid slot="content">{{item.model}}</el-form-grid>
+										            	 	<el-form-grid size="sm" slot="edit">
+												            	<el-select placeholder="请选择" v-model="item.model" >
+												            		<el-option v-for="a in item.value" :key="a" :label="a" :value="a"></el-option>
+												            	</el-select>
+												            </el-form-grid>
+										            	 </business-form-edit>
+										            </el-form-item>
+										            
+										            <!--日期-->
+										            <el-form-item v-if="item.type==2"  label-width="80px"   class="mt-sm mb-sm" >
+										            	 <el-tooltip slot="label" effect="light" placement="top" :content="item.NAME+''" :disabled="!(item.NAME.length > 6)">
+														        <span v-text="(item.NAME.length > 6 ) ? item.NAME.substring(0,6) + '：' : item.NAME + '：'"></span>
+														 			
+														  </el-tooltip>
+										            	 <business-form-edit :editable="is_edit" :type="index+''"  v-model="item.model">
+										            	 	<el-form-grid slot="content">{{item.model}}</el-form-grid>
+										            	 	<el-form-grid size="sm" slot="edit">
+													            <el-date-picker  ref='item.id' type="datetime" 
+																	placeholder="请选择日期" 
+																	v-model="item.model" 
+																	format="yyyy-MM-dd hh:mm:ss">
+																</el-date-picker>
+												            </el-form-grid>
+										            	 </business-form-edit>
+										            </el-form-item>
+								
+									            	<!--单选-->
+									            	<el-form-item v-if="item.type==3"  label-width="80px"   class="mt-sm mb-sm" >
+									            		 <el-tooltip slot="label" effect="light" placement="top" :content="item.NAME+''" :disabled="!(item.NAME.length > 6)">
+														        <span v-text="(item.NAME.length > 6 ) ? item.NAME.substring(0,6) + '：' : item.NAME + '：'"></span>
+														 			
+														  </el-tooltip>
+									            		 <business-form-edit :type="index+''" :editable="is_edit"  v-model="item.model" >
+									            		 	<el-form-grid slot="content">{{item.model}}</el-form-grid>
+									            		 	<el-form-grid size="sm" slot="edit">
+													            <el-radio-group  v-model="item.model">
+														            <el-radio v-for="a in item.value" :key="a" ref='item.id' :label="a" :value="a"></el-radio>
+													            </el-radio-group>
+												            </el-form-grid>
+									            		 	
+									            		 </business-form-edit>
+											            
+										            </el-form-item>
+										           
+										            <!--多选-->
+										            <el-form-item  v-if="item.type==4" label-width="80px"   class="mt-sm mb-sm" >
+										            	 <el-tooltip slot="label" effect="light" placement="top" :content="item.NAME+''" :disabled="!(item.NAME.length > 6)">
+														        <span v-text="(item.NAME.length > 6 ) ? item.NAME.substring(0,6) + '：' : item.NAME + '：'"></span>
+														 			
+														  </el-tooltip>
+										            	 <business-form-edit :type="index+''" :editable="is_edit"  v-model="item.model">
+										            	 	<el-form-grid slot="content">{{item.showValue}}</el-form-grid>
+										            	 	<el-form-grid size="sm" slot="edit">
+													            <el-checkbox-group   v-model="item.model" >
+														            <el-checkbox  v-for="(a, i) in item.value" ref='item.id' :key="i" :label="a" ></el-checkbox>
+													            </el-checkbox-group>
+												            </el-form-grid>
+										            	 </business-form-edit>
+										            </el-form-item>
+												 	</el-col>
+												 </el-row>
+							                  </template>
+											</el-form>
+											
+										</template>
+									
+									</div>
+								  </el-collapse-item>
+							 </el-scrollbar>	  
+								</el-collapse>
+						      </el-col>
+						   </el-row>
+						</el-form>
+						
+						
+					</el-tab-pane>
+					
+<!-- 					积分 -->
+					<el-tab-pane label="积分" name="second">
+						 <el-scrollbar wrap-class="tmp-userinfo__scrollbar" outsider>
+						 		 	
+							   <el-row  class="mb-sm">
+							      <el-col :span="6" >
+							         <el-select @change="selectChange(selectTree, three)" v-model="selectTree" placeholder="请选择">
+			                             <el-option
+			                               v-for="(item, index) in userinfoMassage"
+			                               :label="item.brand"
+			                               :key="item.brand_id"
+			                               :value="item.brand_id">
+			                             </el-option>
+			                        </el-select>
+							       </el-col>
+								     <span v-if="customerIntegral !== ''" >
+								     	<el-form>
+									      <el-col :span="4" >
+									         <el-form-item  label="可用积分：">
+									         	<span style="color:#f39a00">{{customerIntegral.score}}</span>
+									         </el-form-item>
+									      </el-col>
+									      <!-- <el-col :span="4" >
+									         <el-form-item  label="总生成积分："><span style="color:#f39a00">{{customerIntegral.count_score}}</span></el-form-item>
+									      </el-col> -->
+										</el-form>
+								     </span>
+							   </el-row>
+							
+							
+						 	<el-form-grid>
+								<!-- 积分表 -->
+								<el-table
+							      :data="integralTable" border
+							      style="width: 100%">
+							      <el-table-column  
+							      	prop="data_time" label="积分日期" width="180">
+							      </el-table-column>
+							      <el-table-column
+							        prop="brand_name" label="所属品牌" width="168">
+							      </el-table-column>
+							      <el-table-column
+							        prop="stype" label="来源类型" width="168">
+							      </el-table-column>
+							      <el-table-column
+							        prop="activity_name" label="活动名称"  width="179">
+							      </el-table-column>
+							      <el-table-column
+							        prop="integral_behavior"  label="积分动作" width="168">
+							      </el-table-column>
+							      <el-table-column
+							        prop="integral_number" label="积分值" width="87">
+							      </el-table-column>
+							    </el-table>	
+							</el-form-grid>
+						 
+						 </el-scrollbar>
+					</el-tab-pane>
+					
+					
+<!-- 					购物行为 -->
+					<el-tab-pane label="购物行为" name="eight">
+						 <el-scrollbar wrap-class="tmp-userinfo__scrollbar" outsider ref="trail">
+							  <div class="tmp-title__gray mb-md">购物概况</div>
+							   <el-table  :data="shoopTableData" border  style="width: 100%">
+							      <el-table-column 
+							      	prop="plat_from_type" label="平台" width="100">
+							      </el-table-column>
+							      <el-table-column 
+							      	prop="order_times" label="下单次数" width="140">
+							      </el-table-column>
+							      <el-table-column 
+							      	prop="pay_times" label="付款次数" width="190">
+							      </el-table-column>
+							      <el-table-column 
+					      	prop="pay_amount" label="付款总额" width="190">
+							      </el-table-column>
+							      <el-table-column 
+							      	prop="trade_amount" label="成交金额" width="190">
+							      </el-table-column>
+							      <el-table-column 
+							      	prop="price_unit" label="客户单价" width="149">
+							      </el-table-column>
+							    </el-table>	
+							  <div class="tmp-title__gray mt-md mb-md">交易明细</div>
+								   <ns-table :data="tradeTable" :column-param="transactionCustomerFields" :pagination="paginationParam" 
+					    	                :table-param="tableParam" toolbar @current-page-change="pageChange" @page-size-change="pageSize"
+					    	                :selection="false">
+								   </ns-table>
+							  <div class="tmp-title__gray mt-md mb-md">购物轨迹</div>
+									<th:block th:insert="vip/kdcustomer/path"></th:block>
+						</el-scrollbar>
+					</el-tab-pane>
+					
+<!-- 					互动行为 -->
+					<el-tab-pane label="互动行为" name="third">
+						<el-scrollbar wrap-class="tmp-userinfo__scrollbar" outsider>
+							<div class="tmp-title__gray mb-md">互动概况</div>
+								    <el-table :data="interactTable" border style="width: 100%">
+								      <el-table-column
+								        prop="t_type"  label="渠道"  width="185">
+								      </el-table-column>
+								      <el-table-column
+								        prop="interact_times"  label="互动次数"  width="150">
+								      </el-table-column>
+								      <el-table-column
+								        prop="add_point"  label="总获取积分"  width="152">
+								      </el-table-column>
+								      <el-table-column
+								        prop="del_point"  label="总消耗积分"  width="152">
+								      </el-table-column>
+								      <el-table-column
+								        prop="last_interact_time"  label="最近一次互动"  width="160">
+								      </el-table-column>
+								      <el-table-column
+								        prop="first_interact_time"  label="最早一次互动"  width="160">
+								      </el-table-column>
+								    </el-table>	
+							<div class="tmp-title__gray mt-md mb-md">互动轨迹</div>
+								<th:block th:insert="vip/kdcustomer/interactpath"></th:block>
+						</el-scrollbar>
+					</el-tab-pane>
+					
+<!-- 					触达记录 -->
+					<el-tab-pane label="触达记录" name="six">
+						<el-scrollbar wrap-class="tmp-userinfo__scrollbar" outsider>
+							<div class="tmp-title__gray mb-md">触达概况</div>
+							   <el-table :data="tatchTable" border style="width: 100%">
+							      <el-table-column
+							        prop="t_type" label="类型" width="120">
+							      </el-table-column>
+							      <el-table-column
+							        prop="sms_times" label="短信次数" width="180">
+							      </el-table-column>
+							      <el-table-column
+							        prop="email_times" label="邮件次数" width="180">
+							      </el-table-column>
+							      <el-table-column
+							        prop="last_time" label="最后一次触达" width="239">
+							      </el-table-column>
+							      <el-table-column
+							        prop="first_time" label="最早一次触达" width="239">
+							      </el-table-column>
+							    </el-table>	
+							<div class="tmp-title__gray mt-md mb-md">触达轨迹</div>
+								<th:block th:insert="vip/kdcustomer/touchpath"></th:block>
+						</el-scrollbar>
+					</el-tab-pane>
+					
+<!-- 					客户声音 height="250"-->
+					<el-tab-pane label="客户声音" name="fourth">
+						<el-scrollbar wrap-class="tmp-userinfo__scrollbar" outsider>
+							<div class="tmp-title__gray mb-md">客户声音概况</div>
+							  	<el-table :data="viceTableData" border style="width: 100%" >
+							      <el-table-column
+							        prop="out_nick" label="类型" width="120">
+							      </el-table-column>
+							      <el-table-column
+							        prop="countNum" label="次数" width="170">
+							      </el-table-column>
+							      <el-table-column
+							        prop="last_content" label="最后一次内容" width="288">
+							      </el-table-column>
+							      <el-table-column
+							        prop="last_time" label="最近一次" width="190">
+							      </el-table-column>
+							      <el-table-column
+							        prop="first_time" label="最早一次" width="190">
+							      </el-table-column>
+							    </el-table>	
+							  <div class="tmp-title__gray mt-md mb-md">声音轨迹</div>
+							  		<th:block th:insert="vip/kdcustomer/voicpath"></th:block>
+						</el-scrollbar>
+					</el-tab-pane>
+					
+					
+<!-- 					地址管理 -->
+					<el-tab-pane label="地址管理" name="five">
+						<el-scrollbar wrap-class="tmp-userinfo__scrollbar" outsider>
+							
+							<el-table :data="tableData" border style="width: 100%">
+							      <el-table-column
+							        prop="plat_from_type" label="平台" width="100">
+							      </el-table-column>
+							      <el-table-column
+							        prop="out_nick" label="账号" width="94">
+							      </el-table-column>
+							      <el-table-column
+							        prop="mobile" label="手机号" width="154">
+							      </el-table-column>
+							      <el-table-column
+							        prop="particular_ass" label="详细地址" >
+							      </el-table-column>
+							      <el-table-column
+							        prop="use_times" label="使用次数" width="82">
+							      </el-table-column>
+							      <el-table-column
+							        prop="last_use_time" label="最近一次" width="190">
+							      </el-table-column>
+							    </el-table>	
+						</el-scrollbar>
+					</el-tab-pane>
+					
+				</el-tabs>
+		<!-- 				弹窗右下角关闭 -->
+				<div slot="footer" class="dialog-footer">
+					<el-button @click="closeDialog">关闭</el-button>
+				</div>
+			</el-dialog>
+</th:block>

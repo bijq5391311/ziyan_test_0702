@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="integral.OutPointLog">
+		<sql id="queryNoSynOutLog"
+		   value="select o.*,cs.sys_customer_id as sys_customer_id from out_point_log o 
+		          join kd_customer_syn cs on o.out_customer_id = cs.out_customer_id
+		         where  1=1 ">
+			<if value="and o.syn_status = #{synStatus}"></if>
+            <if value="order by o.id desc"></if>
+			<if value="limit #{limit}"></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>

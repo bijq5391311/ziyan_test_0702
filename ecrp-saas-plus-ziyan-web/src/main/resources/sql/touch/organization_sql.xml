@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="base.organization">
+	    <sql id="queryGroup" value="select 	id as id, name as name ,code as code, tb_remain_count as tbRemainCount, email_send_name as emailSendName, email_send_address as emailSendAddress, marketing_append_email as marketingAppendEmail, marketing_append_mobiles as marketingAppMobile, app_key as appKey,
+	         app_secret as appSecret from sys_group where 1=1">
+	      <if value=" and name=#{name}"></if>
+	      <if value=" and id=#{id}"></if>
+	      <if value=" and state=1"/>
+	    </sql>
+	    <sql id="queryRoleMenu" value="select b.id as id,b.code as code,b.parent_id as parentId,b.parent_ids as parentIds,b.name as name,b.type as `type`,b.icon as icon,b.sort as sort,b.url as url 
+		      from sys_role_menu a,sys_menu b where a.menu_id=b.id and a.role_id=#{roleId} and b.parent_id!=0 ">
+		      <if value=" and  b.type=#{type}"></if>
+		      <if value="order by b.sort asc"></if>
+		</sql>
+		
+		<sql id="queryShopNameByMobile" value="select sg.name as name from sys_group sg where 1=1 ">
+			<if value="sg.marketing_append_mobiles=#{target}"></if>
+ 		</sql>
+	</sqlGroup>
+</sqlRoot>

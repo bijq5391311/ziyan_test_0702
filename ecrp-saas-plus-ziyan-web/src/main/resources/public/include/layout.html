@@ -1,0 +1,283 @@
+<th:block th:fragment="layout(content, script)"><!DOCTYPE html>
+<html>
+<head th:replace="../public/include/head::head"></head> 
+<body class="page-body">
+[(${T(com.nascent.ecrpsaas.base.web.CommonController).setMenuSelect()})]
+<!-- User Info, Notifications and Menu Bar -->
+<nav class="navbar horizontal-menu user-info-navbar navbar-fixed-top" role="navigation">
+        
+      <div class="navbar-inner">
+        <!-- Navbar Brand -->
+        <div class="navbar-brand logo">
+          <a href="/" class="logo-expanded">
+            <img class="hidden-xs" alt="ECRP" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGwAAAAoBAMAAADpgQKEAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAbUExURQAAAP///////////////////////////////+tNPsIAAAAIdFJOUwBLL+rAC6N4xJkMfAAAAflJREFUSMetlj1vwjAQhg+L0JVUqsiYUtEy8yFlhH5IjJGgaseKoWJEVCpZm0TBP7t3Zzt2EKrkqB7ixOTJe37vbAOg230y64N360gpy9QbixCTL23EWsixmLecEvOW02Keciw2S/BSpZ5iVcrwh6cYvp9hd/IUw35MpvBIEHKL8fbh+4BXQY8jvLkNw+tRQ4xxhfWUQQuAL+wejWdbCLhf2pmBG2TXYBvu+/yTlEUs1A97LUbGX1lLurKYYlvATpafK5kjNnt+wu8gNkXHf3RoRqwCjS10/EWMlxKyAp82MhdEvOGASLSY63+3Vp3w92LGkBGoDLArYG3EIitWY2OaBbzLfRPLJId2LlZjkaQciGHK2BUFqdVWaNC5GGLkyDTGz6qWFSIc7MiSnOZWgX67WVk6AfGusBgPCLKYnHRF4A+McrCFOm8myDNsSdWUOkEqV4Wpkqy5yobYRrUlGVvSCSkBIikJO6naXDcWtZ7ixQRk+KCcJHcTV077eTHdXTm3GNw5csZPg+niKri4AozSYh1nDzHJ06U8oVI+rtBvTnck+xaztWyTpxOQ64WzV1hPzh3MytWVUmO8TJegsCCpHKxep7ZShNoUbvB2cDzwXgB8feWxphHRxYr57w1PyZXe22vLzbzt0dHyoGp7LLY8hNse+Z5/MH4BLK0+bMjZapMAAAAASUVORK5CYII="/>
+          </a>
+    
+          <a href="/dataCompass/constantly/index.html" class="logo-collapsed">
+            <img class="visible-xs" alt="ECRP" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACYAAAAkBAMAAAAX21WWAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAhUExURQAAAP///////////////////////////////////////88h6/kAAAAKdFJOUwAm4siLZfUPP6nU2ZxPAAABFklEQVQoz12SMQvCMBCFU7CoW+0/UBd1E0HBSRydMjm4W6RTwclNHJzFQcFNa4vmV3p3ucQktyR5/Zrce4kQuqLl8CiCOin1DqQ4V0otfG0DUgDGisoDV1pzwQasX1MffMCyG81d8ABSmYi9AzYRmwnRguHDGn7/Fvrwil3BPuoOkzWMT62l3AT1KDU24q2xx+0fq7jH+mgt1JKxHZ8Kv35haKMVk2BOJ9DhA2MCFq9CxJNJr5+4yV3IDrQtOlAJbWStN7Isgx6bc8f6ihvb/8G2sUKgtAFtbS6VmbCViEGvx1SHmbpWMJpaUkBdeyFIlDfErBWdIdbYf0FYZeForZy0mfdgzoovLwTvwQM867h98NqXZv4Dwk2m4qMiqkwAAAAASUVORK5CYII="/>
+          </a>
+        </div>
+        <ul class="navbar-nav user-info-logo">
+            <li class="">
+                <a href="#">
+                        <img th:src="${#session.getAttribute('USER_SESSION$').get('GroupLogo')}" />
+                </a>
+            </li>
+        </ul>
+
+        <!-- 一级菜单导航 -->
+         <ul class="navbar-nav user-info-navlist">
+             <th:block th:if="${(null!=#session && #session.getAttribute('USER_SESSION$')!=null && #session.getAttribute('USER_SESSION$').get('menus')!=null)}">
+                 <th:block th:with="menus = ${#session.getAttribute('USER_SESSION$').get('menus')}">
+                   <th:block th:each="item,stat : ${menus}">
+                      <th:block th:if="${(item.code!='AFFAIR_CENT' && item.code!='KDJL_CODE' && item.code!='UTILS' && item.code!='SYSTEM_MANAGE')}">
+                      　　　　　 <li th:class="${item.select}?'active':''">
+                                 <a th:href="${item.url==null?'javascript:void()':item.url}">
+                                   [(${item.name})]
+                                 </a>
+                            </li>
+                      </th:block>
+                 </th:block>
+              </th:block>
+             </th:block> 
+        </ul>
+        <!-- /end一级菜单导航 -->
+      <!-- Right links for user info navbar -->
+      <ul class="nav user-info-menu right-links list-inline list-unstyled navbar-right">
+         <th:block th:if="${(null!=#session && #session.getAttribute('USER_SESSION$')!=null && #session.getAttribute('USER_SESSION$').get('menus')!=null)}">
+              <th:block th:with="menus = ${#session.getAttribute('USER_SESSION$').get('menus')}">
+                   <th:block th:each="item,stat : ${menus}">
+                      <th:block th:if="${(item.code=='AFFAIR_CENT' || item.code=='KDJL_CODE' || item.code=='UTILS' || item.code=='SYSTEM_MANAGE')}">
+                       <li th:class="${item.select}?'open':''">
+                          <a th:href="${item.url}" th:title="${item.name}">
+                            <i th:class="${item.icon}"></i>
+                          </a>
+                        </li>
+                      </th:block>
+                 </th:block>
+              </th:block>
+         </th:block> 
+      
+        <li class="dropdown">
+          <a href="#" data-toggle="dropdown">
+            <i class="bui-bell"></i>
+            <span class="badge badge-danger">0</span>
+          </a> 
+		    <ul class="dropdown-menu notifications">
+			  <li>
+				<ul class="dropdown-menu-list list-unstyled ps-scrollbar">
+				<li>
+					<a href="">
+					  <i class="bui-yingxiao-ex"></i>
+					  <span class="line">营销审核待办(0)</span>
+					</a>
+				  </li>
+				  <li class="active notification-primary">
+					<a href="">
+					  <i class="bui-kdjl"></i>
+					  <span class="line">客道精灵待办(0)</span>
+					</a>
+				  </li>
+				  <li class="active notification-primary">
+					<a href="">
+					  <i class="bui-mail-fill"></i>
+					  <span class="line">短信回复待办(0)</span>
+					</a>
+				  </li>
+				  <!--<li>-->
+					<!--<a href="">-->
+					  <!--<i class="bui-reply-fill"></i>-->
+					  <!--<span class="line">询单待办(0)</span>-->
+					<!--</a>-->
+				  <!--</li>-->
+				  <li>
+					<a href="">
+					  <i class="bui-pingjia"></i>
+					  <span class="line">评价待办(0)</span>
+					</a>
+				  </li>
+				  
+				  
+				  <li class="active notification-primary">
+					<a href="">
+					  <i class="bui-bell"></i>
+					  <span class="line">其他待办(0)</span>
+					</a>
+				  </li>
+				</ul>
+			  </li>
+			</ul>
+        </li>
+        <li class="dropdown user-profile">
+          <a href="#" data-toggle="dropdown">
+            <i class="bui-hygl"></i>
+          </a>
+
+          <ul class="dropdown-menu user-profile-menu list-unstyled">
+            <li style="text-align:center;">
+<!--               <a href="javascript:void(0)" -->
+<!--                @click="openEditPWDialog();"> -->
+<!--                 <i class="bui-setting"></i> -->
+<!--                 Settings -->
+<!--               </a> -->
+
+				<div id="app-pw">
+					<ns-edit-pw></ns-edit-pw>
+				</div>
+				
+<!-- 				 <el-button class="el-button  el-button--text" type="primary" @click="openEditPWDialog">Settings</el-button> -->
+            </li>
+            <li style="text-align:center;" class="last">
+              <a href="/logout">
+               	 退出登录
+              </a>
+            </li>
+          </ul>
+        </li>
+
+      </ul>
+
+      </div>
+    </nav>
+
+
+<div class="page-container">
+
+  <!-- Sidebar -->
+  <div th:replace="../public/include/nav::nav"></div>   
+  <div class="main-content">
+
+    <!-- start:  Page content of course! -->
+   <th:block th:with="
+    'pageStartTime' = ${T(System).currentTimeMillis()}
+   " th:inline="text">
+   
+    <div th:include="${content}"></div>
+    <!-- 页面渲染时间：[(${T(System).currentTimeMillis()-pageStartTime})]ms -->
+   </th:block>
+   
+    <!-- end: Page content of course! -->
+
+    <!-- Main Footer -->
+  <!--  <div th:replace="../public/include/footer::footer"></div>    -->
+
+  </div>
+
+
+</div>
+
+<style>
+/* 平台图标图片引用文件 */
+/* 默认为：系统平台图标 platform.png */
+ .shopflat a{
+   background-image:url(/public/images/platform.png);
+ }
+/* 自定义：项目平台图标  platform-bus.png */
+ .shopflat.is-bus a{
+   background-image:url(/public/images/platform-bus.png);
+ }
+ </style>
+</body>
+
+<script type="text/javascript" th:src="@{${nui}+'js/require.js'}"></script>
+<script type="text/javascript" th:src="@{${nui}+'js/nui.all.min.js'}"></script>
+<script type="text/javascript" th:src="@{/public/utilmain/util.min.js}"></script>
+<script type="text/javascript" >
+<!--/* 
+    权限访问列表
+*/-->
+var ctx = "";
+[(${session==null ? _ : session['#acl'] == null ? "var AUTH = {};" : "var AUTH = " + T(com.alibaba.fastjson.JSON).toJSONString(session['#acl'].getACL(#request)) })]
+[(${session==null ? _ : session['#acl'] == null ? "var CODEACL = {};" : "var CODEACL = " + T(com.alibaba.fastjson.JSON).toJSONString(session['#acl'].getACLOfButton(#request)) })]
+function isAuthorize(url,code) {
+    var isAuthorized = true;
+    if(AUTH && url) {
+        isAuthorized = Boolean(AUTH[url] !== undefined ? AUTH[url] : true);
+    }
+    if(isAuthorized && code && CODEACL) {
+        return Boolean(CODEACL[code] !== undefined ? CODEACL[code] : true)
+    }
+    return isAuthorized;
+}
+require.config({
+	paths: {
+		"dsl": "/public/vnode"
+	}
+});
+var url = "/affair/kdaffairlist/affairList?code=";
+var count= 0;
+$.ajax({
+	 url:"/base/common/queryAffairCount",
+	 type:"post",
+	 success:function(data){                
+        if(data.success){
+        	for(let value of data.result) {
+        		switch(value.typeName)
+        		{
+        		case "营销审核":
+            		  $(".dropdown-menu-list li a")[0].href=url+value.id;
+            		  $(".dropdown-menu-list li span")[0].firstChild.data = "营销审核待办("+value.count+")";
+            		  if(value.count == 0)
+            			  $(".dropdown-menu-list li")[0].setAttribute("class","");
+            		  else
+            			  $(".dropdown-menu-list li")[0].setAttribute("class","active notification-primary");
+              		  break;
+        		case "客道精灵":
+        		  $(".dropdown-menu-list li a")[1].href=url+value.id;
+        		  $(".dropdown-menu-list li span")[1].firstChild.data = "客道精灵待办("+value.count+")";
+        		  if(value.count == 0)
+        			  $(".dropdown-menu-list li")[1].setAttribute("class","");
+        		  else
+        			  $(".dropdown-menu-list li")[1].setAttribute("class","active notification-primary");
+        		  break;
+        		case "短信回复":
+        		  $(".dropdown-menu-list li a")[2].href=url+value.id;
+        		  $(".dropdown-menu-list li span")[2].firstChild.data = "短信回复待办("+value.count+")";
+        		  if(value.count == 0)
+        			  $(".dropdown-menu-list li")[2].setAttribute("class","");
+        		  else
+        			  $(".dropdown-menu-list li")[2].setAttribute("class","active notification-primary");
+        		  break;
+        		// case "询单":
+        		//   $(".dropdown-menu-list li a")[3].href=url+value.id;
+        		//   $(".dropdown-menu-list li span")[3].firstChild.data = "询单待办("+value.count+")";
+        		//   if(value.count == 0)
+        		// 	  $(".dropdown-menu-list li")[3].setAttribute("class","");
+        		//   else
+        		// 	  $(".dropdown-menu-list li")[3].setAttribute("class","active notification-primary");
+          		//   break;
+        		case "评价":
+        		  $(".dropdown-menu-list li a")[3].href=url+value.id;
+        		  $(".dropdown-menu-list li span")[3].firstChild.data = "评价待办("+value.count+")";
+        		  if(value.count == 0)
+        			  $(".dropdown-menu-list li")[3].setAttribute("class","");
+        		  else
+        			  $(".dropdown-menu-list li")[3].setAttribute("class","active notification-primary");
+          		  break;
+        		case "其他":
+        		  $(".dropdown-menu-list li a")[4].href=url+value.id;
+        		  $(".dropdown-menu-list li span")[4].firstChild.data = "其他待办("+value.count+")";
+        		  if(value.count == 0)
+        			  $(".dropdown-menu-list li")[4].setAttribute("class","");
+        		  else
+        			  $(".dropdown-menu-list li")[4].setAttribute("class","active notification-primary");
+          		  break;
+        		
+        		default:
+        		  
+        		}
+             count += value.count;
+            }
+            if(count!=0){
+                $(".badge-danger").html(count);
+            }else{
+                $(".badge-danger").hide();
+            }
+
+        }
+    }
+})
+</script>
+<th:block type="text/javascript" th:insert="${script}"></th:block>
+</html>
+</th:block>

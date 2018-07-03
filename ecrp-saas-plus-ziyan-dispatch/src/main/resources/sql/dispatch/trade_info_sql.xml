@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="dispatch.trade">
+		<sql id="loadCustomerPayment"
+			value=" SELECT IFNULL(sum(payment),0) as payment  from kd_trade where trade_status='TRADE_FINISHED' ">
+			<if value="  and sys_customer_id = #{sysCustomerId} "></if>
+			<if value="  and end_time  &gt;=   #{endTime} "></if>
+		</sql>
+		<sql id="loadCustomertradeCount"
+			value=" SELECT COUNT( DISTINCT  TO_DAYS(created)) as tradeCount  from kd_trade where trade_status='TRADE_FINISHED' ">
+			<if value="  and sys_customer_id = #{sysCustomerId} "></if>
+			<if value="  and end_time  &gt;=   #{endTime} "></if>
+		</sql>
+
+		<sql id="loadCustoncePayment"
+			value=" SELECT IFNULL(max(payment),0) as oncePayment from kd_trade  
+                 where trade_status='TRADE_FINISHED'  ">
+			<if value="  and sys_customer_id = #{sysCustomerId} "></if>
+			<if value="  and end_time    &gt;=  #{endTime 00:00:00} "></if>
+			<if value="  and end_time  &lt;=    #{endTime 23:59:59} "></if>
+		</sql>
+
+		<sql id="loadCustItems"
+			value="select distinct (o.sys_item_id)  as sysItemId from kd_trade t inner join kd_order o on t.sys_trade_id = o.sys_trade_id  
+         where  o.sys_item_id != 0  ">
+			<if value="  and t.sys_customer_id = #{sysCustomerId} "></if>
+			<if value=" and  t.end_time  between    #{tradeDate} and   now() "></if>
+			
+		</sql>
+
+		<sql id="loadCustScore" value="select score from kd_customer_brand where 1=1 ">
+			<if value="  and sys_customer_id = #{sysCustomerId} "></if>
+		</sql>
+
+		<sql id="loadCustGradeModifyTime" value="select update_time as updateTime from kd_customer_brand where 1=1 ">
+			<if value="  and sys_customer_id = #{sysCustomerId} "></if>
+		</sql>
+			<sql id="loadInteractTimes" value="select  interact_times as interactTimes from  kd_operate_customer  where state = 1">
+			<if value="  and sys_customer_id = #{sysCustomerId} "></if>
+		</sql>
+		
+	</sqlGroup>
+</sqlRoot>

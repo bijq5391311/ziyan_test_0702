@@ -1,0 +1,28 @@
+<th:block th:fragment="render(code, subffix, dep)">
+	<th:block th:with="startTime = ${T(System).currentTimeMillis()},
+		list = ${T(com.nascent.ecrpsaas.render.RenderHelper).getDSL(currUser.tenantId,code, subffix, dep)}
+		">
+		<th:block th:each="item,stat : ${list}">
+			<th:block th:with="
+				tdsl = ${item.get('dsl')},
+				subffix = ${item.get('subffix')},
+				dep = ${item.get('dep')}
+			">
+				<th:block th:switch="${item.get('type')}">
+					<th:block th:case="'table'">
+						<th:block th:insert="../public/renderEngine3.0/grid::render(${tdsl}, ${subffix}, ${dep})"></th:block>
+					</th:block>
+					<th:block th:case="'form'">
+						<th:block th:insert="../public/renderEngine3.0/form::render(${tdsl}, ${subffix}, ${dep})"></th:block>
+					</th:block>
+					<th:block th:case="'multipleRegionForm'">
+						<th:block th:insert="../public/renderEngine3.0/formForCustom::render(${tdsl}, ${subffix}, ${dep})"></th:block>
+					</th:block>
+				</th:block>
+			</th:block>
+		</th:block>
+		<th:block th:with="total = ${T(System).currentTimeMillis() - startTime}">
+			<!-- [[${code}]]总耗时: [[${total}]]ms -->
+		</th:block>
+	</th:block>
+</th:block>

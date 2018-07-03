@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="core.affairList">
+		<sql id="getList"
+			value="SELECT
+							( SELECT type_name FROM kd_affair_type t WHERE kl.type_large = t.ID ) AS type_large_name,
+							( SELECT type_name FROM kd_affair_type t WHERE kl.type_small = t.ID ) AS type_small_name,
+							(select group_concat(user_name) FROM sys_user s where FIND_IN_SET(s.id, kl.sys_user_id) ) as sys_user_name,
+							(select name FROM sys_department where code = kl.department_code) as department_name,
+							kl.* from kd_affair_list kl where kl.state=1">
+			<if test="#type == 0" value=" and state = 1 and create_user = #{sysUserId}"></if>  <!-- 我创建的事务 -->
+			<if test="#type == 1"
+				value=" and state = 1 and FIND_IN_SET(#{sysUserId},sys_user_id)"></if>  <!-- 指派给我的 -->
+			<if test="#type == 2" value=" and state = 1 and pre_operator = #{sysUserName}"></if><!-- 指派出去的 -->
+
+			<bind name="department_code_user"
+				value="#department_code_user ==null ? null : (#department_code_user+'%')"></bind>
+			<if test="#type == 3"
+				value=" and state = 1 and kl.create_department_code like #{department_code_user}"></if>
+
+			<if test="#transaction_status != null" value=" and kl.transaction_status = #{transaction_status}"></if>
+			<if test="#type_large != null" value=" and kl.type_large = #{type_large}"></if>
+			<!-- 这个还要处理 -->
+			<if test="#create_time != null" value=" and kl.create_time = #{create_time}"></if>
+			<if test="#sys_trade_id != null" value=" and kl.sys_trade_id = #{sys_trade_id}"></if>
+			<if test="#sys_user_id != null" value=" and kl.sys_user_id = #{sys_user_id}"></if>
+			<if test="#priority != null" value=" and kl.priority = #{priority}"></if>
+			<if test="#overdue_time != null" value=" and kl.overdue_time = #{overdue_time}"></if>
+			<if test="#affair_no != null" value=" and affair_no = #{affair_no}"></if>
+			<if test="#create_user != null" value=" and kl.create_user = #{create_user}"></if>
+			<if test="#customer_nick != null" value=" and kl.customer_nick = #{customer_nick}"></if>
+
+			<bind name="remark" value="#remark == null ? null : ('%'+#remark+'%')"></bind>
+			<if value="  and kl.remark like #{remark}"></if>
+
+			<if test="#affairNo != null" value=" and id = #{affairNo}"></if>
+			<if value=" and group_id=#{group_id}"></if>
+			<if value=" order by update_time desc"></if>
+
+			<!-- {transaction_status=, type_large=, create_time=, sysUserName=小李子, 
+				sys_trade_id=, sys_user_id=, remark=, priority=, type=0, overdue_time=, affair_no=PJ00000158, 
+				create_user=, sysUserId=1, customer_nick=, department_code_user=0000} -->
+
+
+		</sql>
+
+
+
+		<sql id="affairList"
+			value="SELECT 
+					ka.type_large,ka.type_small,ka.customer_nick,ka.remark,ka.sys_user_id,ka.extra_cost,ka.priority,ka.overdue_time,ka.last_handle_time,ka.transaction_status
+						from kd_affair_list ka;">
+
+
+		</sql>
+
+
+		<sql id="queryAffairListVoByTargetAndCode"
+			value=" select  ka.id,ka.affair_no,ka.priority,
+		ka.overdue_time,ka.create_time,ka.remark from  kd_affair_list 
+		  ka where ka.target = #{target} and ka.type_large =  (select id from  kd_affair_type kt  where kt.code = #{code})  
+">
+			<if value="  and ka.affair_no = #{affairNo}"></if>
+
+		</sql>
+
+
+
+
+
+
+		<sql id="batchdelete" value="update kd_affair_list set state = 0 where id = ? ">
+		</sql>
+		<sql id="getMaxId" value="select MAX(id) as maxid from kd_affair_list">
+		
+		</sql>
+		<sql id="loadEvaluateByAffairNo"
+			value="select * from evaluate_info where id = (SELECT target FROM kd_affair_list where affair_no = #{affair_no})">
+		</sql>
+
+		<sql id="queryEvaluateCount"
+			value=" select  count(0) as count from  kd_affair_list ka where 1=1
+		    and ka.type_large =  (select id from  kd_affair_type kt  where kt.code = 'PJ')
+		    and ka.target in (select id from evaluate_info where role='buyer' and result='bad')">
+			<if value=" and ka.create_time BETWEEN #{startDate} AND #{endDate}"></if>
+			<if value=" and ka.transaction_status in (${'status'})"></if>
+		</sql>
+
+		<sql id="querySmsCount"
+			value="select  count(0) as count from  kd_affair_list ka where 1=1 
+			and ka.type_large =  (select id from  kd_affair_type kt  where kt.code = 'DXHF')
+			and ka.target in (select id from kd_sms_back)">
+			<if value=" and ka.create_time BETWEEN #{startDate} AND #{endDate}"></if>
+			<if value=" and ka.transaction_status in (${'status'})"></if>
+		</sql>
+
+
+	</sqlGroup>
+</sqlRoot>

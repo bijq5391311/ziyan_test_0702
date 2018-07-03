@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<root>
+	<auth cache-size="100"><![CDATA[select group_id as tenantID from sys_user 
+		where id='#{USERID}']]>
+	</auth>
+</root>

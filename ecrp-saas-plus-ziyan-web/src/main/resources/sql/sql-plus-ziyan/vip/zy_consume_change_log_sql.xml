@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="vip.zyConsumeValueLog">
+		<sql id="queryConsumeValueLog" value=" SELECT  kc.member_card AS memberCard,kc.mobile AS mobile,zl.consume_value_from_type AS consumeValueFromType , zl.action_source AS actionSource ,zl.consume_value AS consumeValue,zl.old_consume_value  AS oldConsumeValue, zl.create_time AS createTime from zy_consume_value_log zl LEFT JOIN kd_customer kc  ON  zl.sys_customer_id = kc.sys_customer_id
+    LEFT JOIN kd_customer_brand kb ON zl.sys_customer_id = kb.sys_customer_id  WHERE zl.state =1">
+             <bind name="mobile" value="@com.nascent.plugins.taobao.StringUtils@isEmpty(#mobile) ? null : '%'+#mobile+'%'"></bind>
+            <if value = " and kc.mobile like #{mobile}"></if>  
+            <if value = " and kb.member_grade = #{grade}"></if> 
+              <bind name="memberCard" value="@com.nascent.plugins.taobao.StringUtils@isEmpty(#memberCard) ? null : '%'+#memberCard+'%'"></bind>
+            <if value = " and kc.member_card like #{memberCard}"></if> 
+             <if value = "  order  by  zl.create_time desc "></if> 
+            </sql>
+	</sqlGroup>
+</sqlRoot> 

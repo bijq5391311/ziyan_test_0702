@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="vip.consumeChangeLog">
+		<sql id="queryConsumeChangeList" value=" select  zl.consume_value,kc.member_card,zl.consume_value_from_type,zl.action_source,zl.action_source,zl.create_time from zy_consume_value_log zl left join kd_customer kc  on  zl.sys_customer_id = kc.sys_customer_id
+left join kd_customer_brand kb on zl.sys_customer_id = kb.sys_customer_id  where zl.state =1">
+             <bind name="mobile" value="@com.nascent.plugins.taobao.StringUtils@isEmpty(#mobile) ? null : '%'+#mobile+'%'"></bind>
+            <if value = " and kc.mobile = #{mobile}"></if>  
+            <if value = " and kb.member_grade = #{grade}"></if> 
+              <bind name="memberCard" value="@com.nascent.plugins.taobao.StringUtils@isEmpty(#memberCard) ? null : '%'+#memberCard+'%'"></bind>
+            <if value = " and kc.member_card = #{memberCard}"></if> 
+            </sql>
+	</sqlGroup>
+</sqlRoot> 

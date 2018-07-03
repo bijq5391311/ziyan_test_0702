@@ -1,0 +1,18 @@
+<th:block th:fragment="createInput(input, preffix)">
+	<th:block th:switch="${input.type}">
+		<th:block th:case="'custom'" th:insert="../public/dslParser/grid/input/input-custom::render(${input}, ${preffix})"></th:block>
+		<th:block th:case="'hidden'" th:insert="../public/dslParser/grid/input/input-hidden::render(${input}, ${preffix})"></th:block>
+		<th:block th:case="'label'" th:insert="../public/dslParser/grid/input/input-label::render(${input}, ${preffix})"></th:block>
+		<th:block th:case="'password'" th:insert="../public/dslParser/grid/input/input-password::render(${input}, ${preffix})"></th:block>
+		<th:block th:case="'number'" th:insert="../public/dslParser/grid/input/input-number::render(${input}, ${preffix})"></th:block>
+		<th:block th:case="'text'" th:insert="../public/dslParser/grid/input/input-text::render(${input}, ${preffix})"></th:block>
+		<th:block th:case="'textarea'" th:insert="../public/dslParser/grid/input/input-textarea::render(${input}, ${preffix})"></th:block>
+		<th:block th:case="'radio'" th:insert="../public/dslParser/grid/input/input-radio::render(${input}, ${preffix})"></th:block>
+		<th:block th:case="'checkbox'" th:insert="../public/dslParser/grid/input/input-checkbox::render(${input}, ${preffix})"></th:block>
+		<th:block th:case="'switch'" th:insert="../public/dslParser/grid/input/input-switch::render(${input}, ${preffix})"></th:block>
+		<th:block th:case="'date'" th:insert="../public/dslParser/grid/input/input-datetime::render(${input}, ${preffix})"></th:block>
+		<th:block th:case="'datetime'" th:insert="../public/dslParser/grid/input/input-datetime::render(${input}, ${preffix})"></th:block>
+		<th:block th:case="'droplist'" th:insert="../public/dslParser/grid/input/input-droplist::render(${input}, ${preffix})"></th:block>
+		<th:block th:case="'droptree'" th:insert="../public/dslParser/grid/input/input-tree::render(${input}, ${preffix})"></th:block>
+	</th:block>
+</th:block>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="vip.consumeOverview">
+		<sql id="queryConsumeOverviewList" value=" select distinct(kc.sys_customer_id) ,customer_name as customerName,member_card as memberCard,mobile,kcb.consume_total as consumeTotal,grd.grade_name as gradeName  from kd_customer kc left join kd_customer_brand kcb on kc.sys_customer_id = kcb.sys_customer_id
+             left join grade_rule_detail grd on kcb.member_grade  = grd.grade  where kc.state = 1 and  kc.member_card != '' ">
+            <if value = " and mobile = #{mobile}"></if>   
+            <if value = " and kcb.member_grade = #{memberGrade}"></if> 
+            <if value = " and member_card = #{memberCard}"></if> 
+        	<if  value=" and consume_total   &gt;=  #{minValue}"></if>
+			<if  value=" and    consume_total &lt;=    #{maxValue}"></if>
+            </sql>
+            
+      <sql id="queryGradeList"
+      value=" SELECT grade AS v, grade_name AS k  from grade_rule_detail WHERE state =1">
+    </sql>
+	</sqlGroup>
+</sqlRoot> 

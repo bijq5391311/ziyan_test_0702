@@ -1,0 +1,210 @@
+<% include ../../../include/layout/start.ejs %>
+<div id="example" v-cloak>
+  <div class="template-page">
+    <div class="template-page-location">
+      <el-breadcrumb separator=">">
+        <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+        <el-breadcrumb-item>忠诚度管理</el-breadcrumb-item>
+        <el-breadcrumb-item>品牌积分体系</el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>
+
+    <div class="template-page-tab">
+      <el-tabs v-model="activeName" type="card">
+        <el-tab-pane label="品牌一积分体系" name="first">
+          <el-row>
+            <el-col :span="24">
+              <el-form label-width="140px" class="institution-form">
+                <el-form-item label="是否启用：">
+                  <el-form-grid>
+                    <el-switch on-text="开" off-text="关" v-model="delivery" :width="44"></el-switch>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="交易金额：">
+                  <el-form-grid size="sm">
+                    <el-input class="text-right" placeholder="请输入金额"><span slot="append">元</span></el-input>
+                  </el-form-grid>
+                  <el-form-grid class="text-info"><i class="bui-info"></i>多少元兑换1积分</el-form-grid>
+                </el-form-item>
+                <el-form-item label="积分兑换上限：">
+                  <el-form-grid size="sm">
+                    <el-input class="text-right" placeholder="请输入积分"><span slot="append">分</span></el-input>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="积分消费：">
+                  <el-form-grid size="sm">
+                    <el-input placeholder="请输入金额" class="text-right"><span slot="append">元</span></el-input>
+                  </el-form-grid>
+                  <el-form-grid class="text-info"><i class="bui-info"></i>1积分抵用*元</el-form-grid>
+                </el-form-item>
+                <el-form-item label="积分取整规则：">
+                  <el-form-grid size="sm">
+                    <el-select placeholder="积分取整规则" v-model="defaultSelect">
+                      <el-option label="向上取整" value="up"></el-option>
+                      <el-option label="向下取整" value="down"></el-option>
+                    </el-select>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="排除商品：">
+                  <el-form-grid>
+                    排除以下商品：
+                    <el-button type="primary"><i class="bui-select-goods"></i>选择商品</el-button>
+                    <el-button type="primary"><i class="bui-select-condition"></i>选择条件</el-button>
+                  </el-form-grid>
+
+                  <!-- 选择商品结果列表 列表展开收缩切换结构-->
+                  <bus-toggles :max-height="180">
+                    <el-row class="tmp-choose">
+                      <el-col :span="12">
+                        <div class="tmp-choose__title"><span>已选择20个商品</span></div>
+                        <ul class="tmp-choose__goods">
+                          <!-- <li>对不起，查阅不到相关数据！</li>-->
+                          <li>
+                            <span class="g-name">法国原瓶进口 美圣世家仙马园波尔多干红葡萄酒750ml</span>
+                            <i class="g-delete bui-delete"></i>
+                          </li>
+                          <li>
+                            <span class="g-name">法国原瓶进口 美圣萄酒750ml</span>
+                            <i class="g-delete bui-delete"></i>
+                          </li>
+                          <li>
+                            <span class="g-name">法国圣世家仙马园波尔多干红葡萄酒750ml</span>
+                            <i class="g-delete bui-delete"></i>
+                          </li>
+                          <li>
+                            <span class="g-name">法国原瓶进口 美圣世家仙马园波尔多干红葡萄酒750ml</span>
+                            <i class="g-delete bui-delete"></i>
+                          </li>
+                          <li>
+                            <span class="g-name">法国原瓶进口 美圣萄酒750ml</span>
+                            <i class="g-delete bui-delete"></i>
+                          </li>
+                          <li>
+                            <span class="g-name">法国圣世家仙马园波尔多干红葡萄酒750ml</span>
+                            <i class="g-delete bui-delete"></i>
+                          </li>
+                          <li>
+                            <span class="g-name">法国原瓶进口 美圣世家仙马园波尔多干红l</span>
+                            <i class="g-delete bui-delete"></i>
+                          </li>
+                          <li>
+                            <span class="g-name">法国仙马园波尔多干红葡萄酒750ml</span>
+                            <i class="g-delete bui-delete"></i>
+                          </li>
+                          <li>
+                            <span
+                              class="g-name">法国原瓶进口 美圣世家仙马园美圣世家仙马园波尔多干红葡萄酒750ml美圣世家仙马园波尔多干红葡萄酒750ml波尔多干红葡萄酒750ml</span>
+                            <i class="g-delete bui-delete"></i>
+                          </li>
+                          <li>
+                            <span class="g-name">法国原瓶进口多干红葡萄酒750ml</span>
+                            <i class="g-delete bui-delete"></i>
+                          </li>
+                          <li>
+                            <span class="g-name">法国原瓶进口 美圣世家仙马园萄酒750ml</span>
+                            <i class="g-delete bui-delete"></i>
+                          </li>
+                          <li>
+                            <span class="g-name">法国仙马园波尔多干红葡萄酒750ml</span>
+                            <i class="g-delete bui-delete"></i>
+                          </li>
+                        </ul>
+                      </el-col>
+                      <el-col :span="12">
+                        <div class="tmp-choose__title"><span>已选择20个条件</span></div>
+                        <ul class="tmp-choose__goods">
+                          <!-- <li>对不起，查阅不到相关数据！</li>-->
+                          <li>
+                            <span class="g-name">商品单价超过一万元</span>
+                            <i class="g-delete bui-delete"></i>
+                          </li>
+                          <li>
+                            <span class="g-name">商品单价超过5000元</span>
+                            <i class="g-delete bui-delete"></i>
+                          </li>
+                          <li>
+                            <span class="g-name">商品单价超过5000元</span>
+                            <i class="g-delete bui-delete"></i>
+                          </li>
+                        </ul>
+                      </el-col>
+                    </el-row>
+                  </bus-toggles>
+                  <!-- /end 选择商品结果列表 列表展开收缩切换结构-->
+                </el-form-item>
+
+                <el-form-item label="排除渠道：">
+                  <el-form-grid size="xmd">
+                    <el-select placeholder="排除渠道" v-model="selectPlatFrom">
+                      <el-option label="渠道1" value="1"></el-option>
+                      <el-option label="渠道2" value="2"></el-option>
+                    </el-select>
+                  </el-form-grid>
+                </el-form-item>
+
+                <el-form-item label="排除店铺：">
+                  <el-form-grid size="xmd">
+                    <el-popover ref="droptreepopover"
+                                v-model="shopDropTreeVisible"
+                                :width="shopDroptreeWidth"
+                                placement="bottom-start"
+                                trigger="click"
+                                popper-class="tmp-droptree-popover">
+                      <el-scrollbar wrap-class="tmp-droptree-scroll">
+                        <el-input class="tmp-droptree-search" placeholder="输入关键字进行过滤"></el-input>
+                        <el-tree-extra :data="shopDropTreeList"
+                                       :expand-on-click-node="false"
+                                       show-checkbox
+                                       ref="shopDropTree"
+                                       @node-click="handleShopSelectValue"
+                                       class="tmp-droptree-tree"></el-tree-extra>
+                      </el-scrollbar>
+                      <div class="tmp-droptree-footer">
+                        <el-button size="mini" type="text" @click="shopDropTreeVisible = false">取消</el-button>
+                        <el-button type="primary" size="mini" @click="handleSaveShopSelect">确定</el-button>
+                      </div>
+                      <el-input slot="reference" ref="shopDropTreeInput" v-model="shopDropTreeValue" readonly
+                                @click.native="handleShowShopDropTree" placeholder="请选择店铺" class="tmp-droptree-input"
+                                class="tmp-droptree-input"></el-input>
+
+                    </el-popover>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="排除聚划算：">
+                  <el-form-grid>
+                    <el-radio-group v-model="formRadio1">
+                      <el-radio label="是"></el-radio>
+                      <el-radio label="否"></el-radio>
+                    </el-radio-group>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="排除运费：">
+                  <el-form-grid>
+                    <el-radio-group v-model="formRadio2">
+                      <el-radio label="是"></el-radio>
+                      <el-radio label="否"></el-radio>
+                    </el-radio-group>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="是否开启奖励规则：">
+                  <el-form-grid>
+                    <el-radio-group v-model="formRadio3">
+                      <el-radio label="是"></el-radio>
+                      <el-radio label="否"></el-radio>
+                    </el-radio-group>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item>
+                  <el-form-grid>
+                    <el-button type="primary">保存</el-button>
+                  </el-form-grid>
+                </el-form-item>
+              </el-form>
+            </el-col>
+          </el-row>
+        </el-tab-pane>
+      </el-tabs>
+    </div>
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

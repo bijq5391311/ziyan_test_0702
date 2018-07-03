@@ -1,0 +1,22 @@
+<th:block th:include="../public/include/layout::layout(~{::content},~{::script})">
+	<div th:fragment="content" class="template-page-tab">
+	<div id="app"  v-cloak>
+		    <ns-designer-table-consume-overview  ref= "consumeoverview"></ns-designer-table-consume-overview>
+	</div>
+	</div>
+	
+	<th:block th:fragment="script" th:inline="javascript">
+			<script type="text/javascript"
+			th:insert="../public/ecrp/render/renderTemplate::render('consume_overview','consume-overview','moment')"></script>
+		<script th:inline="javascript">
+			define("consumeoverview", [ "ns-designer-table-consume-overview"]);
+		</script>
+		<script th:src="@{/static/plus/ziyan/vip/js/consumeOverviewTable.js}"></script>
+	</th:block>
+	
+</th:block>
+
+
+
+
+

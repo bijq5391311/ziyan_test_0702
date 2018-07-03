@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+		<csvsource id="src1" name="导入crm 100" run-at="0.5">
+			<field name="type" value="member"/>
+			<field name="filename" value="usernick.csv"/>
+			<field name="path" value="D:\ECRP_SAAS\01 core\ecrp-saas\ecrp-saas-marketing-flow\usernick.csv"/>
+			<remark><![CDATA[]]></remark>
+			
+			<next><![CDATA[redisJoin]]></next>
+		</csvsource>
+		
+		<csvsource id="src2" name="导入llpz 1000" run-at="0">
+			<field name="type" value="member"/>
+			<field name="filename" value="user_llpz.csv"/>
+			<field name="path" value="D:\ECRP_SAAS\01 core\ecrp-saas\ecrp-saas-marketing-flow\usernick_llpz.csv"/>
+			<remark><![CDATA[]]></remark>
+			
+			<next><![CDATA[redisJoin]]></next>
+		</csvsource>
+		
+		<logical id="redisJoin" name="逻辑操作节点" run-at="0">
+			<field name="type" value="union"/>
+			<field name="sample" value="50"/>
+			
+			<remark><![CDATA[]]></remark>
+			<next><![CDATA[packZip]]></next>
+		</logical>
+		
+		<send id="packZip" name="发送短信" run-at="0.5">
+			<field name="type" value="sms"/>
+			<field name="channel" value=""/>
+			<field name="template" value="短信群发模板001"/>
+			<field name="title" value=""/>
+			<field name="signature" value="【百雀羚】"/>
+			<field name="mobileSrc" value="member/receiver"/>
+			<content>
+				<![CDATA[{nick} {time} 发货提醒：]]>
+			</content>
+			<remark><![CDATA[]]></remark>
+			
+			<next><![CDATA[]]></next>
+		</send>
+</root>

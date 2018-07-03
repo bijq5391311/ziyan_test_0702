@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sqlRoot>
+    <sqlGroup name="care.CareAutoRecord">
+        <sql id="queryTodaySendSuccessRecordForType"
+             value="select sum(case when mark='ConsignNotify' then 1 else 0 end) as consignCountInToday,
+				  sum(case when mark='PayConcern' then 1 else 0 end) as payCountInToday,
+				  sum(case when mark='ReceiveConcern' then 1 else 0 end) as receiveCountInToday,
+				  sum(case when mark='ConfirmConcern' then 1 else 0 end) as confirmCountInToday,
+				  sum(case when mark='RefundConcern' then 1 else 0 end) as refundCountInToday
+				  from care_auto_record r join care_auto_pattern p on p.id = r.pattern_id
+				  where status = 1 and date(send_time) = date(now())">
+            <if test="true" value="and (department_code like ${'deptCode%'}  or is_share=1)"></if>
+        </sql>
+    </sqlGroup>
+</sqlRoot>

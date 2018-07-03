@@ -1,0 +1,26 @@
+ <th:block th:fragment="render(item, preffix)">
+ 	<th:block th:with="
+		label = ${input.text + '：'},
+		class = ${input.inline ? 'el-inline-block' : null},
+		name = ${input.name}
+	">
+		<el-form-item th:label="${label}" th:class = "${class}">
+			<el-form-grid size="xmd">
+				<el-form-item th:prop = "${name}">
+					<th:block th:with="control = ${item.control}">
+						<el-radio-group th:if="${control.isServerMode() == true}" v-showRequired th:v-model="${preffix+item.name}">
+				            <th:block th:with="options = ${control.getOptions(#ctx)}">
+				            	<el-radio th:each="item,iterStat : ${options}" th:attr = "
+					                ':label'= ${#strings.startsWith(item.v,'#') ? #strings.substringAfter(item.v,'#') : null },
+					                'label'= ${!#strings.startsWith(item.v,'#') ? item.v : null }
+					              "
+					            >[[${item.k}]]
+					          	</el-radio>
+				            </th:block>
+				        </el-radio-group>
+					</th:block>
+				</el-form-item>
+			</el-form-grid>
+		</el-form-item>
+	</th:block>
+</th:block>

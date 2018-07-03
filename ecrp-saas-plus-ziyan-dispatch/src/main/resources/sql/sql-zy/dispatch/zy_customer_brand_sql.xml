@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="zy.dispatch.customerBrand">
+		<sql id="updateCustomerBrand"
+			value="update kd_customer_brand set member_grade = #{memberGrade}, update_time = #{updateTime}   ">
+			<if value="  where  sys_customer_id =   #{sysCustomerId} "></if>
+		</sql>
+		<sql id="queryCustomerBrand"
+			value=" select DISTINCT(sys_customer_id), trade_from as tradeFrom ,sys_trade_id as sysTradeId ,out_trade_id as outTradeId,shop_code as shopCode ,out_nick as outNick from kd_trade where  end_time is not null and  state = 1">
+			<if value="  and brand_id =    #{brandId} "></if>
+		</sql>
+		<sql id="loadCustomerBrandbyCusId"
+			value="select   is_right_black as isRightblack,is_touch_black as isTouchBlack, member_grade as memberGrade , group_id as groupId, brand_id as brandId  from   kd_customer_brand where  state = 1  ">
+			<if value="  and  sys_customer_id =   #{sysCustomerId} "></if>
+		</sql>
+		<sql id="queryMemberGrade"
+			value="select member_grade as memberGrade from kd_customer_brand where 1=1">
+			<if value="and sys_customer_id  =  #{sysCustomerId}"></if>
+			<if value="and brand_id = #{brandId}"></if>
+		</sql>
+
+		<sql id="queryBrandMember"
+			value="SELECT
+	kcb.id AS id,
+	kcb.sys_customer_id AS sysCustomerId,
+	kcb.is_right_black AS isRightBlack,
+	kcb.member_grade AS memberGrade,
+	kcb.score AS score,
+	kcb.trade_total_score AS tradeTotalScore,
+	kcb.consume_total AS consumeTotal,
+	kcb.group_id AS groupId,
+	kcb.brand_id AS brandId,
+	kcb.update_time AS updateTime
+FROM
+	kd_customer_brand kcb INNER JOIN kd_customer kc ON kcb.sys_customer_id= kc.sys_customer_id 
+WHERE
+	kcb.state = 1 AND kc.is_activate = 1 ">
+			<if value="limit #{startIndex},#{pageSize} "></if>
+		</sql>
+
+		<sql id="updateBrandMember"
+			value="update kd_customer_brand set consume_total = #{consumeValue}">
+			<if value=" where  sys_customer_id  =  #{sysCustomerId}"></if>
+		</sql>
+		
+		<sql id="updateCustomerBrandTradeTotalScore"
+            value="update kd_customer_brand set trade_total_score = #{tradeTotalScore}">
+            <if value=" where  sys_customer_id  =  #{sysCustomerId}"></if>
+        </sql>
+		
+	<sql id="updateBrandMemberGrade"
+			value="update kd_customer_brand set member_grade = #{memberGrade}">
+			<if value=" where  sys_customer_id  =  #{sysCustomerId}"></if>
+		</sql>
+		
+			<sql id="loadBrandCustomer"
+			value="select id,sys_customer_id as sysCustomerId,is_right_black as isRightBlack,member_grade as memberGrade,score,trade_total_score as tradeTotalScore,
+consume_total as consumeTotal ,group_id  as groupId,brand_id as brandId ,update_time as updateTime from kd_customer_brand where state = 1 ">
+			<if value=" and sys_customer_id  =  #{sysCustomerId} "></if>
+		</sql>
+		
+	</sqlGroup>
+</sqlRoot>

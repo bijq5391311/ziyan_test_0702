@@ -1,0 +1,4 @@
+<th:block th:fragment="render(item, preffix)">
+	<input type="hidden" th:v-model="${preffix+item.get('name')}" />
+</th:block>
+

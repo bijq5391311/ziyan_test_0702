@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot >
+	<sqlGroup name="organization.SysRoleMenu">
+		<sql id="deleteByRoleId" value="delete from sys_role_menu where role_id = #{roleId}"></sql>
+	</sqlGroup>
+</sqlRoot>
+	

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="vip.Subdivition">
+		<sql id="getActivityCountBySubId" value="select count(1)
+from (
+select aa.id,aa.activities_name,aa.activity_type
+from marketing m
+INNER JOIN activities a ON m.activities_id=a.id AND a.activity_type IN (0,1) AND m.marketing_manner = 8 AND m.user_subdivision_id IN(#{ids}) AND a.status != 5
+INNER JOIN activities aa ON (a.parent_activity_id =aa.id AND aa.activity_type IN (0,1)) UNION
+select a.id,a.activities_name,a.activity_type
+from marketing m,activities a
+WHERE 
+		m.activities_id = a.id AND a.activity_type = 0 AND m.marketing_manner = 8 AND m.user_subdivision_id IN(#{ids}) AND a.status != 5 AND a.state!=0) t">
+		</sql>
+		<sql id="getMemberAutoNameListBySubId" value="select topic from member_auto_pattern where subdivison_id in(#{ids})">
+		</sql>
+		<sql id="getUrgeNameListBySubId" value="select count(1) from care_urge where subdivision_id in(#{ids})">
+		</sql>
+		<sql id="getCareListBySubId" value="select count(1) from care_auto_pattern where subdivision_id in(#{ids})">
+		</sql>
+		<sql id="batchDeleteByIds" value="delete from subdivision where id = ?">
+		</sql>
+		<sql id="batchDeleteTempTable" value="drop table  if exists ?">
+		</sql>
+		<sql id="DeleteTempTable" value="drop table  if exists #{tempTableName} ">
+		</sql>
+		<sql id="createTempTable" value="CREATE TABLE IF NOT EXISTS #{tempTableName} (`sys_customer_id` bigint(20) NOT NULL COMMENT '系统内客户ID,由ECRM系统生成',PRIMARY KEY (`sys_customer_id`));">
+		</sql>
+		<sql id="validateSubdivisionTypeName" value="select * from subdivision where subdivision_name=#{subdivision_name} and parent_id=#{parent_id} and is_category=1 and state =1">
+		</sql>
+		<sql id="validateSubdivisionName" value="select * from subdivision where subdivision_name=#{subdivision_name} and parent_id=#{parent_id} and is_category=0 and state =1">
+		</sql>
+		<sql id="batchDeleteSubdivisionType" value="delete from subdivision where id = ?">
+		</sql>
+		<sql id="deleteSubdivisionType" value="delete from subdivision where id = #{id}">
+		</sql>
+		<sql id="querySubdivisionTree" value="select id as id,parent_id as parentId,`subdivision_name` as label,'false' as checked,'true' as showAdd,'true' as showEdit,
+		     if(parent_id=0,'false','true') as showDelete,department_code as ext1
+		       from  subdivision where is_category=1 and department_code = #{department_code} order by id">
+		</sql>
+		<sql id="querySubdivisionTable" value="select s1.*
+			from subdivision s1
+			LEFT JOIN subdivision s2 ON s1.parent_id = s2.id
+			WHERE  s1.is_category = 0 AND s2.is_category = 1 AND s1.state = s2.state = 1 ">
+			<if value="and s2.id=#{id}"></if>
+			<if value=" and s1.department_code=#{department_code} "></if>
+		<!--	<bind name="subdivision_name" value="'%'+#subdivision_name+'%'"></bind>-->
+			<if value="and s1.subdivision_name like ${'%subdivision_name%'}"></if>
+			<if value="or s1.is_public=#{is_public}"></if>
+
+			<if value="order by s1.create_time desc"></if>
+		</sql>
+		<sql id="loadDepartment" value="select * from sys_user_department where user_id = #{user_id}"></sql>
+		<sql id="querySubdivisionCustomer" value=" select * from kd_customer  where 1=1">
+			
+			<bind name="customername" value="#customername == null ? null : ('%'+#customername+'%')"></bind>
+			<if value="and customer_name like #{customername}"></if>	
+			
+			<bind name="mobile" value="#mobile == null ? null : ('%'+#mobile+'%')"></bind>
+			<if value="and mobile like #{mobile}"></if>
+			<if test="#ids != ''" value=" and sys_customer_id in (${ids}) "></if>						 
+			<if test="#ids == ''" value=" and sys_customer_id  = (#{ids}) "></if>						 
+							 
+									 
+		 </sql>
+		<sql id="querysharesubdivisions" value="select s1.*,s2.name from subdivision s1 left join sys_department s2 on s1.department_code = s2.code where s1.state = 1 ">
+			<if value=" and s1.is_public = 1 " />
+			<if value=" and s1.department_code not in (${'deptcodes'}) " />
+		</sql>
+		<sql id="loadsubdivisionnodebydeptcode" value="select * from subdivision WHERE state = 1 AND is_category=1 AND parent_id=0">
+			<if value=" and department_code = #{deptCode}"></if>
+		</sql>
+		<sql id="fiterDepartment" value="select S.department_code as department_code,S.department_name as department_name from (select count(1) as num,department_code,department_name 
+		  from  subdivision where 1=1 and is_category = 0">
+		  	<if value="and department_code in (${'deptCode'}) "></if>
+		   <if value="group by department_code) S where S.num >0"></if>
+		  </sql>
+
+		<sql id="querypublicsubdivisionbydept" value="select * from subdivision where 1=1 and is_public = 1">
+			<if value="department_code = #{deptCode}"></if>
+		</sql>
+		<sql id="loadsubdivisionbynodes" value="select * from subdivision where state =1 and  is_category = 0 ">
+			<if value="  and parent_id in (${'nodes'})"></if>
+		</sql>
+	</sqlGroup>
+	
+</sqlRoot>

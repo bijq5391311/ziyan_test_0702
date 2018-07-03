@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot source="">
+  <sqlGroup name="flow.coupon">
+    <sql id="updateSendCidTable" value="
+				update marketing_detail${table} a,kd_customer b
+				set a.name = b.customer_name where a.sys_customer_id = b.sys_customer_id
+			">
+    </sql>
+
+    <sql id="updateSendCidNick" value="
+				update marketing_detail${table} a,kd_customer_shop b set a.target = b.out_nick,a.state = 1,a.failure_reason = '',a.is_successed =1
+				where b.plat_from_type = 1 and a.sys_customer_id = b.sys_customer_id and shop_code = #{shopCode}
+			">
+    </sql>
+    <sql id="saveCouponSendRecord" value="insert into marketing_coupon_send_record(sys_customer_id,target,coupon_id,instance_id,node_id,create_time,update_time,state,remark)
+			 select a.sys_customer_id, a.target,#{couponId},#{instanceId},#{nodeId},now(),now(),1,''
+			 from marketing_detail${table} a
+			 where state = 1
+			">
+    </sql>
+    <sql id="getCouponJson4Member" value="
+			select a.target as BuyerNick from marketing_detail${table} a where a.state = 1
+			">
+    </sql>
+  </sqlGroup>
+
+</sqlRoot>

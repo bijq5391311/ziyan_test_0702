@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="care.CareAutoPattern">
+        <sql id="queryTable" count="select distinct count(1)" value="select distinct c.*,s.subdivision_name as subdivisionName,rd.grade_name as gradeName
+                 from care_auto_pattern c 
+                     left join care_auto_shop cs on cs.target_id=c.id
+                     left join subdivision s on s.id = c.subdivision_id
+                     left join grade_rule_detail rd on rd.id = c.grade_rule_detail_id
+                 where c.type_mark = #{typeMark} ">
+              <if test="true" value="and (c.department_code like ${'deptCode%'}  or c.is_share=1)"></if>
+             <bind name="topic" value="#topic == null ? null : ('%'+ #topic +'%')"></bind>
+             <if  test="#topic!= null and #topic != '%%'" value="and c.topic like #{topic}"></if>
+             <if value="and substring(substring_index(c.pattern_string,'FestivalDate',-1),9,5) = #{date}"></if>
+             <if value="order by c.update_time desc"></if>
+        </sql>
+         <sql id="queryById" value="select c.id, c.topic, c.subdivision_id as subdivisionId, c.grade_rule_detail_id as gradeId
+                ,c.order_num as orderNum,c.pattern_string as patternString
+                ,s.subdivision_name as subdivisionName,c.app_key as appKey
+                ,c.sp_id as spId,c.sms_signature as smsSignature,c.is_share as isShare
+            from care_auto_pattern c
+                left join subdivision s on s.id = c.subdivision_id
+            where c.id=#{id}"></sql> 
+        <sql id="queryCareAutoDetailById" value="select c.id, c.topic, c.subdivision_id as subdivisionId, c.grade_rule_detail_id as gradeId ,c.order_num as orderNum,c.pattern_string as patternString 
+                ,c.pattern_type as patternType,c.sp_id as spId,c.sms_signature as smsSignature
+                ,s.subdivision_name as subdivisionName,i.sp_name as spName,ss.name as shopName
+                ,rd.grade_name as gradeName,c.is_share as isShare
+            from care_auto_pattern c
+                left join subdivision s on s.id = c.subdivision_id
+                left join care_auto_shop cs on c.id = cs.target_id 
+                left join sys_shop ss on ss.code = cs.shop_code
+                left join kd_ys_config_info i on i.id = c.sp_id
+                left join grade_rule_detail rd on rd.id = c.grade_rule_detail_id
+            where c.id=#{id}"></sql>
+
+    <sql id="queryValidatedList" value=" select p.*
+                            from care_auto_pattern p
+                                inner join care_auto_shop s on p.id=s.target_id
+                            where p.state = 1 and p.is_valid = 1">
+      <if value="and p.type_mark = #{typeMark}"></if>
+      <if value= "and s.shop_code = #{shopCode}"></if>
+      <if value=" and p.pattern_type = #{patternType}"></if>
+      <if value="order by p.order_num desc"></if>
+    </sql>
+         
+         <sql id="queryCarePatternList"  value="select * from care_auto_pattern where 1=1" >
+            <if value="and state = #{state}"></if>
+            <if value="and is_valid = #{isValid}"></if>
+            <if value="and type_mark = #{typeMark}"></if>
+            <if value="order by order_num desc"></if>
+         </sql>
+         <sql id="countFestivalPatternByDate" value="select count(1) from care_auto_pattern where 1 = 1 and type_mark = #{typeMark} and state = 1">
+           <if value="and substring(substring_index(pattern_string,'FestivalDate',-1),9,2) = #{month}"></if>
+         </sql>
+         
+         <sql id="countFestivalMarketingCostByDate" 
+         value="select sum(temp1.totalCostY) as totalCostY,sum(temp2.totalCostM) as totalCostM 
+         from (select ys.cost*count(1) as totalCostY,er.id as id 
+             from care_event_record er 
+			     join kd_ys_config_info ys on ys.id = er.sp_id  
+			 where er.status = 1 and mark=#{mark} and left(send_time,4) = #{year} group by ys.id) as temp1 
+		left join (select ys.cost*count(1) as totalCostM,er.id as id 
+			from care_event_record er 
+			     join kd_ys_config_info ys on ys.id = er.sp_id 
+			where er.status = 1 and mark=#{mark} and left(send_time,7) = #{month} group by ys.id) as temp2
+	   on temp1.id = temp2.id"></sql>
+
+        <sql id="queryByAuthorize" value="select * from care_auto_pattern where 1=1">
+            <if test="true" value="and (department_code like ${'deptCode%'}  or is_share=1)"></if>
+            <if value="and state=#{state}"></if>
+        </sql>
+        <sql id="queryFestivalPatternByDate" value="select * from care_auto_pattern where substring(substring_index(pattern_string,'FestivalDate',-1),9,5) = #{date}
+                 and type_mark = 'FestivalConcern'"></sql>
+        <!--根据日期删除节日关怀规则-->
+        <sql id="deleteByIDList" value="delete from care_auto_pattern where  id = ? "></sql>
+	</sqlGroup>
+</sqlRoot>

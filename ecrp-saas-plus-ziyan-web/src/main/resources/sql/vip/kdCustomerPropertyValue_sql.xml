@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="vip.KdCustomerPropertyValue">
+		<sql id="deletePropertyByCustomerId" 
+			value="delete from kd_customer_property_value where 1=1">
+			<if value="and sys_customer_id=#{sys_customer_id} "></if>
+			<if value="and source=#{source}"></if>
+		</sql>
+		
+		<sql id="batchDeletePropertyByCustomerId" value="delete from kd_customer_property_value where sys_customer_id=?">
+		</sql>
+		
+		
+		<sql id="queryCustomerPropertyValueList" value = " select * from kd_customer_property_value where 1=1">
+		    <if value="and sys_customer_id in (${customerIds})"></if>
+		    <if value="and customer_property_id in (${propertyIds})"></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>

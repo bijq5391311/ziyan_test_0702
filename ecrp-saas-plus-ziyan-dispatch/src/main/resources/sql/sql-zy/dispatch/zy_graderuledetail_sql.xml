@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="zy.dispatch.graderuledetail">
+		<sql id="queryGradeRuleDetail" value="select id ,discount,reward_points as rewardPoints,send_reward_type as sendRewardType,grade,grade_name as gradeName,zy_consume as zyConsume
+from grade_rule_detail where grade_rule_id = #{id}   ">
+		</sql>
+	</sqlGroup>
+</sqlRoot>

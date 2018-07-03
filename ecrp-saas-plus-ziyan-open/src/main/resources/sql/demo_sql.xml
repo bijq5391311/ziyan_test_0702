@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="demo">
+	    <sql id="findList" value="select id as id,tb_name as name, zip as zip  from area where 1=1">
+	    	<if value="and id &gt;= #{lid} and id &lt;= #{gid}"></if>
+	    </sql>
+	</sqlGroup>
+</sqlRoot>

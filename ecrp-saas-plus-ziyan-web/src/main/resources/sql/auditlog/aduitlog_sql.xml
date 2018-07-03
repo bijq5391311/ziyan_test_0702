@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="marketing.auditlog">
+		<sql id="queuryAuditList" value="SELECT
+											a.creator as creator,
+											a.activities_name as activities_name,
+											(SELECT name FROM sys_department where CODE = a.department_code ) as name ,
+											a.remark as remark,
+											b.auditor as auditor,
+											b.check_time as check_time
+										from
+											activities a
+										LEFT JOIN audit_log_record b ON a.activities_name = b.activity_name
+										WHERE
+											1=1 and a.status in (3,4,5,6,10) ">
+			<bind name="code" value="#code == null ? null : (#code+'%')"></bind>	
+			<bind name="activities_name" value="#activities_name == null ? null : ('%'+#activities_name+'%')"></bind>	
+										
+			<if value=" and a.activities_name like #{activities_name}"></if>
+			<if value=" and a.department_code like #{code}"></if>
+			<if value=" ORDER BY b.check_time DESC"></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>

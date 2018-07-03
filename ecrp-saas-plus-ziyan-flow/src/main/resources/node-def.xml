@@ -1,0 +1,151 @@
+<root>
+	<!-- 客户分层节点 -->
+		<userdiv id="node1" name="厦门客户分组" run-at="2017-08-01 00:00:00">
+			<field name="esUrl" value="http://nascent.cn/userDiv"/>
+			<field name="esUser" value="厦门客户"/>
+			<field name="esPwd" value="厦门客户"/>
+			<field name="esPartition" value="6"/>
+			<field name="preference" value="_replica_first"/>
+			
+			<field name="subService" value="@subservice.invoke(#subId,#tenantId)"/>
+			<field name="subName" value="厦门客户"/>
+			<field name="subId" value="0961"/>
+			<remark><![CDATA[]]></remark>
+			
+			<next><![CDATA[node3]]></next>
+		</userdiv>
+		
+		<csvsource id="node2" name="导入联通用户10万" run-at="0.5">
+			<field name="type" value="member/mobile"/>
+			<field name="filename" value="mobile.csv"/>
+			<field name="path" value="dir_to_server/2017/mobile2017088734324.csv"/>
+			<remark><![CDATA[]]></remark>
+			
+			<next><![CDATA[node3]]></next>
+		</csvsource>
+		
+		<sqlfilter id="node3" name="筛选仅厦门" run-at="2017-08-02 00:00:00">
+			<field name="deduplicateNode" value="node2"/>
+			<sql name="UserFilter.criteria"/>
+			
+			<set name="address" value="厦门%"/>
+			<set name="age" value="25"/>
+			<set name="count" value="2"/>
+			<remark><![CDATA[]]></remark>
+			
+			<next><![CDATA[node4]]></next>
+		</sqlfilter>
+		
+		<!-- 属性操作节点：更新积分、更新客户属性 -->
+		<mutate id="node4" name="属性操作" run-at="0.5">
+			<field name="type" value="point/customer"/>
+			<field name="method" value="set/add/sub"/>
+			
+			<set name="gender" value="男"/>
+			<set name="age" value="20"/>
+			<set name="point" value="500"/>
+			
+			<del name="email" />
+			<del name="point" />
+			
+			<remark><![CDATA[]]></remark>
+			<next><![CDATA[node5]]></next>
+		</mutate>
+		
+		<!-- 自定义服务调用节点 -->
+		<custom id="node5" name="自定义服务" run-at="2017-08-01 00:00:00" >
+			<field name="service" value="@my_point_svc.addPoint(#ctx,#nicks,#params)"/>
+			
+			<field name="aaa" value="2018-04-01T00:00"/>
+			<field name="bbbb" value="2018-07-01T00:00"/>
+			<field name="cccc" value="2018-07-01T00:00"/>
+			
+			<remark><![CDATA[]]></remark>
+			<next><![CDATA[node6]]></next>
+		</custom>
+		
+		<!-- 逻辑操作节点：并集、交集、采样、排除、去重 -->
+		<logical id="node6" name="逻辑操作节点" run-at="5">
+			<field name="type" value="union/intersect/diff/sample/deduplicate"/>
+			<field name="deduplicateNodeList" value="node2,node1,node3"/>
+			
+			<field name="sample" value="50"/>
+			
+			<field name="include" value="福建客户"/>
+			<field name="exclude" value="厦门客户"/>
+			
+			<remark><![CDATA[]]></remark>
+			<next><![CDATA[node7]]></next>
+		</logical>
+		
+		
+		
+		<!-- 服务调用节点：积分活动、优惠券活动、礼品活动 -->
+		<service id="node7" name="营销活动" run-at="6" >
+			<field name="type" value="point/coupon/coupon_dir/gift"/>
+			<field name="name" value="满100元返50积分"/>
+			<field name="serviceid" value="MKTN0081"/>
+			<remark><![CDATA[]]></remark>
+			
+			<field name="activityid" value="001"/>
+			<field name="activityname" value="订单满158赠送28元礼品"/>
+			<field name="only_once" value="允许重复参加活动：True/False"/>
+			<field name="goods_id" value="001"/>
+			<field name="goods_name" value="防晒乳"/>
+			<field name="goods_stock" value="50"/>
+			<field name="goods_image" value="http://.."/>
+			
+			<next><![CDATA[node8]]></next>
+		</service>
+		
+		
+		
+		<!-- 属性操作节点：更新积分、更新客户属性 -->
+		<sqlmutate id="node8" name="属性操作" run-at="2017-08-01 00:00:00">
+			<sql name="sql" value="update kd_customer
+				set #COLUMNS where user_id in (#IDS) "/>
+			
+			<set name="gender" value="'男'"/>
+			<set name="age" value="20"/>
+			<set name="u.point" value="u.point-500"/>
+			<set name="email" value="NULL"/>
+			<set name="IDS"/>
+			
+			<remark><![CDATA[]]></remark>
+			<next><![CDATA[node9]]></next>
+		</sqlmutate>
+		
+		
+		<!-- 发送触达节点：短信、邮件、微信 -->
+		<send id="node9" name="发送短信" run-at="0.5">
+			<field name="type" value="sms/email/wechat"/>
+			<field name="channel" value=""/>
+			<field name="template" value="短信群发模板001"/>
+			<field name="title" value=""/>
+			<field name="signature" value="【百雀羚】"/>
+			<field name="mobileSrc" value="member/receiver"/>
+			<content>
+				<![CDATA[{nick} {time} 发货提醒：]]>
+			</content>
+			<remark><![CDATA[]]></remark>
+			
+			<next><![CDATA[node10]]></next>
+		</send>
+		
+		<!-- 分析节点 -->
+		<analysis id="node10" name="效果分析" run-at="10">
+			<field name="from" value="2017-08-01 00:00:00"/>
+			<field name="to" value="2017-08-05 00:00:00"/>
+			
+			<field name="channel" value="线上店铺"/>
+			<field name="platform" value="京东"/>
+			<shops>
+				<![CDATA[]]>
+			</shops>
+			<goods>
+				<![CDATA[]]>
+			</goods>
+			
+			<remark><![CDATA[]]></remark>
+		</analysis>
+</root>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="base.voice">
+		<!-- 根据店铺编码获取店铺信息 -->
+		<sql id="getSysShopExtbyCode" value="SELECT id ,s.access_token AS accessToken , s.app_key AS appKey,s.out_sid AS outSid,s.plat_from_type AS platFromType,s.uid AS uid,
+		      s.name,s.app_secret AS appSecret FROM sys_shop_ext s  WHERE s.code = #{code} ">
+		</sql>
+		<!--查询近一年会员的评论-->
+		<sql id="findNearlyOneYearEvaluatesByCidAndBid" value="select id , result as result from evaluate_info
+			where brand_id = #{brandId} and sys_customer_id=#{sysCustomerId}
+			   and state = 1 and create_time >= DATE_ADD(now(),INTERVAL -1 YEAR)">
+		</sql>
+	</sqlGroup>
+</sqlRoot>

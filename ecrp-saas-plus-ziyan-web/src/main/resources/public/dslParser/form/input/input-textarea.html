@@ -1,0 +1,18 @@
+ <th:block th:fragment="render(item, preffix)">
+ 	<th:block th:with="
+		label = ${input.text + '：'},
+		class = ${input.inline ? 'el-inline-block' : null},
+		name = ${input.name}
+	">
+		<el-form-item th:label="${label}" th:class = "${class}">
+			<el-form-grid size="xmd">
+				<el-form-item th:prop = "${name}" >
+					<el-input v-showRequired th:type="${type}"
+						th:v-model = "${preffix + item.name}" 
+						th:placeholder="${item.placeholder}">
+					</el-input>
+				</el-form-item>
+			</el-form-grid>
+		</el-form-item>
+	</th:block>
+</th:block>

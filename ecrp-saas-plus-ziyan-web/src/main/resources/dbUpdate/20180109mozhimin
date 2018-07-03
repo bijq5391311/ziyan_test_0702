@@ -1,0 +1,7 @@
+#添加生成系统会员id的数据表
+CREATE TABLE `check_sys_customer_id` (
+  `id` bigint(11) NOT NULL AUTO_INCREMENT,
+  `sys_customer_id` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `sys_customer_id` (`sys_customer_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=772 DEFAULT CHARSET=utf8;

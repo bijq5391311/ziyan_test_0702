@@ -1,0 +1,10 @@
+<th:block th:fragment="render(dsl, subffix, deps)">
+	<th:block th:with="
+		dslJSON = ${T(com.nascent.ecrpsaas.render.ELTokenHandler).handleToken(#ctx, dsl)},
+		context = ${ T(com.nascent.ecrpsaas.render.RenderHelper).createContext() }
+	">	
+	[(${T(com.nascent.ecrpsaas.render.RenderHelper).addComponentName(context,  #strings.isEmpty(subffix) ? 'ns-designer-form' : 'ns-designer-form-'+subffix)})]
+	[(${T(com.nascent.ecrpsaas.render.RenderHelper).addDependencies(context, deps)})]
+		<th:block th:insert="../public/renderEngine3.0/form/js::renderjs(${dslJSON}, ${context})"></th:block>
+	</th:block>
+</th:block>

@@ -1,0 +1,158 @@
+<% include ../../../include/layout/start.ejs %>
+<div id="example" v-cloak>
+  <div class="template-page">
+    <div class="template-page-location">
+      <el-breadcrumb separator=">">
+        <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+        <el-breadcrumb-item>自动化服务</el-breadcrumb-item>
+        <el-breadcrumb-item>场景接触服务</el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>
+
+    <div class="template-page-tab">
+      <div class="template-layout">
+        <div class="template-layout-left" ref="layoutLeft">
+          <el-scrollbar ref="layoutLeftScroll1"
+                        wrap-class="template-layout__scroll" outsider>
+            <div class="activity-wrap">
+              <h4 class="activity-wrap__header">
+                <el-button-group size="mini" class="pull-right">
+                  <el-button size="small" @click="gotoCurrent(thisYear)" :disabled="disabledYear">今年</el-button>
+                  <el-button size="small" @click="gotoCurrent(thisYear, thisMonth)" :disabled="disabledMonth">本月
+                  </el-button>
+                </el-button-group>
+                {{currentYear}}年{{currentMonth}}月 营销情况概览
+              </h4>
+              <el-row class="activity-wrap__record">
+                <el-col :span="3">
+                  <div class="record-name">月节日</div>
+                  <div class="record-num"><b>4</b>个</div>
+                </el-col>
+                <el-col :span="3">
+                  <div class="record-name">月活动</div>
+                  <span class="record-num"><b>4</b>个</span>
+                </el-col>
+                <el-col :span="6">
+                  <div class="record-name">月关怀成本</div>
+                  <div class="record-num">￥<b>16365.05</b></div>
+                </el-col>
+                <el-col :span="3">
+                  <div class="record-name">年节日</div>
+                  <div class="record-num"><b>2</b>个</div>
+                </el-col>
+                <el-col :span="3">
+                  <div class="record-name">年活动</div>
+                  <div class="record-num"><b>21</b>个</div>
+                </el-col>
+                <el-col :span="6">
+                  <div class="record-name">年关怀成本</div>
+                  <div class="record-num">￥<b>21000.05</b></div>
+                </el-col>
+              </el-row>
+              <el-calendar class="activity-wrap__calendar"
+                           ref="activityCalendar"
+                           :date-cell-content="dateCellRenderMarket"
+                           header-type="tab"
+                           @pick="handelCalendar"
+                           @month-change="activityMonthChange"
+                           @year-change="activityYearChange" :almanac="festival">
+              </el-calendar>
+            </div>
+          </el-scrollbar>
+        </div>
+        <div class="template-layout-right">
+          <el-scrollbar ref="layoutLeftScroll2"
+                        wrap-class="template-layout__scroll" outsider>
+            <!--  内容区域  节日事件列表 / begin -->
+            <div class="tmp-page__content">
+              <el-row>
+                <el-col :span="24">
+                  <ul class="movable-shaft" ref="movableShaft" id="movable-shaft">
+                    <li v-for="(item,$index) in items">
+                      <span :class="{'active':item.active}" class="movable-icon"
+                            @click="movableCollapse(item,items.date)"></span>
+                      <p class="movable-title">{{item.date}} {{item.title}}</p>
+                      <i class="bui-add"></i>
+                      <el-collapse-transition>
+                        <ul v-show="item.active">
+                          <li :class="{'is-end': !item.status}" class="list-content" v-for="list in item.list">
+                            <el-row>
+                              <el-col :span="12">
+                                <p class="movable-content">{{list.message}}</p>
+                              </el-col>
+                              <el-col :span="12">
+                                <div class="tag-box">
+                                  <el-tooltip effect="light" :content="tag" placement="top" v-for="(tag, index) in tags"
+                                              :key="index" :disabled="!(tag.length > 6)">
+                                    <el-tag
+                                      :closable=item.status
+                                      type="gray"
+                                      @close="handleClose(tag)"
+                                    >{{tag}}
+                                    </el-tag>
+                                  </el-tooltip>
+                                </div>
+                                <div v-show="item.status" class="control-btn">
+                                  <i class="bui-edit" @click="editRow($index, item)"></i>
+                                  <i class="bui-delete" @click="delRow($index, item)"></i>
+                                </div>
+                              </el-col>
+                            </el-row>
+                          </li>
+                        </ul>
+                      </el-collapse-transition>
+                    </li>
+                  </ul>
+                </el-col>
+              </el-row>
+            </div>
+            <!--  内容区域 节日事件列表 / end -->
+          </el-scrollbar>
+        </div>
+      </div>
+      <el-dialog title="编辑或新增活动" v-model="dialogVisible" size="small" :modal-append-to-body="false">
+        <el-form placement="right" :model="favorForm" label-width="100px">
+          <el-form-item label="活动名称：" required>
+            <el-form-grid size="xmd">
+              <el-form-item required>
+                <el-input placeholder="活动名称必须在2-5个字符"></el-input>
+              </el-form-item>
+            </el-form-grid>
+          </el-form-item>
+          <el-form-item label="活动人群：">
+            <el-form-grid>
+              <el-radio-group v-model="favorForm.radio">
+                <el-radio label="所有人"></el-radio>
+                <el-radio label="定向人群"></el-radio>
+              </el-radio-group>
+            </el-form-grid>
+          </el-form-item>
+          <el-form-item label="满送条件：">
+            <el-form-grid size="xs">
+              <el-select v-model="favorForm.radioRule">
+                <el-option label="满钱送" value="pay"></el-option>
+                <el-option label="满件送" value="number"></el-option>
+              </el-select>
+            </el-form-grid>
+            <el-form-grid>买家付款满</el-form-grid>
+            <el-form-grid size="sm">
+              <el-input placeholder="请输入数字" class="text-right">
+                <template slot="append">件</template>
+              </el-input>
+            </el-form-grid>
+          </el-form-item>
+          <el-form-item label="活动描述：">
+            <el-form-grid block>
+              <el-input type="textarea" placeholder="请输入内容"></el-input>
+            </el-form-grid>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="dialogVisible = false">保 存</el-button>
+        </div>
+      </el-dialog>
+    </div>
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

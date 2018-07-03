@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot >
+	<sqlGroup name="organization.SysRole">
+		<sql id="queryByName" value="select * from sys_role where role_name=#{roleName} and state=1"></sql>
+<!-- 		<sql id="queryRoleList" value="select role_name as label,id as value from sys_role where state=1"></sql> -->
+		<sql id="queryRoleList" value="select role_name,id from sys_role where state=1"></sql>
+	</sqlGroup>
+</sqlRoot>
+	

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name = "database.kdRefund">
+		<sql id="queryByTbRefundId" value="select * from kd_refund where 1=1">
+		   <if value="and tb_refund_id = #{tbRefundId}"></if>
+		</sql>
+		<sql id="findTimesAndAmountByShopCodeAndSysCustomerId" value="select COUNT(0) refundTimes,SUM(tb_refund_fee) amount from kd_refund where 1=1">
+		  <if value="and sys_customer_id = #{sysCustomerId}"></if>
+		  <if value="and shop_code = #{shopCode}"></if> 
+		</sql>
+	</sqlGroup>
+</sqlRoot>

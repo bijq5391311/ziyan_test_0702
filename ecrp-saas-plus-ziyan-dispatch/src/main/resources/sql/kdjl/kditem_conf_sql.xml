@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+<!-- //core.kdItem.getRelateKnowledgeItem -->
+	<sqlGroup name="core.KdItem">
+		 <sql id="getRelateKnowledgeItem" value="select DISTINCT * from kd_item i where (SELECT group_concat(kk.item_ids) FROM kdjl_knowledge kk where state  =1)  like concat('%',i.sys_item_id,'%') and i.group_id=#{group_id}" >
+	    	
+	    	<if test=" #title != null" value=" and title like #{'%title%'} "></if>
+	    	<if value=" order by update_time desc,id "></if>
+	    </sql>
+	    
+	    <sql id="getNotKnowledgeItem" value="select DISTINCT * from kd_item i where (SELECT group_concat(kk.item_ids) FROM kdjl_knowledge kk where state  =1)  not like concat('%',i.sys_item_id,'%') and i.group_id=#{group_id} " >
+	   		
+	   		<if test="#title != null" value=" and title like #{'%title%'} "></if>
+	    	<if value=" order by update_time desc,id"></if>
+	    </sql>
+	    <sql id="batchdelete" value="" >
+	    	<if value="delete from kdjl_knowledge where id = ?"></if>
+	    </sql>
+	</sqlGroup>
+</sqlRoot>

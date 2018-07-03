@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>  
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"  
+    xmlns:tx="http://www.springframework.org/schema/tx" xmlns:p="http://www.springframework.org/schema/p" xmlns:util="http://www.springframework.org/schema/util" xmlns:jdbc="http://www.springframework.org/schema/jdbc"  
+    xmlns:cache="http://www.springframework.org/schema/cache"
+    xmlns:task="http://www.springframework.org/schema/task"
+    xsi:schemaLocation="  
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd  
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd  
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+    http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache-3.2.xsd
+    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+    http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/task
+	http://www.springframework.org/schema/task/spring-task.xsd">
+	
+    <task:annotation-driven executor="organization_executor" scheduler="organization_scheduler"/>
+	<task:executor id="organization_executor" pool-size="5" queue-capacity="25"/>
+	<task:scheduler id="organization_scheduler" pool-size="10"/>
+  
+    <bean id="taskA" class="com.nascent.ecrpsaas.task.A"></bean>
+    <bean id="taskB" class="com.nascent.ecrpsaas.task.B"></bean>
+    
+    <task:scheduled-tasks scheduler="organization_scheduler">
+    	<task:scheduled ref="taskB" method="task1" cron="*/4 * * * * *"/>
+    	<task:scheduled ref="taskB" method="task2" cron="*/5 * * * * *"/>
+    	<task:scheduled ref="taskB" method="task3" cron="*/6 * * * * *"/>
+    </task:scheduled-tasks>
+    
+    <task:scheduled-tasks scheduler="organization_scheduler">
+    	<task:scheduled ref="taskA" method="task1" cron="*/1 * * * * *"/>
+    	<task:scheduled ref="taskA" method="task2" cron="*/2 * * * * *"/>
+    	<task:scheduled ref="taskA" method="task3" cron="*/3 * * * * *"/>
+    </task:scheduled-tasks>
+</beans>  

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="organization.SysDepartment">
+		<sql id="loadTree" value=" select id as id, code as code , name as label, parent_id as parentId, true as showAdd,
+                       true as showEdit, CASE parent_id when 0 then false 
+                        else true end  AS showDelete  from sys_department where 1=1 " limit=" order by createTime desc">
+		  <if value=" and state=#{state}"></if>
+		</sql>
+
+
+		<sql id="batchDelete" value="update sys_department set state=0 where id=?"></sql>
+		
+	
+		<sql id="loadTreeByCodeLK" value = "select id as id, code as code , name as label, parent_id as parentId, true as showAdd,
+                       true as showEdit, CASE parent_id when 0 then false 
+                        else true end  AS showDelete  from sys_department where 1= 1" >
+		<if value=" and code in(${'codes'})"></if>
+        <if value=" and state=#{state}"></if>
+        <if value=" order by create_time desc"></if>
+		</sql>
+       
+		<sql id="queryOrganizationTree" value="select id as id,parent_id as parentId,`code` as code,`name` as label,'false' as checked
+		       from  sys_department where state = 1">
+		    <auth tenant="group_id"></auth>   
+		 </sql>
+	</sqlGroup>
+</sqlRoot>

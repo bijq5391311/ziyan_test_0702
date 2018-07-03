@@ -1,0 +1,661 @@
+<% include ../../../include/layout/start.ejs %>
+<div id="example" v-cloak>
+
+  <div class="template-page">
+    <div  class="tmp-page__header">
+      <div class="tmp-page__menu">
+        <a class="tmp-page__menu-item is-active">数据接入信息</a>
+      </div>
+    </div>
+    <!--  内容区域 / begin -->
+    <div class="tmp-page__content">
+      <el-row>
+        <el-col :span="24">
+          <bus-multi-filter @submit-search="submitSearch"
+                            @reset-search="resetSearch"
+                            @recover-search="recoverSearch"
+                            @clean-search="cleanSearch">
+            <!-- 按钮组 -->
+            <template slot="btns">
+              <el-button type="primary"><i class="bui-add"></i> 新增数据接入</el-button>
+              <el-button type="primary">禁用</el-button>
+              <el-button type="primary" @click="httpDialog = true">http节点</el-button>
+              <el-button type="primary" @click="uponDialog = true">映射节点</el-button>
+              <el-button type="primary" @click="sqlDialog = true">SQL节点</el-button>
+              <el-button type="primary" @click="onglDialog = true">ongl节点</el-button>
+              <el-button type="primary" @click="shopDialog = true">店铺节点</el-button>
+              <el-button type="primary" @click="saveDialog = true">保存节点</el-button>
+              <el-button type="primary" @click="javaDialog = true">JAVA节点</el-button>
+            </template>
+            <!-- end/按钮组 -->
+            <!-- 单条件表单 -->
+            <el-form slot="singleform"  :inline="true"   class="pull-right">
+              <el-form-item>
+                <el-input
+                  placeholder="请输入姓名"
+                  icon="search">
+                </el-input>
+              </el-form-item>
+            </el-form>
+            <!-- end/单条件表单 -->
+            <!-- 多条件表单 -->
+            <el-form :model="multipleForm"  label-width="80px" :inline="true">
+              <el-form-item label="关键词：" >
+                <el-form-grid size="xmd">
+                  <el-input placeholder="请输入关键词"  v-model="multipleForm.user"></el-input>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="交易来源：" >
+                <el-form-grid size="xmd">
+                  <el-select placeholder="请选择交易来源" v-model="multipleForm.source">
+                    <el-option label="区域一" value="shanghai"></el-option>
+                    <el-option label="区域二" value="beijing"></el-option>
+                  </el-select>
+                </el-form-grid>
+              </el-form-item>
+            </el-form>
+            <!-- end/多条件表单 -->
+            <!-- 搜索结果 -->
+            <template slot="result">
+              <el-tag v-for="(tag,index) in 10" :key="index"  type="primary"  :closable="true">tag</el-tag>
+            </template>
+            <!-- end/搜索结果 -->
+          </bus-multi-filter>
+          <el-table
+            border
+            :data="tableData"
+            class="template-table"
+            v-loading.lock="loadingtable"
+            element-loading-icon="<img src='<%= require('V/xenon/images/logo-loading.png') %>' />"
+            element-loading-text="拼命加载中">
+            <el-table-column
+              type="selection"
+              align="center" width="40">
+            </el-table-column>
+            <el-table-column prop="address" label="数据接入名称">
+            </el-table-column>
+            <el-table-column prop="id" label="节点数" align="right"></el-table-column>
+            <el-table-column prop="name" label="创建人"></el-table-column>
+            <el-table-column prop="date" label="创建时间"  align="center" width="100"> </el-table-column>
+            <el-table-column prop="date" label="状态" align="center" width="80">
+              <template  scope="scope">
+                <span class="dot-default" v-show="scope.$index === 0">禁用</span>
+                <span class="dot-success" v-show="scope.$index === 1">正常</span>
+                <span class="dot-danger" v-show="scope.$index === 2">异常</span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="操作"
+              align="center"
+              width="90"
+              align="center">
+              <template scope="scope">
+                <div class="tmp-cell__buttons">
+                  <el-button type="text" >查看</el-button> | <el-button type="text">日志</el-button>
+                </div>
+              </template>
+            </el-table-column>
+          </el-table>
+          <el-pagination
+            class="template-table-pagination"
+            :page-sizes="[10, 20, 30, 50, 100]"
+            :page-size="10"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="100">
+          </el-pagination>
+        </el-col>
+      </el-row>
+
+      <!-- http节点 弹窗 -->
+      <el-dialog custom-class="has-tabs" title="http节点" v-model="httpDialog" :modal-append-to-body="false" :close-on-click-modal="false">
+        <el-tabs type="card" v-model="httpActiveName">
+          <el-tab-pane label="基本信息" name="base">
+            <el-form label-width="80px">
+              <el-form-item label="节点名称：">
+                <el-form-grid size="xmd">
+                  <el-input placeholder="请输入节点名称"></el-input>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="URL：">
+                <el-form-grid size="xmd">
+                  <el-input placeholder="请输入URL"></el-input>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="请求方式：">
+                <el-form-grid size="xmd">
+                  <el-select placeholder="请选择" v-model="selectMethod">
+                    <el-option label="GET"  value="GET"></el-option>
+                    <el-option label="POST"  value="POST"></el-option>
+                  </el-select>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="输出名称：">
+                <el-form-grid size="xmd">
+                  <el-input placeholder="请输入输出名称"></el-input>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="类型：">
+                <el-form-grid size="xs">
+                  <el-select placeholder="请选择" v-model="selectType">
+                    <el-option label="交易"  value="trade"></el-option>
+                    <el-option label="商品"  value="goods"></el-option>
+                    <el-option label="退款"  value="refund"></el-option>
+                    <el-option label="评价"  value="type1"></el-option>
+                    <el-option label="物流"  value="type2"></el-option>
+                    <el-option label="自定义" value="remind"></el-option>
+                  </el-select>
+                </el-form-grid>
+              </el-form-item>
+            </el-form>
+          </el-tab-pane>
+          <el-tab-pane label="参数设置" name="setting">
+            <el-form label-width="80px">
+              <el-form-item label="请求参数：">
+                <el-button v-if="params.length === 0" @click="addItem(params, 0)" type="icon"><i class="bui-add"></i></el-button>
+                <el-form-item v-else v-for="(para, index) in params" :key="index">
+                  <el-form-grid size="xxs">
+                    <el-select placeholder="请选择" v-model="selectType">
+                      <el-option label="映射"  value="unpon"></el-option>
+                      <el-option label="函数"  value="fax"></el-option>
+                    </el-select>
+                  </el-form-grid>
+                  <el-form-grid size="md">
+                    <el-input placeholder="请输入入参名称"></el-input>
+                  </el-form-grid>
+                  <el-form-grid size="md">
+                    <el-input placeholder="请输入入参值"></el-input>
+                  </el-form-grid>
+                  <el-button v-if="index !== params.length - 1 || params.length === 1" @click="deleteItem(params)" type="icon"><i class="bui-delete"></i></el-button>
+                  <el-button v-if="index === params.length - 1" @click="addItem(params, index)" type="icon"><i class="bui-add"></i></el-button>
+                </el-form-item>
+              </el-form-item>
+              <el-form-item label="签名方式：">
+                <el-form-grid size="xmd">
+                  <el-select placeholder="请选择" v-model="selectMethod">
+                    <el-option label="淘宝签名"  value="tb"></el-option>
+                    <el-option label="京东签名"  value="jd"></el-option>
+                  </el-select>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="是否分页：">
+                <el-form-grid size="xxs">
+                  <el-select placeholder="请选择" v-model="selectType">
+                    <el-option label="是"  value="yes"></el-option>
+                    <el-option label="否"  value="no"></el-option>
+                  </el-select>
+                </el-form-grid>
+              </el-form-item>
+            </el-form>
+          </el-tab-pane>
+          <el-tab-pane label="前置条件" name="front">
+            <el-form label-width="80px">
+              <el-form-item label="条件设置：">
+                <el-form-grid class="el-block">
+                  <el-input type="textarea" placeholder="" :rows="5"></el-input>
+                </el-form-grid>
+              </el-form-item>
+            </el-form>
+          </el-tab-pane>
+          <el-tab-pane label="后置条件" name="after">
+            <el-form label-width="80px">
+              <el-form-item label="条件设置：">
+                <el-form-grid class="el-block">
+                  <el-input type="textarea" placeholder="" :rows="5"></el-input>
+                </el-form-grid>
+              </el-form-item>
+            </el-form>
+          </el-tab-pane>
+        </el-tabs>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="httpDialog = false">取 消</el-button>
+          <el-button type="primary" @click="httpDialog = false">保 存</el-button>
+        </div>
+      </el-dialog>
+      <!-- /end http节点 弹窗-->
+      <!-- 映射节点 弹窗 -->
+      <el-dialog title="映射节点" v-model="uponDialog" :modal-append-to-body="false" :close-on-click-modal="false">
+        <el-form label-width="100px">
+          <el-form-item label="节点名称：">
+            <el-form-grid size="xmd">
+              <el-input placeholder="请输入节点名称"></el-input>
+            </el-form-grid>
+          </el-form-item>
+          <el-form-item label="参数名称：">
+            <el-form-grid size="xmd">
+              <el-input placeholder="请输入参数名称"></el-input>
+            </el-form-grid>
+          </el-form-item>
+          <el-form-item label="目标对象获取：">
+            <el-form-grid size="xmd">
+              <el-input placeholder="目标对象获取"></el-input>
+            </el-form-grid>
+            <el-form-grid>
+              <el-button type="primary">获取</el-button>
+            </el-form-grid>
+          </el-form-item>
+          <el-form-item>
+          <el-form-item>
+              <el-form-grid class="el-block-box">
+                <el-form-item  class="mb-sm">
+                  <el-form-grid width="95" class="text-right">outNick：</el-form-grid>
+                  <el-form-grid size="xmd">
+                    <el-input value="function test(){alert('ddddd')}"></el-input>
+                  </el-form-grid>
+                  <el-form-grid>
+                    <el-popover
+                      placement="right"
+                      width="240"
+                      v-model="visiblePopover"
+                      trigger="click">
+                      <el-form-grid class="el-block mb-sm">
+                        <el-select placeholder="请选择" v-model="selectMethod">
+                          <el-option label="状态转换"  value="satus"></el-option>
+                          <el-option label="日期转换"  value="date"></el-option>
+                        </el-select>
+                      </el-form-grid>
+                      <el-form-grid class="el-block">
+                        <el-input type="textarea" :rows="4" value="function test(){alert('ddddd')}"></el-input>
+                      </el-form-grid>
+                      <div class="tmp-popover-footer">
+                        <el-button size="mini">取消</el-button>
+                        <el-button size="mini" type="primary">确定</el-button>
+                      </div>
+                      <el-button  slot="reference"  type="icon"><i class="bui-edit"></i></el-button>
+                    </el-popover>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item class="mb-sm">
+                  <el-form-grid width="95" class="text-right">payment：</el-form-grid>
+                  <el-form-grid size="xmd">
+                    <el-input></el-input>
+                  </el-form-grid>
+                  <el-form-grid>
+                    <el-button type="icon"><i class="bui-edit"></i></el-button>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item class="mb-sm">
+                  <el-form-grid width="95" class="text-right">totalFee：</el-form-grid>
+                  <el-form-grid size="xmd">
+                    <el-input></el-input>
+                  </el-form-grid>
+                  <el-form-grid>
+                    <el-button type="icon"><i class="bui-edit"></i></el-button>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item class="mb-sm">
+                  <el-form-grid width="95" class="text-right">postFee：</el-form-grid>
+                  <el-form-grid size="xmd">
+                    <el-input></el-input>
+                  </el-form-grid>
+                  <el-form-grid>
+                    <el-button type="icon"><i class="bui-edit"></i></el-button>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item class="mb-sm">
+                  <el-form-grid width="95" class="text-right">discountFee：</el-form-grid>
+                  <el-form-grid size="xmd">
+                    <el-input></el-input>
+                  </el-form-grid>
+                  <el-form-grid>
+                    <el-button type="icon"><i class="bui-edit"></i></el-button>
+                  </el-form-grid>
+                </el-form-item>
+              </el-form-grid>
+              <el-form-grid size="xmd">
+                <el-tree-extra class="template-tree-organize"
+                               :highlight-current="true"
+                               :data="data">
+                </el-tree-extra>
+              </el-form-grid>
+            </el-form-item>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="uponDialog = false">取 消</el-button>
+          <el-button type="primary" @click="uponDialog = false">保 存</el-button>
+        </div>
+      </el-dialog>
+      <!-- /end 映射节点 弹窗 -->
+
+      <!-- SQL节点 弹窗 -->
+      <el-dialog custom-class="has-tabs" title="SQL节点" v-model="sqlDialog" :modal-append-to-body="false" :close-on-click-modal="false">
+        <el-tabs type="card" v-model="sqlActiveName">
+          <el-tab-pane label="基本信息" name="base">
+            <el-form label-width="80px">
+              <el-form-item label="节点名称：">
+                <el-form-grid size="xmd">
+                  <el-input placeholder="请输入节点名称"></el-input>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="编码：">
+                <el-form-grid size="xmd">
+                  <el-input placeholder="请输入编码"></el-input>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="SQL：">
+                <el-form-grid class="el-block">
+                  <el-input type="textarea" placeholder="请输入SQL" :rows="4"></el-input>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="入参映射：">
+                <el-button v-if="uponIn.length === 0" @click="addItem(uponIn, 0)" type="icon"><i class="bui-add"></i></el-button>
+                <el-form-item v-else v-for="(uponin, index) in uponIn" :key="index">
+                  <el-form-grid size="md">
+                    <el-input placeholder="" value="mobile"></el-input>
+                  </el-form-grid>
+                  <el-form-grid size="md">
+                    <el-input placeholder="" value="#mobile"></el-input>
+                  </el-form-grid>
+                  <el-button v-if="index !== uponIn.length - 1 || uponIn.length === 1" @click="deleteItem(uponIn)"><i class="bui-delete"></i></el-button>
+                  <el-button v-if="index === uponIn.length - 1" @click="addItem(uponIn, index)"><i class="bui-add"></i></el-button>
+                </el-form-item>
+              </el-form-item>
+              <el-form-item label="返回结果：">
+                <el-form-grid size="md">
+                  <el-select placeholder="请选择" v-model="selectMethod">
+                    <el-option label="更新函数"  value="update"></el-option>
+                    <el-option label="单值"  value="single"></el-option>
+                    <el-option label="单行"  value="singleLine"></el-option>
+                    <el-option label="多值"  value="single"></el-option>
+                    <el-option label="多行"  value="multiLine"></el-option>
+                  </el-select>
+                </el-form-grid>
+              </el-form-item>
+
+              <el-form-item label="结果集映射：">
+                <el-button v-if="uponOut.length === 0" @click="addItem(uponOut, 0)" type="icon"><i class="bui-add"></i></el-button>
+                <el-form-item v-else v-for="(uponout, index) in uponOut" :key="index">
+                  <el-form-grid size="md">
+                    <el-input placeholder="" value="sysCustomerId"></el-input>
+                  </el-form-grid>
+                  <el-form-grid size="md">
+                    <el-input placeholder="" value="customerId"></el-input>
+                  </el-form-grid>
+                  <el-button v-if="index !== uponOut.length - 1 || uponOut.length === 1" @click="deleteItem(uponOut)" type="icon"><i class="bui-delete"></i></el-button>
+                  <el-button v-if="index === uponOut.length - 1" @click="addItem(uponOut, index)" type="icon"><i class="bui-add"></i></el-button>
+                </el-form-item>
+              </el-form-item>
+            </el-form>
+          </el-tab-pane>
+          <el-tab-pane label="远程连接" name="setting">
+            <el-form label-width="80px">
+              <el-form-item label="链接地址：">
+                <el-form-grid size="lg">
+                  <el-input placeholder="请输入链接地址"></el-input>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="帐号：">
+                <el-form-grid size="xmd">
+                  <el-input placeholder="请输入帐号"></el-input>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="密码：">
+                <el-form-grid size="xmd">
+                  <el-input placeholder="请输入密码" type="password"></el-input>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="驱动类型：">
+                <el-form-grid size="xmd">
+                  <el-select placeholder="请选择" v-model="selectType">
+                    <el-option label="mysql"  value="mysql"></el-option>
+                    <el-option label="sqlserver"  value="sqlserver"></el-option>
+                    <el-option label="oracle"  value="oracle"></el-option>
+                  </el-select>
+                </el-form-grid>
+              </el-form-item>
+            </el-form>
+          </el-tab-pane>
+        </el-tabs>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="sqlDialog = false">取 消</el-button>
+          <el-button type="primary" @click="sqlDialog = false">保 存</el-button>
+        </div>
+      </el-dialog>
+      <!-- /end SQL节点 弹窗-->
+      <!-- ongl节点 弹窗 -->
+      <el-dialog title="ongl节点" v-model="onglDialog" :modal-append-to-body="false" :close-on-click-modal="false">
+        <el-row :gutter="20">
+          <el-col :span="16">
+            <el-form label-width="90px">
+              <el-form-item label="节点名称：">
+                <el-form-grid size="xmd">
+                  <el-input placeholder="请输入节点名称"></el-input>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="服务类型：">
+                <el-form-grid size="xmd">
+                  <el-select placeholder="请选择" v-model="selectService"  @change="selectChangeService">
+                    <el-option label="自定义"  value="defalut"></el-option>
+                    <el-option label="标准服务"  value="standard"></el-option>
+                  </el-select>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="标准服务：" v-show="standard">
+                <el-form-grid size="lg">
+                  <el-select placeholder="请选择" v-model="selectType">
+                    <el-option label="@RFMService.update(#trade,#customer);"  value="sev1"></el-option>
+                    <el-option label="@Ponintervice.update(#customerId);"  value="sev2"></el-option>
+                  </el-select>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="编码：" v-show="standard">
+                <el-form-grid class="el-block">
+                  <el-input type="textarea" placeholder="请输入编码" :rows="4"></el-input>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="处理逻辑：" v-show="!standard">
+                <el-form-grid class="el-block">
+                  <el-input type="textarea" placeholder="请输入处理逻辑" :rows="4"></el-input>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="结果集映射：">
+                <el-button v-if="params.length === 0" @click="addItem(params, 0)" type="icon"><i class="bui-add"></i></el-button>
+                <el-form-item v-else v-for="(para, index) in params" :key="index">
+                  <el-form-grid size="xxs">
+                    <el-select placeholder="请选择" v-model="selectType">
+                      <el-option label="映射"  value="unpon"></el-option>
+                      <el-option label="函数"  value="fax"></el-option>
+                    </el-select>
+                  </el-form-grid>
+                  <el-form-grid size="xs">
+                    <el-input placeholder="请输入参数名称"></el-input>
+                  </el-form-grid>
+                  <el-form-grid size="md">
+                    <el-input placeholder="请输入获取返回对象值"></el-input>
+                  </el-form-grid>
+                  <el-button v-if="index !== params.length - 1 || params.length === 1" @click="deleteItem(params)" type="icon"><i class="bui-delete"></i></el-button>
+                  <el-button v-if="index === params.length - 1" @click="addItem(params, index)" type="icon"><i class="bui-add"></i></el-button>
+                </el-form-item>
+              </el-form-item>
+            </el-form>
+          </el-col>
+          <el-col :span="8">
+            <el-tree-extra class="template-tree-organize"
+                           :highlight-current="true"
+                           :data="data">
+            </el-tree-extra>
+            <div class="dataaccess-description" v-show="standard">
+              <h5>示例：</h5>
+              <p>调用RFM服务更新方法</p>
+              <p>#trade：从容器列表获取交易信息对象</p>
+              <p> #customer:从容器列表获取会员参数对象</p>
+              <p> @RFMService.update(#trade,#customer)</p>
+            </div>
+          </el-col>
+        </el-row>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="onglDialog = false">取 消</el-button>
+          <el-button type="primary" @click="onglDialog = false">保 存</el-button>
+        </div>
+      </el-dialog>
+      <!-- /end ongl节点 弹窗 -->
+      <!-- 店铺节点 弹窗 -->
+      <el-dialog title="店铺节点" v-model="shopDialog" :modal-append-to-body="false" :close-on-click-modal="false" size="tiny">
+        <el-form label-width="80px">
+          <el-form-item label="节点名称：">
+            <el-form-grid size="xmd">
+              <el-input placeholder="请输入节点名称"></el-input>
+            </el-form-grid>
+          </el-form-item>
+          <el-form-item label="执行方式：">
+            <el-form-grid size="md">
+              <el-select placeholder="请选择" v-model="selectType">
+                <el-option label="全天"  value="all"></el-option>
+                <el-option label="按天"  value="sin"></el-option>
+              </el-select>
+            </el-form-grid>
+          </el-form-item>
+          <el-form-item label="执行时间：">
+            <el-form-grid size="xmd">
+              <el-date-picker
+                v-model="date1"
+                type="daterange"
+                placeholder="请选择活动时间">
+              </el-date-picker>
+            </el-form-grid>
+          </el-form-item>
+
+          <el-form-item label="店铺选择：">
+            <el-form-grid size="xmd">
+              <el-popover  ref="droptreepopover"
+                           v-model="shopDropTreeVisible"
+                           :width="shopDroptreeWidth"
+                           placement="bottom-start"
+                           trigger="click"
+                           popper-class="tmp-droptree-popover">
+                <el-scrollbar wrap-class="tmp-droptree-scroll">
+                  <el-input class="tmp-droptree-search" placeholder="输入关键字进行过滤"></el-input>
+                  <el-tree-extra :data="shopDropTreeList"
+                                 :expand-on-click-node="false"
+                                 show-checkbox
+                                 ref="shopDropTree"
+                                 @node-click="handleShopSelectValue"
+                                 class="tmp-droptree-tree"></el-tree-extra>
+                </el-scrollbar>
+                <div class="tmp-droptree-footer">
+                  <el-button size="mini" type="text" @click="shopDropTreeVisible = false">取消</el-button>
+                  <el-button type="primary" size="mini" @click="handleSaveShopSelect">保存</el-button>
+                </div>
+                <el-input slot="reference" ref="shopDropTreeInput"  v-model="shopDropTreeValue" readonly @click.native="handleShowShopDropTree" placeholder="请选择店铺" class="tmp-droptree-input"></el-input>
+
+              </el-popover>
+            </el-form-grid>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="shopDialog = false">取 消</el-button>
+          <el-button type="primary" @click="shopDialog = false">保 存</el-button>
+        </div>
+      </el-dialog>
+      <!-- /end 店铺节点 弹窗 -->
+      <!-- 保存节点 弹窗 -->
+      <el-dialog title="保存节点" v-model="saveDialog" :modal-append-to-body="false" :close-on-click-modal="false">
+        <el-form label-width="100px">
+          <el-form-item label="节点名称：">
+            <el-form-grid size="xmd">
+              <el-input placeholder="请输入节点名称"></el-input>
+            </el-form-grid>
+          </el-form-item>
+          <el-form-item label="服务类型：">
+            <el-form-grid size="xmd">
+              <el-select placeholder="请选择" v-model="selectService"  @change="selectChangeService">
+                <el-option label="自定义"  value="defalut"></el-option>
+                <el-option label="标准服务"  value="standard"></el-option>
+              </el-select>
+            </el-form-grid>
+          </el-form-item>
+          <el-form-item label="标准服务：" v-show="standard">
+            <el-form-grid size="lg">
+              <el-select placeholder="请选择" v-model="selectType">
+                <el-option label="RFM服务（交易对象，会员对象）"  value="sev3"></el-option>
+                <el-option label="积分服务（会员ID，积分值）"  value="sev4"></el-option>
+              </el-select>
+            </el-form-grid>
+          </el-form-item>
+          <el-form-item label="结果集映射：" v-show="standard">
+            <el-button v-if="params.length === 0" @click="addItem(params, 0)"><i class="bui-add"></i></el-button>
+            <el-form-item v-else v-for="(para, index) in params" :key="index">
+              <el-form-grid size="md">
+                <el-input placeholder="请输入参数名称"></el-input>
+              </el-form-grid>
+              <el-form-grid size="md">
+                <el-input placeholder="请输入返回字段名"></el-input>
+              </el-form-grid>
+              <el-button v-if="index !== params.length - 1 || params.length === 1" @click="deleteItem(params)"><i class="bui-delete"></i></el-button>
+              <el-button v-if="index === params.length - 1" @click="addItem(params, index)"><i class="bui-add"></i></el-button>
+            </el-form-item>
+          </el-form-item>
+          <el-form-item label="编码：" v-show="standard">
+            <el-form-grid class="el-block">
+              <el-input type="textarea" placeholder="请输入编码" :rows="4"></el-input>
+            </el-form-grid>
+          </el-form-item>
+          <el-form-item label="服务代码：" v-show="!standard">
+            <el-form-grid class="el-block">
+              <el-input type="textarea" placeholder="请输入处理逻辑" :rows="4"></el-input>
+            </el-form-grid>
+          </el-form-item>
+          <el-form-item label="返回参数设置：" v-show="!standard">
+            <el-button v-if="params.length === 0" @click="addItem(params, 0)" type="icon"><i class="bui-add"></i></el-button>
+            <el-form-item v-else v-for="(para, index) in params" :key="index">
+              <el-form-grid size="md">
+                <el-input placeholder="请输入参数名称"></el-input>
+              </el-form-grid>
+              <el-form-grid size="md">
+                <el-input placeholder="请输入返回字段名"></el-input>
+              </el-form-grid>
+              <el-button v-if="index !== params.length - 1 || params.length === 1" @click="deleteItem(params)" type="icon"><i class="bui-delete"></i></el-button>
+              <el-button v-if="index === params.length - 1" @click="addItem(params, index)" type="icon"><i class="bui-add"></i></el-button>
+            </el-form-item>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="saveDialog = false">取 消</el-button>
+          <el-button type="primary" @click="saveDialog = false">保 存</el-button>
+        </div>
+      </el-dialog>
+      <!-- /end 保存节点 弹窗 -->
+      <!-- JAVA节点 弹窗 -->
+      <el-dialog title="JAVA节点" v-model="javaDialog" :modal-append-to-body="false" :close-on-click-modal="false">
+
+        <el-row :gutter="15">
+          <el-col :span="16">
+            <el-form label-width="90px">
+              <el-form-item label="服务类：">
+                <el-form-grid class="el-block">
+                  <el-input type="textarea" placeholder="请输入服务类" :rows="5"></el-input>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="结果集映射：">
+                <el-button v-if="params.length === 0" @click="addItem(params, 0)" type="icon"><i class="bui-add"></i></el-button>
+                <el-form-item v-else v-for="(para, index) in params" :key="index">
+                  <el-form-grid size="md">
+                    <el-input placeholder="sysCustomerId"></el-input>
+                  </el-form-grid>
+                  <el-form-grid size="md">
+                    <el-input placeholder="customerId"></el-input>
+                  </el-form-grid>
+                  <el-button v-if="index !== params.length - 1 || params.length === 1" @click="deleteItem(params)"  type="icon"><i class="bui-delete"></i></el-button>
+                  <el-button v-if="index === params.length - 1" @click="addItem(params, index)" type="icon"><i class="bui-add"></i></el-button>
+                </el-form-item>
+              </el-form-item>
+            </el-form>
+          </el-col>
+          <el-col :span="8">
+            <el-tree-extra class="template-tree-organize"
+                           :highlight-current="true"
+                           :data="data">
+            </el-tree-extra>
+          </el-col>
+        </el-row>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="javaDialog = false">取 消</el-button>
+          <el-button type="primary" @click="javaDialog = false">保 存</el-button>
+        </div>
+      </el-dialog>
+
+      <!-- /end JAVA节点 弹窗 -->
+    </div>
+    <!--  内容区域  / end -->
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

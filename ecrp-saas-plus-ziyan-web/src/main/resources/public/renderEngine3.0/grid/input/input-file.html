@@ -1,0 +1,14 @@
+<th:block th:fragment="render(item)">
+	<th:block th:include="../public/renderEngine3.0/form/inputFactory::formItem(${item}, ~{::inputFragment})">
+		<th:block th:fragment="inputFragment">
+			<el-upload  v-showRequired
+		       	th:v-model="${'model.'+item.get('name')}"
+		       	th:name = "${item.get('name')}"
+		       	th::on-change="${item.control.get('callback')}"
+		       	th::limit-file-list="${item.control.get('isMulti')}" th:action="${item.control.url}" th:accept="${item.control.get('fileType')}" >
+		       <el-button size="small" type="primary">选择文件</el-button>
+		       <div slot="tip" class="el-upload__tip">[[${item.get('placeholder')}]]</div>
+		    </el-upload>
+		</th:block>
+	</th:block>
+</th:block>

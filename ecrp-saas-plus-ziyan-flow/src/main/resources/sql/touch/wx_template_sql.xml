@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="touch.WxTemplate">
+	    <sql id="batchUpdate" value="update wx_template set state = 0 where id= ?">   
+	    </sql>
+	</sqlGroup>
+</sqlRoot>

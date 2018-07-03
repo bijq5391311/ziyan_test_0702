@@ -1,0 +1,978 @@
+<% include ../../../include/layout/start.ejs %>
+<div id="userinfo" v-cloak>
+
+  <div class="template-page">
+    <div class="template-page-location">
+      <el-breadcrumb separator=">">
+        <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+        <el-breadcrumb-item>全景数据</el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>
+    <div class="template-page-tab">
+      <el-tabs v-model="activeNameTab" type="card">
+        <el-tab-pane label="会员数据" name="first">
+          <bus-multi-filter @submit-search="submitSearch"
+                            @reset-search="resetSearch"
+                            @recover-search="recoverSearch"
+                            @clean-search="cleanSearch">
+            <!-- 按钮组 -->
+            <template slot="btns">
+              <el-button type="primary" class="mb-sm" @click="openDialog"><i class="bui-send"></i>批量发送短信</el-button>
+              <el-button type="primary" class="mb-sm" @click="openDialog"><i class="bui-export"></i>导出数据CSV表格
+              </el-button>
+            </template>
+            <!-- end/按钮组 -->
+            <!-- 单条件表单 -->
+            <el-form slot="singleform" :inline="true" class="pull-right">
+              <el-form-item>
+                <el-input
+                  onkeydown="if(event.keyCode === 13){return false}"
+                  placeholder="请输入姓名"
+                  icon="search"
+                  v-model="multipleForm.user">
+                </el-input>
+              </el-form-item>
+            </el-form>
+            <!-- end/单条件表单 -->
+            <!-- 多条件表单 -->
+            <el-form :model="multipleForm" :inline="true" label-width="80px">
+              <el-form-item label="关键词：">
+                <el-form-grid size="xmd">
+                  <el-input placeholder="请输入关键词" v-model="multipleForm.user"></el-input>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="交易来源：">
+                <el-form-grid size="xmd">
+                  <el-select placeholder="请选择交易来源" v-model="multipleForm.source">
+                    <el-option label="区域一" value="shanghai"></el-option>
+                    <el-option label="区域二" value="beijing"></el-option>
+                  </el-select>
+                </el-form-grid>
+              </el-form-item>
+            </el-form>
+            <!-- end/多条件表单 -->
+            <!-- 搜索结果 -->
+            <template slot="result">
+              <el-tag v-for="(tag,index) in 10" :key="tag" type="primary" :closable="true">tag： {{tag}}</el-tag>
+            </template>
+            <!-- end/搜索结果 -->
+          </bus-multi-filter>
+          <el-table
+            border
+            :data="tableData"
+            class="template-table">
+            <el-table-column type="selection" width="40" align="center"></el-table-column>
+            <el-table-column
+              prop="date"
+              label="日期"
+              width="100">
+            </el-table-column>
+            <el-table-column
+              prop="name"
+              label="姓名"
+              width="120">
+            </el-table-column>
+            <el-table-column
+              prop="province"
+              label="省份"
+              width="180">
+            </el-table-column>
+            <el-table-column
+              prop="address"
+              label="地址">
+              <template scope="scope">
+                <a class="is-link">{{scope.row.address}}</a>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="操作"
+              width="50"
+              align="center">
+              <template scope="scope">
+                <el-button type="text" @click.native.prevent="openDialog">详情</el-button>
+                <!-- <el-dropdown @command="handleMoreCommand"  trigger="click" menu-align="start">
+                     <span class="el-dropdown-link">
+                       更多<i class="el-icon-caret-bottom el-icon&#45;&#45;right"></i>
+                     </span>
+                   <el-dropdown-menu slot="dropdown">
+                     <el-dropdown-item :command="String(scope.$index)">删除</el-dropdown-item>
+                   </el-dropdown-menu>
+                 </el-dropdown>-->
+              </template>
+            </el-table-column>
+          </el-table>
+          <el-pagination
+            class="template-table-pagination"
+            :page-sizes="[10, 20, 30, 50, 100]"
+            :page-size="10"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="100">
+          </el-pagination>
+          <el-dialog custom-class="userinfo has-tabs" ref="dialog" title="会员详情" size="large" v-model="showDialog"
+                     :modal-append-to-body="false"
+                     :close-on-click-modal="false"
+                     size="large"
+                     vetically
+                     @scroll-change="handleScroll">
+            <el-tabs type="card" id="userinfo-tabs">
+              <el-tab-pane label="基本信息">
+                <el-row :gutter="20">
+                  <!--头像区域-->
+                  <el-col :span="12">
+                    <div class="tmp-userinfo__sidebar">
+                      <el-scrollbar wrap-class="tmp-userinfo__scrollbar" outsider>
+                        <div class="tmp-userinfo__header text-center">
+                          <p><a><img class="img-cirlce avatar" src='<%= require('V/xenon/images/user-4.png') %>'
+                                     width="32" height="32"/>
+                              <span class="name">李百灵</span>
+                            </a></p>
+                        </div>
+                        <div class="tmp-userinfo__content">
+                          <el-form class="tmp-userinfo__form" label-width="70px">
+                            <el-row>
+                              <el-col :span="12" v-for="info in baseInfo" :key="info.label">
+                                <el-form-item :label="info.label + '：'">
+                                  <business-form-edit v-model="info.value" :editable="info.edit"
+                                                      :type="info.style === 'date' ? 'date' : ''">
+                                    <el-form-grid slot="content">{{info.value}}</el-form-grid>
+                                    <el-form-grid size="sm" slot="edit" v-if="info.style === 'input'">
+                                      <el-input :value="info.value" :type="info.type" v-model="info.value"></el-input>
+                                    </el-form-grid>
+                                    <el-form-grid size="sm" slot="edit" v-if="info.style === 'date'">
+                                      <el-date-picker v-model="info.value" type="date" placeholder="选择日期"
+                                                      format="yyyy-MM-dd"></el-date-picker>
+                                    </el-form-grid>
+                                    <el-form-grid size="sm" slot="edit" v-if="info.style === 'select'">
+                                      <el-select v-model="info.value" placeholder="请选择">
+                                        <el-option
+                                          v-for="item in info.options"
+                                          :key="item.value"
+                                          :label="item.label"
+                                          :value="item.value">
+                                        </el-option>
+                                      </el-select>
+                                    </el-form-grid>
+                                    <el-form-grid slot="edit" v-if="info.style === 'radio'">
+                                      <el-radio-group v-model="info.value">
+                                        <el-radio
+                                          v-for="item in info.options"
+                                          :key="item.value"
+                                          :label="item.label"
+                                          :value="item.value">{{item.label}}
+                                        </el-radio>
+                                      </el-radio-group>
+                                    </el-form-grid>
+                                  </business-form-edit>
+                                </el-form-item>
+                              </el-col>
+                              <el-col :span="24" v-for="zone in baseInfoAdd" :key="zone.label">
+                                <el-form-item :label="zone.label + '：'">
+                                  <business-form-edit v-model="zone.value">
+                                    <el-form-grid slot="content" v-if="zone.style === 'input'">{{zone.value}}
+                                    </el-form-grid>
+                                    <el-form-grid block slot="edit" v-if="zone.style === 'input'">
+                                      <el-input :value="zone.value" :type="zone.type" v-model="zone.value"></el-input>
+                                    </el-form-grid>
+                                    <el-form-grid slot="content" v-if="zone.style === 'cascader'"><span
+                                        v-for="val in zone.value">{{val}}</span></el-form-grid>
+                                    <el-form-grid block slot="edit" v-if="zone.style === 'cascader'">
+                                      <el-cascader
+                                        :options="zone.options"
+                                        v-model="zone.value"
+                                      ></el-cascader>
+                                    </el-form-grid>
+                                  </business-form-edit>
+                                </el-form-item>
+                              </el-col>
+                            </el-row>
+                          </el-form>
+                        </div>
+                      </el-scrollbar>
+                    </div>
+                  </el-col>
+                  <!--基本信息-->
+                  <el-col :span="12" class="userinfo-content">
+                    <el-scrollbar wrap-class="tmp-userinfo__scrollbar" outsider>
+
+                      <el-collapse v-model="activeName" class="userinfo-collapse">
+                        <el-collapse-item title="品牌属性" name="1">
+                          <el-table class="tmp-userinfo__table" :data="userinfoTable">
+                            <el-table-column
+                              prop="brand"
+                              label="品牌">
+                            </el-table-column>
+                            <el-table-column
+                              prop="vip"
+                              label="VIP"
+                              width="60">
+                            </el-table-column>
+                            <el-table-column
+                              prop="integral"
+                              label="可用积分">
+                            </el-table-column>
+                            <el-table-column
+                              prop="right"
+                              width="80"
+                              align="center"
+                              label="权益黑名单"
+                            >
+                              <template scope="scope">
+                                <el-switch
+                                  v-model="userinfoTable[scope.$index].right"
+                                  @change="handleSwitch(scope.$index, userinfoTable)"
+                                  :width="45"
+                                  on-text="开"
+                                  off-text="关">
+                                </el-switch>
+                              </template>
+                            </el-table-column>
+                            <el-table-column
+                              prop="touch"
+                              width="80"
+                              align="center"
+                              label="触达黑名单">
+                              <template scope="scope">
+                                <el-switch
+                                  v-model="userinfoTable[scope.$index].touch"
+                                  :width="45"
+                                  on-text="开"
+                                  off-text="关">
+                                </el-switch>
+                              </template>
+                            </el-table-column>
+                          </el-table>
+                        </el-collapse-item>
+                        <el-collapse-item title="集团属性" name="3">
+                          <el-form class="tmp-userinfo__form" label-width="90px">
+                            <el-row>
+                              <el-col :span="12">
+                                <el-form-item label="集团属性1：" class="form-text">
+                                  <el-form-grid>属性值1</el-form-grid>
+                                </el-form-item>
+                                <el-form-item label="喜欢口感：" class="form-text">
+                                  <el-form-grid>果香，微甜</el-form-grid>
+                                </el-form-item>
+                              </el-col>
+                              <el-col :span="12">
+                                <el-form-item label="集团属性2：" class="form-text">
+                                  <el-form-grid>属性值2</el-form-grid>
+                                </el-form-item>
+                                <el-form-item label="红酒产地：" class="form-text">
+                                  <el-form-grid>法国</el-form-grid>
+                                </el-form-item>
+                              </el-col>
+                            </el-row>
+                          </el-form>
+                        </el-collapse-item>
+                        <el-collapse-item title="RMF属性" name="4">
+
+                          <el-form-grid size="xs">
+                            <el-select placeholder="请选择" clearable v-model="defaultSelect">
+                              <el-option label="部门" value="part"></el-option>
+                              <el-option label="品牌" value="brand"></el-option>
+                              <el-option label="渠道 " value="brand"></el-option>
+                            </el-select>
+                          </el-form-grid>
+                          <el-form-grid size="xmd">
+                            <el-popover ref="droptreepopover"
+                                        v-model="dropTreeVisible"
+                                        :width="droptreeWidth"
+                                        placement="bottom-start"
+                                        trigger="click"
+                                        popper-class="tmp-droptree-popover">
+                              <el-scrollbar
+                                wrap-class="tmp-droptree-scroll"
+                              >
+                                <el-input class="tmp-droptree-search" placeholder="输入关键字进行过滤"></el-input>
+                                <el-tree-extra :data="dropTreeList"
+                                               ref="dropTree"
+                                               :expand-on-click-node="false"
+                                               show-checkbox
+                                               node-key="id"
+                                               @check-change="handleSelectValue"
+                                               class="tmp-droptree-tree"></el-tree-extra>
+                              </el-scrollbar>
+                              <div class="tmp-droptree-footer">
+                                <el-button size="mini" type="text" @click="dropTreeVisible = false">取消</el-button>
+                                <el-button type="primary" size="mini" @click="handleHideDroptree">确定</el-button>
+                              </div>
+                            </el-popover>
+                            <el-input ref="droptreeinput"
+                                      v-model="dropTreeValue"
+                                      icon="circle-close"
+                                      :on-icon-click="handleCleanClick"
+                                      @click.native="handleShowDropTree" placeholder="点击选择" class="tmp-droptree-input"
+                                      v-popover:droptreepopover class="tmp-droptree-input"></el-input>
+                          </el-form-grid>
+                          <el-form class="tmp-userinfo__form" label-width="80px">
+                            <el-row>
+                              <el-col :span="12">
+                                <el-form-item class="form-text" v-for="(baseData, index) in baseAttr[0].attr"
+                                              :label="baseData.title + '：'" :key="index">
+                                  <el-form-grid>{{baseData.content}}</el-form-grid>
+                                </el-form-item>
+                              </el-col>
+                              <el-col :span="12">
+                                <el-form-item class="form-text" v-for="(baseData, index) in baseAttr[1].attr"
+                                              :label="baseData.title + '：'" :key="index">
+                                  <el-form-grid>{{baseData.content}}</el-form-grid>
+                                </el-form-item>
+                              </el-col>
+                            </el-row>
+                          </el-form>
+                        </el-collapse-item>
+                        <el-collapse-item title="自定义标签" name="5">
+                          <el-radio-group v-model="brandRadio" class="spacing-button">
+                            <el-radio-button label="品牌一"></el-radio-button>
+                            <el-radio-button label="品牌二"></el-radio-button>
+                          </el-radio-group>
+                          <el-form class="tmp-userinfo__form" label-width="80px">
+                            <el-row>
+                              <el-col :span="12">
+                                <el-form-item class="form-text" v-for="(baseData, index) in baseAttr[0].attr"
+                                              :label="baseData.title + '：'" :key="index">
+                                  <el-form-grid>{{baseData.content}}</el-form-grid>
+                                </el-form-item>
+                              </el-col>
+                              <el-col :span="12">
+                                <el-form-item class="form-text" v-for="(baseData, index) in baseAttr[1].attr"
+                                              :label="baseData.title + '：'" :key="index">
+                                  <el-form-grid>{{baseData.content}}</el-form-grid>
+                                </el-form-item>
+                              </el-col>
+                            </el-row>
+                          </el-form>
+                        </el-collapse-item>
+                      </el-collapse>
+                    </el-scrollbar>
+                  </el-col>
+                </el-row>
+              </el-tab-pane>
+              <el-tab-pane label="客户轨迹">
+                <el-scrollbar wrap-class="tmp-userinfo__scrollbar" outsider ref="trail">
+                  <div class="tmp-title__gray mb-md">交易概况</div>
+                  <el-table
+                    :data="contrailTableData1"
+                    border
+                    style="width: 100%">
+                    <el-table-column
+                      prop="plat"
+                      label="平台">
+                    </el-table-column>
+                    <el-table-column
+                      prop="orders"
+                      align="right"
+                      label="下单次数">
+                    </el-table-column>
+                    <el-table-column
+                      prop="pays"
+                      align="right"
+                      label="付款次数">
+                    </el-table-column>
+                    <el-table-column
+                      prop="total"
+                      align="right"
+                      label="付款总额">
+                    </el-table-column>
+                    <el-table-column
+                      prop="deal"
+                      align="right"
+                      label="成交金额">
+                    </el-table-column>
+                    <el-table-column
+                      prop="unitprice"
+                      align="right"
+                      label="客单价">
+                    </el-table-column>
+                  </el-table>
+                  <div class="tmp-title__gray mt-md mb-md">交易明细</div>
+                  <el-table
+                    :data="contrailTableData1"
+                    border
+                    style="width: 100%">
+                    <el-table-column
+                      prop="plat"
+                      label="交易信息">
+                    </el-table-column>
+                    <el-table-column
+                      prop="orders"
+                      label="时间">
+                    </el-table-column>
+                    <el-table-column
+                      prop="pays"
+                      align="right"
+                      label="件数">
+                    </el-table-column>
+                    <el-table-column
+                      prop="deal"
+                      align="right"
+                      label="金额">
+                    </el-table-column>
+                    <el-table-column
+                      prop="unitprice"
+                      align="center"
+                      label="操作">
+                    </el-table-column>
+                  </el-table>
+                  <div class="tmp-title__gray mt-md mb-md">购物轨迹</div>
+                  <ul class="cbp_tmtimeline">
+                    <li v-for="(line,index) in scrollData">
+                      <time class="cbp_tmtime" v-if="index !== 0">
+                        <span>2017-07-17</span><span>{{line.name}}:45 AM</span></time>
+                      <div class="cbp_tmicon timeline-bg-primary" v-if="index === 0">
+                        <i class="bui-clock"></i>
+                      </div>
+                      <!-- 浏览 图标-->
+                      <div class="cbp_tmicon" v-else-if="index % 2 === 0">
+                        <i class="bui-shop"></i>
+                      </div>
+                      <!-- 下单 图标-->
+                      <div class="cbp_tmicon" v-else-if="index % 3 === 0">
+                        <i class="bui-order-replace"></i>
+                      </div>
+                      <!--  询单 图标-->
+                      <div class="cbp_tmicon" v-else>
+                        <i class="bui-order-ask"></i>
+                      </div>
+                      <div class="cbp_tmlabel is-empty" v-if="index === 0">
+                        <p class="contrail-content">暂无动态</p>
+                      </div>
+                      <div class="cbp_tmlabel" v-else-if="index % 2 === 0">
+                        <div class="contrail-card">
+                          <div class="contrail-card__photo">
+                            <img
+                              src="http://ihd.image.alimmdn.com/fc458cce-8e2f-450c-b5c3-0592b0acbe5d?spm=a312x.7755591.0.0.79c1e74ZclSvH"
+                              width="60" height="60"/>
+                          </div>
+                          <div class="contrail-card__property">
+                            <p class="contrail-content">
+                              <label>浏览店铺：</label>
+                              <span><a href="">店铺名称</a> </span>
+                            </p>
+                            <p class="contrail-content">
+                              <label>浏览商品：</label>
+                              <span><a href="">商品名称</a> </span>
+                            </p>
+                            <p class="contrail-content">
+                              <label>浏览时长：</label>
+                              <span>20分钟</span>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+
+                      <div class="cbp_tmlabel" v-else-if="index % 3 === 0">
+                        <div class="contrail-card">
+                          <div class="contrail-card__photo">
+                            <img
+                              src="http://ihd.image.alimmdn.com/fc458cce-8e2f-450c-b5c3-0592b0acbe5d?spm=a312x.7755591.0.0.79c1e74ZclSvH"
+                              width="60" height="60"/>
+                          </div>
+                          <div class="contrail-card__property">
+                            <p class="contrail-content">
+                              <span class="contrail-inline"><label>渠道：</label>线上渠道-官网-D2C官网</span>
+                              <span class="contrail-inline"><label>账号：</label>5fdslwoo</span>
+                              <span class="contrail-inline"><label>交易号：</label>Q1387102387075</span>
+                            </p>
+                            <p class="contrail-content">
+                              <span class="contrail-inline"><label>付款总金额：</label>0.00</span>
+                              <span class="contrail-inline"><label>总件数：</label>12</span>
+                            </p>
+                            <p class="contrail-content">
+                              <label>下单时间：</label>
+                              <span>2017-07-18 12:32:32</span>
+                            </p>
+                            <p class="contrail-content">
+                              <label>评价时间：</label>
+                              <span>2017-07-30 12:32:32</span>
+                            </p>
+                            <p class="contrail-content">
+                              <label>订单信息：</label>
+                              <span>订单信息订单信息</span>
+                            </p>
+                            <p class="contrail-content">
+                              <label>评价商品：</label>
+                              <span><a href="">商品名称</a> </span>
+                            </p>
+                            <p class="contrail-content">
+                              <label>评价内容：</label>
+                              <span>评价内容描述评价内容描述</span>
+                            </p>
+                            <p class="contrail-content">
+                              <label>解释内容：</label>
+                              <span>评价内容描述评价内容描述</span>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="cbp_tmlabel" v-else-if="index % 4 === 0">
+                        <p class="contrail-content">
+                          <span>渠道：线上渠道-官网-D2C官网</span>
+                          <span>账号：</span>
+                          <span>交易号：Q1387102387075</span>
+                        </p>
+                        <p class="contrail-content">
+                          <span>付款总金额：0.00</span>
+                          <span>总件数：1</span>
+                        </p>
+                        <div class="contrail-card">
+                          <div class="contrail-card__photo">
+                            <img
+                              src="http://ihd.image.alimmdn.com/fc458cce-8e2f-450c-b5c3-0592b0acbe5d?spm=a312x.7755591.0.0.79c1e74ZclSvH"
+                              width="60" height="60"/>
+                          </div>
+                          <div class="contrail-card__property">
+                            <p class="contrail-content">
+                              <label>询问时间：</label>
+                              <span>2017-07-17 15:32:32</span>
+                            </p>
+                            <p class="contrail-content">
+                              <label>询单店铺：</label>
+                              <span><a href="">店铺名称</a> </span>
+                            </p>
+                            <p class="contrail-content">
+                              <label>询单商品：</label>
+                              <span><a href="">商品名称</a> </span>
+                            </p>
+                            <p class="contrail-content">
+                              <label>买家回复：</label>
+                              <span>买家回复</span>
+                            </p>
+                            <p class="contrail-content">
+                              <label>链接：</label>
+                              <span>http://</span>
+                            </p>
+                            <p class="contrail-content">
+                              <label>卖家回复：</label>
+                              <span>卖家回复</span>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="cbp_tmlabel" v-else>
+                        <div class="contrail-card">
+                          <div class="contrail-card__property">
+                            <p class="contrail-content">
+                              <label>微博转发：</label>
+                              <span>32</span>
+                            </p>
+                            <p class="contrail-content">
+                              <label>微信回复：</label>
+                              <span>2017-07-30 12:32:32</span>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                  <div v-text="loadingTip" class="text-center is-empty"></div>
+                </el-scrollbar>
+              </el-tab-pane>
+              <el-tab-pane label="订单信息">
+                <el-scrollbar wrap-class="tmp-userinfo__scrollbar" outsider><div class="is-empty">暂无数据</div></el-scrollbar>
+              </el-tab-pane>
+            </el-tabs>
+
+            <div slot="footer" class="dialog-footer">
+              <el-button @click="closeDialog">关 闭</el-button>
+            </div>
+          </el-dialog>
+        </el-tab-pane>
+        <el-tab-pane label="商品数据" name="two">
+
+          <bus-multi-filter @submit-search="submitSearch"
+                            @reset-search="resetSearch"
+                            @recover-search="recoverSearch"
+                            @clean-search="cleanSearch">
+            <!-- 按钮组 -->
+            <!--    <template slot="btns">
+                  <el-button type="primary" class="mb-sm" @click="openDialog"><i class="bui-send"></i>批量发送短信</el-button>
+                  <el-button type="primary" class="mb-sm" @click="openDialog"><i class="bui-export"></i>导出数据CSV表格</el-button>
+                </template>-->
+            <!-- end/按钮组 -->
+            <!-- 单条件表单 -->
+            <el-form slot="singleform" :inline="true" class="pull-right">
+              <el-form-item>
+                <el-input
+                  placeholder="请输入姓名"
+                  icon="search"
+                  v-model="multipleForm.user">
+                </el-input>
+              </el-form-item>
+            </el-form>
+            <!-- end/单条件表单 -->
+            <!-- 多条件表单 -->
+            <el-form :model="multipleForm" :inline="true" label-width="80px">
+              <el-form-item label="关键词：">
+                <el-form-grid size="xmd">
+                  <el-input placeholder="请输入关键词" v-model="multipleForm.user"></el-input>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="交易来源：">
+                <el-form-grid size="xmd">
+                  <el-select placeholder="请选择交易来源" v-model="multipleForm.source">
+                    <el-option label="区域一" value="shanghai"></el-option>
+                    <el-option label="区域二" value="beijing"></el-option>
+                  </el-select>
+                </el-form-grid>
+              </el-form-item>
+            </el-form>
+            <!-- end/多条件表单 -->
+            <!-- 搜索结果 -->
+            <template slot="result">
+              <el-tag v-for="(tag,index) in 10" :key="tag" type="primary" :closable="true">tag： {{tag}}</el-tag>
+            </template>
+            <!-- end/搜索结果 -->
+          </bus-multi-filter>
+          <el-table
+            border
+            :data="tableData"
+            class="template-table">
+            <el-table-column
+              prop="date"
+              label="商品图片"
+              width="120">
+            </el-table-column>
+            <el-table-column
+              prop="name"
+              label="商品名称"
+              width="120">
+            </el-table-column>
+            <el-table-column
+              prop="province"
+              label="商品编码"
+              width="180">
+            </el-table-column>
+            <el-table-column
+              prop="address"
+              label="商品分类">
+            </el-table-column>
+            <el-table-column
+              prop="address"
+              align="right"
+              label="商品总销量">
+            </el-table-column>
+            <el-table-column
+              prop="address"
+              align="right"
+              label="最近30天销量">
+            </el-table-column>
+            </el-table-column>
+            <el-table-column
+              label="商品详情"
+              width="80"
+              align="center">
+              <template scope="scope">
+                <el-button type="text" @click.native.prevent="openGoodsDialog">详情</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+          <el-pagination
+            class="template-table-pagination"
+            :page-sizes="[10, 20, 30, 50, 100]"
+            :page-size="10"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="100">
+          </el-pagination>
+          <el-dialog title="商品详情" v-model="goodsVisible" :modal-append-to-body="false" :close-on-click-modal="false">
+            <div class="goodsinfo">
+              <div class="goodsinfo-property">
+
+                <div class="goodsinfo-property__photo tmp-table-cell">
+                  <img src='<%= require('V/xenon/images/image-not-find.jpg') %>' width="120"/>
+                </div>
+                <div class="control-form tmp-table-cell">
+                  <h6><strong>Shallowmint Shallowmint 炭灰色弹力长裤</strong></h6>
+                  <div class="control-item">
+                    <label class="control-label">品牌名称：</label>
+                    <div class="control-content">D2C官网</div>
+                  </div>
+                  <div class="control-item">
+                    <label class="control-label">商品编码：</label>
+                    <div class="control-content">JS20763081001</div>
+                  </div>
+                  <div class="control-item">
+                    <label class="control-label">总销量：</label>
+                    <div class="control-content">0</div>
+                  </div>
+                  <div class="control-item">
+                    <label class="control-label">三十天内销量：</label>
+                    <div class="control-content">0</div>
+                  </div>
+                </div>
+              </div>
+              <div class="goodsinfo-form">
+                <el-form label-width="90px" :inline="true">
+                  <el-form-item label="商品分类：">
+                    <el-form-grid size="md">
+                      <el-input></el-input>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="重量：">
+                    <el-form-grid size="md">
+                      <el-input></el-input>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="体积：">
+                    <el-form-grid size="md">
+                      <el-input></el-input>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="商品保质期：">
+                    <el-form-grid size="md">
+                      <el-input></el-input>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="季节：">
+                    <el-form-grid size="md">
+                      <el-input></el-input>
+                    </el-form-grid>
+                  </el-form-item>
+                </el-form>
+              </div>
+              <el-table
+                border
+                :data="tableData"
+                class="template-table">
+                <el-table-column
+                  prop="date"
+                  label="SKU编码"
+                  width="140">
+                  <template scope="scope">
+                    392017715487
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  prop="province"
+                  label="SKU属性">
+                  <template scope="scope">
+                    SKU属性说明
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
+            <div slot="footer" class="dialog-footer">
+              <el-button @click="goodsVisible=false">取 消</el-button>
+              <el-button type="primary" @click="goodsVisible=false">保 存</el-button>
+            </div>
+          </el-dialog>
+        </el-tab-pane>
+        <el-tab-pane label="交易数据" name="three">
+
+          <bus-multi-filter @submit-search="submitSearch"
+                            @reset-search="resetSearch"
+                            @recover-search="recoverSearch"
+                            @clean-search="cleanSearch">
+            <!-- 按钮组 -->
+            <template slot="btns">
+              <el-button type="primary" class="mb-sm"><i class="bui-send"></i>批量发送短信</el-button>
+              <el-button type="primary" class="mb-sm"><i class="bui-export"></i>导出数据CSV表格</el-button>
+            </template>
+            <!-- end/按钮组 -->
+            <!-- 单条件表单 -->
+            <el-form slot="singleform" :inline="true" class="pull-right">
+              <el-form-item>
+                <el-input
+                  placeholder="请输入姓名"
+                  icon="search"
+                  v-model="multipleForm.user">
+                </el-input>
+              </el-form-item>
+            </el-form>
+            <!-- end/单条件表单 -->
+            <!-- 多条件表单 -->
+            <el-form :model="multipleForm" :inline="true" label-width="80px">
+              <el-form-item label="关键词：">
+                <el-form-grid size="xmd">
+                  <el-input placeholder="请输入关键词" v-model="multipleForm.user"></el-input>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="交易来源：">
+                <el-form-grid size="xmd">
+                  <el-select placeholder="请选择交易来源" v-model="multipleForm.source">
+                    <el-option label="区域一" value="shanghai"></el-option>
+                    <el-option label="区域二" value="beijing"></el-option>
+                  </el-select>
+                </el-form-grid>
+              </el-form-item>
+            </el-form>
+            <!-- end/多条件表单 -->
+            <!-- 搜索结果 -->
+            <template slot="result">
+              <el-tag v-for="(tag,index) in 10" :key="tag" type="primary" :closable="true">tag： {{tag}}</el-tag>
+            </template>
+            <!-- end/搜索结果 -->
+          </bus-multi-filter>
+          <el-table
+            border
+            :data="tableData"
+            class="template-table">
+            <el-table-column
+              prop="name"
+              label="交易信息">
+              <template scope="scope">
+                <div>来源：线上渠道-天猫-百雀羚旗舰店</div>
+                <div>编号：2507669192018932</div>
+                <div>昵称：{{scope.row.name}}13418004281（谢春花:13418004281）</div>
+                <div>状态：等待卖家发货（买家已付款）</div>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="date"
+              label="时间"
+              align="center"
+              width="180">
+              <template scope="scope">
+                <div>下单：{{scope.row.date}}</div>
+                <div>付款：{{scope.row.date}}</div>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="id"
+              align="right"
+              label="商品件数">
+              <template scope="scope">{{scope.row.id + Math.ceil(Math.random()*10)}}</template>
+            </el-table-column>
+            <el-table-column
+              prop="address"
+              align="right"
+              label="付款总额">
+              <template scope="scope">{{scope.row.id.toFixed(2)}}</template>
+            </el-table-column>
+            <el-table-column
+              label="商品详情"
+              width="110"
+              align="center">
+              <template scope="scope">
+                <div class="tmp-cell__buttons">
+                  <el-button type="text" size="small" @click="openOrderDetail">详情</el-button>
+                  |
+                  <el-button type="text" size="small">查看物流</el-button>
+                </div>
+              </template>
+            </el-table-column>
+          </el-table>
+          <el-pagination
+            class="template-table-pagination"
+            :page-sizes="[10, 20, 30, 50, 100]"
+            :page-size="10"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="100">
+          </el-pagination>
+          <el-dialog title="交易详情" v-model="orderDetailDialog" :modal-append-to-body="false"
+                     :close-on-click-modal="false" response-limit>
+            <div class="tmp-title">基本属性</div>
+            <el-form label-width="80px">
+              <el-row>
+                <el-col :span="12">
+                  <el-form-item label="订单编号：" class="form-text">
+                    <el-form-grid>1212143423</el-form-grid>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                  <el-form-item label="客户昵称：" class="form-text">
+                    <el-form-grid>花花花13418004281</el-form-grid>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                  <el-form-item label="下单时间：" class="form-text">
+                    <el-form-grid>2017-01-23 14:54:59</el-form-grid>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                  <el-form-item label="付款时间：" class="form-text">
+                    <el-form-grid>2017-01-23 14:55:09</el-form-grid>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                  <el-form-item label="实付款：" class="form-text">
+                    <el-form-grid>68.0（含快递：0.0）</el-form-grid>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                  <el-form-item label="交易状态：" class="form-text">
+                    <el-form-grid>等待卖家发货（买家已付款）</el-form-grid>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                  <el-form-item label="买家备注：" style="margin-bottom: 0;">
+                    <el-form-grid>买家备注买家备注</el-form-grid>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                  <el-form-item label="卖家备注：" style="margin-bottom: 0;">
+                    <business-form-edit>
+                      <el-form-grid slot="content">卖家备注</el-form-grid>
+                      <el-form-grid size="xmd" slot="edit">
+                        <el-input type="text"></el-input>
+                      </el-form-grid>
+                    </business-form-edit>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="24">
+                  <el-form-item label="备注旗帜：" class="form-text">
+                    <el-form-grid>
+                      <el-radio-group v-model="flatCheck">
+                        <el-radio label="1">不限</el-radio>
+                        <el-radio label="2"><i class="bui-flag text-gray"></i></el-radio>
+                        <el-radio label="3"><i class="bui-flag text-danger"></i></el-radio>
+                        <el-radio label="4"><i class="bui-flag text-warning"></i></el-radio>
+                        <el-radio label="5"><i class="bui-flag text-success"></i></el-radio>
+                        <el-radio label="6"><i class="bui-flag text-info"></i></el-radio>
+                        <el-radio label="7"><i class="bui-flag text-purple"></i></el-radio>
+                      </el-radio-group>
+                    </el-form-grid>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+              <el-form-item></el-form-item>
+            </el-form>
+            <div class="tmp-title">商品列表</div>
+            <el-table
+              :data="tableData"
+              class="template-table">
+              <el-table-column
+                align="center"
+                label="商品图片"
+                width="80">
+                <template scope="scope">
+                  <img src="https://img.alicdn.com/bao/uploaded/i2/TB1a9L6OFXXXXapXVXXXXXXXXXX_!!0-item_pic.jpg_60x60"
+                       width="60" height="60">
+                </template>
+              </el-table-column>
+              <el-table-column
+                prop="address"
+                label="属性">
+                <template scope="scope">
+                  <div>百雀羚水嫩柔滑夜间精华面膜 睡眠面膜免洗 补水保湿 女士护肤品化妆品净含量:110g/ml</div>
+                  <div>商品编码：6927006114637</div>
+                </template>
+              </el-table-column>
+              <el-table-column
+                prop="address"
+                align="right"
+                label="单价">
+                <template scope="scope">{{scope.row.id.toFixed(2)}}</template>
+              </el-table-column>
+              <el-table-column
+                prop="id"
+                align="right"
+                label="数量">
+                <template scope="scope">{{scope.row.id + Math.ceil(Math.random()*10)}}</template>
+              </el-table-column>
+
+            </el-table>
+            <div slot="footer" class="dialog-footer">
+              <el-button @click="orderDetailDialog=false">取 消</el-button>
+              <el-button @click="orderDetailDialog=false" type="primary">提 交</el-button>
+            </div>
+          </el-dialog>
+        </el-tab-pane>
+      </el-tabs>
+    </div>
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

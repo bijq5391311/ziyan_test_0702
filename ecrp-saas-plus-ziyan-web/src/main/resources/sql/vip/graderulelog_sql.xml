@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="vip.GradeRuleLog">
+		<sql id="queryTableRespans" value="" >
+	    	<if value="
+			select gl.*,sb.brand_name,grd.grade_name as old,grd2.grade_name as new from grade_log gl left join grade_rule gr on gr.brand_id = gl.brand_id left join grade_rule_detail grd on grd.grade_rule_id = gr.id  and grd.grade = gl.old_grade left join grade_rule_detail grd2 on grd2.grade_rule_id = gr.id and grd2.grade = gl.new_grade inner join sys_brand sb on sb.id =gl.brand_id where gl.state=1 and gl.brand_id  in (${'brand_ids'})"></if>
+			<if test="#mark$EQ == 2" value="and gl.old_grade &gt;  gl.new_grade"></if>
+			<if test="#mark$EQ == 1" value="and gl.old_grade  &lt;  gl.new_grade"></if>
+			<bind name="customer_name" value="#customer_name == null ? null : ('%'+#customer_name+'%')"></bind>
+			<if value="and gl.customer_name like #{customer_name}"></if>
+			<if value = "  and grd.id = #{oldGrade}"></if>
+			<if value = "  and grd2.id = #{newGrade}"></if>
+			<if value="and gl.modify_time between #{modify_time$GTE} and #{modify_time$LTE}"></if>
+			<!--<if value=" group by gl.id"></if>-->
+	    </sql>
+	</sqlGroup>
+	
+</sqlRoot>

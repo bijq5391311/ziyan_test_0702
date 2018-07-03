@@ -1,0 +1,108 @@
+<root>
+			<spel id="step0">
+			</spel>
+	
+			<foreach  id="step1" setter="trade" list="#trades" item="t0">
+				<tasklet name="mappingOrder"/>
+			</foreach>
+	
+            <mapping id="mappingOrder" class="com.nascent.ecrpsaas.ingest.model.TestOrder">
+                <field name="address" bind="trade.order[0].address"/>
+                <field name="email" bind="Email"/>
+                <foreach id="innerFor" setter="order" list="$.orders" item="o0">
+					<tasklet name="mappingTrade"/>
+					<field name="num" bind="#t1.get('num')+(#innerFor.get('num')?:0)"/>
+				</foreach>
+                <output><![CDATA[]]></output>
+            </mapping>
+            
+            <mapping id="mappingTrade" class="com.nascent.ecrpsaas.ingest.model.TestOrder">
+                <field name="nick" bind="$.buyer_nick"/>
+                <field name="mobile" bind="$.receiver.mobile"/>
+                <output><![CDATA[]]></output>
+            </mapping>
+            
+            
+            <sql id="step2" setter="order">
+            	<jdbc>
+            		<driver>com.mysql.jdbc.Driver</driver>
+            		<url>jdbc:mysql://localhost:3306/databaseName;</url>
+            		<uid>root</uid>
+            		<pwd></pwd>
+            	</jdbc>
+                <query><![CDATA[inerst into value(?,?,?,?,?
+                	?,?,？，？
+                	) col1=?]]></query>
+                <params>
+                    <field bind="'1'"/>
+                    <field bind="#order.tradeID"/>
+                    <field bind="#order.tradeID"/>
+                    <field bind="#order.tradeID"/>
+                    <field bind="#order.tradeID"/>
+                    
+                    <field bind="'1'"/>
+                    <field bind="#order.tradeID"/>
+                    <field bind="#order.tradeID"/>
+                    <field bind="#order.tradeID"/>
+                    <field bind="#order.tradeID"/>
+                    
+                </params>
+                <result type="List/Map/Object">
+                    <field name="rfm.count" bind="result['count']"/>
+                    <field name="buyerNick" bind="result['nick']"/>
+                </result>
+                <output><![CDATA[]]></output>
+            </sql>
+            
+            <spel id="step3">
+                <field name="trade.address" bind="@tradeSvc.getAddress(#buyerNick)"/>
+                <field name="order.address" bind="#trade.address"/>
+                <field bind="@tradeSvc.callVoid(#tid)"/>
+            </spel>
+            
+            <groovy id="step4" setter="svcName">
+                <code entry="execute(#order)"><![CDATA[]]></code>
+                <result>
+                    <field name="count" bind="result.total"/>
+                    <field name="orders" bind="result.list"/>
+                </result>
+                <output><![CDATA[]]></output>
+            </groovy>
+            
+            <http id="step0" url="http://api.nascent.cn" api="/Trade/TopTrade" method="GET">
+	                <session>
+	                    <field name="oauth_appkey" bind="'client006'"/>
+						<field name="oauth_timestamp" bind="TIMESTAMP"/>
+	                    <field name="oauth_nonce" bind="NONCE"/>
+						<field name="oauth_signature_method" bind="'HMAC-SHA1'"/>
+	                    <field name="oauth_accesstoken" bind="'1E0m0_1q3J292P1F2D3w3K3r2m3R381f3p2K3p3N1N0v3q3w2k25011W0s1C240j0X1L2c1s2L0c0E3g2x3B2c3E0h230_1m0J1e0a3h202h3Q0N0i1d0e37251D0f340I0J0f2a0s1j0m3g0r1G2J2C1y2p153O0N1H093Z1K2o3M0M3h1E0p1K0f0Y2L0D0r0R3p0K1L211c1_3L1h2b3P0x1d0r1j092U0Q1c3i3m2V3D2I3O1H0W02163N0z3c3P1E0q2z181b3r040E3w1Z3E0r2t0D070U1S3p1a0d1Y0g2x1B1i2l3g3q0N37'"/>
+	                </session>
+	                <paginate nextPage="#root.put('page',#page+1)" testPage="#root!=null and !#root.isEmpty()" 
+	                		  nextDate="#root.put('startTime',#endTime)" testDate="#root.get('http_batchSize')&lt;10 and T(java.time.LocalDateTime).parse(#startTime)&lt;T(java.time.LocalDateTime).now()">
+	                     <field name="pageSize" bind="1"/>
+						 <field name="page" bind="1"/>
+	                     <field name="startTime" bind="#startTime!=null?#startTime:'2015-05-07T00:00:00'"/>
+	                     <field name="endTime" bind="T(java.time.LocalDateTime).parse(#root['startTime']).plusDays(1).toString()"/>
+	                </paginate>
+	                <sign name="oauth_signature" method="HMAC-SHA1">
+	                    <field name="method" bind="METHOD"/>
+	                    <field name="url" bind="URL"/>
+	                    <field name="params" bind="PARAMS"/>
+	                    <field name="appsecret" bind="'40A712E6-7115-4CF8-8169-8BBE36CF68AC'"/>
+	                </sign>
+	                <code entry="execute(#order)"><![CDATA[]]></code>
+					<result>
+	                	<field name="trades" bind="$.Data.TopTrade"/>
+	                	<field name="timestamp" bind="#startDate"/>
+	                </result>
+	                <output><![CDATA[]]></output>
+	          </http>
+                
+                <result>
+                    <field name="tradeID" bind="result['tid']"/>
+                    
+                </result>
+                
+            </http>
+            
+</root>

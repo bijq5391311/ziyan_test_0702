@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="care.CareAutoNotify">
+         <sql id="querySmsNotifyList" value=" select * from care_auto_notify where  1 = 1 and mobile_status = 0 and shop_code=#{shopCode}">
+               <if value="  and notify_time &gt;= #{notifyTime} and notify_time &lt;= now()"></if>
+               <if value=" and mark in (${'markList'})"></if>
+               <if value="order by notify_time"></if>
+               <if value = " limit 0,#{pageSize}"></if>
+         </sql>
+         <sql id="queryEmailNotifyList" value=" select * from care_auto_notify where  1 = 1 and email_status = 0 and shop_code=#{shopCode}">
+               <if value=" and notify_time &gt;= #{notifyTime} and notify_time &lt;= now()"></if>
+               <if value=" and mark in (${'markList'})"></if>
+               <if value="order by notify_time"></if>
+               <if value = " limit 0,#{pageSize}"></if>
+         </sql>
+         <sql id="queryWxNotifyList" value=" select * from care_auto_notify where  1 = 1 and wx_status = 0 and shop_code=#{shopCode}">
+               <if value=" and notify_time &gt;= #{notifyTime} and notify_time &lt;= now()"></if>
+               <if value=" and mark in (${'markList'})"></if>
+               <if value="order by notify_time"></if>
+               <if value = "limit 0,#{pageSize}"></if>
+         </sql>
+         <sql id="queryEventNotifyList" value=" select * from care_event_notify where  1 = 1 ">
+               <if value="and notify_time &gt;= #{notifyTime} and notify_time &lt;= now()"></if>
+               <if value="and mobile_status = #{mobileStatus}"></if>
+               <if value="and mark =#{mark}"></if>
+               <if value="order by notify_time"></if>
+               <if value = "limit 0,#{pageSize}"></if>
+         </sql>
+
+         <sql id="queryUrgeNotifyList" value="select c.* from care_auto_notify c join kd_trade t on t.sys_trade_id = c.sys_trade_id  where 1=1">
+         	<if value="and c.state = #{state}"></if>
+         	<if value="and c.mark = #{mark}"></if>
+         	<if value="and c.mobile_status = #{mobileStatus}"></if>
+         	<if value="and c.email_status = #{emailStatus}"></if>
+         	<if value="and c.shop_code = #{shopCode}"></if>
+         	<if value="and t.created &gt;= #{startTime}"></if>
+         	<if value="and t.created &lt;= #{endTime}"></if>
+         	<if value="order by notify_time"></if>
+            <if value = "limit 0,#{pageSize}"></if>
+         </sql>
+         <sql id="queryByTradeIdAndNotifyStatus" value="select * from care_auto_notify where 1=1">
+             <if value="and sys_trade_id = #{sysTradeId}"></if>
+             <if value="and  mark = #{mark}"></if>
+             <if value="and notify_status=#{notifyStatus}"></if>
+         </sql>
+	</sqlGroup>
+</sqlRoot>

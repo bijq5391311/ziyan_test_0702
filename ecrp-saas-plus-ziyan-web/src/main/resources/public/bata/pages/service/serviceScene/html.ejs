@@ -1,0 +1,269 @@
+<% include ../../../include/layout/start.ejs %>
+<div id="example" v-cloak>
+  <div class="template-page">
+
+    <div class="tmp-page__content">
+          <el-row>
+            <el-col :span="24">
+              <bus-multi-filter @submit-search="submitSearch"
+                                @reset-search="resetSearch"
+                                @recover-search="recoverSearch"
+                                @clean-search="cleanSearch">
+                <!-- 按钮组 -->
+                <template slot="btns">
+                  <el-button type="primary" @click="handerlSmsDialogVisible"><i class="bui-add"></i>新增短信发货提醒</el-button>
+                  <el-button type="primary"><i class="bui-add"></i>新增邮件发货提醒</el-button>
+                </template>
+                <!-- end/按钮组 -->
+                <!-- 单条件表单 -->
+                <el-form slot="singleform" :inline="true" class="pull-right">
+                  <el-form-item>
+                    <el-input
+                      placeholder="请输入姓名"
+                      icon="search">
+                    </el-input>
+                  </el-form-item>
+                </el-form>
+                <!-- end/单条件表单 -->
+                <!-- 多条件表单 -->
+                <el-form label-width="80px" :inline="true">
+                  <el-form-item label="关键词：" class="el-inline-block">
+                    <el-form-grid size="xmd">
+                      <el-input placeholder="请输入关键词"></el-input>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="起止时间：" class="el-inline-block">
+                    <el-form-grid size="xmd">
+                      <el-date-picker type="daterange" placeholder="选择日期范围" v-model="date"></el-date-picker>
+                    </el-form-grid>
+                  </el-form-item>
+                </el-form>
+                <!-- end/多条件表单 -->
+                <!-- 搜索结果 -->
+                <template slot="result">
+                  <el-tag v-for="(tag,index) in 10" :key="index" type="primary" :closable="true">tag</el-tag>
+                </template>
+                <!-- end/搜索结果 -->
+              </bus-multi-filter>
+              <el-table
+                :data="tableData"
+                :empty-text="tableEmptyTip"
+                class="template-table"
+                border
+                resizable>
+                <el-table-column
+                  type="selection"
+                  width="40">
+                </el-table-column>
+                <el-table-column
+                  prop="date"
+                  label="日期"
+                  width="100">
+                </el-table-column>
+                <el-table-column
+                  prop="name"
+                  label="姓名"
+                  width="180">
+                </el-table-column>
+                <el-table-column
+                  prop="province"
+                  label="省份"
+                  width="180">
+                </el-table-column>
+                <el-table-column
+                  prop="address"
+                  label="地址">
+                </el-table-column>
+                <el-table-column
+                  label="操作"
+                  align="center"
+                  width="110">
+                  <template scope="scope">
+                    <el-button type="text">详情</el-button>
+                    |
+                    <el-dropdown trigger="click" menu-align="start">
+                            <span class="el-dropdown-link">
+                              更多<i class="el-icon-caret-bottom el-icon--right"></i>
+                            </span>
+                      <el-dropdown-menu slot="dropdown">
+                        <el-dropdown-item :command="String(scope.$index)">删除</el-dropdown-item>
+                      </el-dropdown-menu>
+                    </el-dropdown>
+                  </template>
+                </el-table-column>
+              </el-table>
+              <el-pagination
+                class="template-table-pagination"
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                :current-page="currentPage4"
+                :page-sizes="[10, 20, 30, 50, 100]"
+                :page-size="10"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="100">
+              </el-pagination>
+              <el-dialog title="新增短信发货提醒" v-model="smsDialogVisible" :modal-append-to-body="false" size="small">
+                <el-form placement="right" label-width="100px" v-model="smsValidateForm" ref="smsValidateForm">
+                  <el-form-item label="任务名称：" required>
+                    <el-form-grid size="xmd">
+                      <el-form-item prop="mission" :rules="[ { required: true, message: '请输入任务名称', trigger: 'blur' }]">
+                        <el-input placeholder="请输入新建的任务名称" v-model="smsValidateForm.mission"></el-input>
+                      </el-form-item>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="提醒店铺：" required>
+                    <el-form-grid>
+                      <el-button type="primary" @click="handerlMultilayerVisible()"><i class="bui-select-shops"></i>选择店铺
+                      </el-button>
+                    </el-form-grid>
+                    <el-form-grid>已选择<b class="text-danger"> {{resultMultilayer}}</b> 家店铺</el-form-grid>
+                  </el-form-item>
+
+                  <el-form-item label="会员分组：">
+                    <el-form-grid size="xmd">
+                      <el-popover ref="droptreepopover"
+                                  v-model="dropTreeVisible"
+                                  :width="droptreeWidth"
+                                  placement="bottom-start"
+                                  trigger="click"
+                                  popper-class="tmp-droptree-popover">
+                        <el-scrollbar wrap-class="tmp-droptree-scroll">
+                          <el-tree-extra :data="dropTreeList"
+                                         :expand-on-click-node="false"
+                                         @node-click="handleSelectValue"
+                                         class="tmp-droptree-tree"></el-tree-extra>
+                        </el-scrollbar>
+                      </el-popover>
+                      <el-input ref="droptreeinput" v-model="dropTreeValue" readonly @click.native="handleShowDropTree"
+                                placeholder="请选择分组" class="tmp-droptree-input" v-popover:droptreepopover
+                                class="tmp-droptree-input"></el-input>
+                    </el-form-grid>
+                    <el-form-grid>
+                      <el-button type="primary"><i class="bui-weitongji"></i>统计人数</el-button>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="目标等级：" class="el-inline-block">
+                    <el-form-grid size="sm">
+                      <el-select v-model="level" placeholder="请选择" v-model="defaultSelect">
+                        <el-option label="普通会员" value="level1"></el-option>
+                        <el-option label="高级会员" value="level2"></el-option>
+                        <el-option label="VIP会员" value="level3"></el-option>
+                        <el-option label="至尊VIP" value="level4"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="优先级：" class="el-inline-block">
+                    <el-form-grid size="sm">
+                      <el-select v-model="level" placeholder="请选择" v-model="defaultSelect">
+                        <el-option label="普通会员" value="level1"></el-option>
+                        <el-option label="高级会员" value="level2"></el-option>
+                        <el-option label="VIP会员" value="level3"></el-option>
+                        <el-option label="至尊VIP" value="level4"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="关怀目标：">
+                    <el-form-grid>
+                      <el-radio-group v-model="formRadio">
+                        <el-radio label="收货手机号"></el-radio>
+                        <el-radio label="优先支付宝手机号"></el-radio>
+                      </el-radio-group>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="提醒时间：">
+                    <el-form-grid size="sm">
+                      <el-select v-model="time" placeholder="请选择" v-model="defaultSelect">
+                        <el-option label="即时" value="time1"></el-option>
+                        <el-option label="大于" value="time2"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                    <el-form-grid>延长</el-form-grid>
+                    <el-form-grid size="md">
+                      <el-input placeholder="输入整数">
+                        <template slot="append">分钟</template>
+                      </el-input>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="短信模板：">
+                    <el-form-grid size="sm">
+                      <el-select placeholder="请选择" v-model="defaultSelect">
+                        <el-option label="短信模板1" value="mod1"></el-option>
+                        <el-option label="短信模板2" value="mod2"></el-option>
+                        <el-option label="短信模板3" value="mod3"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="短信内容：" required>
+                    <div class="tmp-fieldset">
+                      <div class="tmp-fieldset__tags">
+                        <el-tag type="gray" color="#fff">昵称</el-tag>
+                        <el-tag type="gray" color="#fff">姓名</el-tag>
+                        <el-tag type="gray" color="#fff">会员等级</el-tag>
+                        <el-tag type="gray" color="#fff">订单编号</el-tag>
+                      </div>
+                      <el-input class="tmp-fieldset__input" type="textarea" placeholder="最多可输入70个字"></el-input>
+                    </div>
+                    <div class="tmp-tips text-danger"><i class="bui-error-fill"></i>内容含有网址请在后面添加网格</div>
+                    <el-form-grid>
+                      <el-checkbox>将短信内容保存到新模板</el-checkbox>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="短信签名：">
+                    <el-form-grid size="sm">
+                      <el-select placeholder="请选择" v-model="defaultSelect">
+                        <el-option label="短信签名" value="mod1"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="选择通道：">
+                    <el-form-grid size="sm">
+                      <el-select placeholder="请选择" v-model="defaultSelect">
+                        <el-option label="客道云通道" value="mod1"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                  </el-form-item>
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                  <el-button @click="smsDialogVisible = false">取 消</el-button>
+                  <el-button type="primary" @click="submitSmsForm('smsValidateForm')">确 定</el-button>
+                </div>
+              </el-dialog>
+              <el-dialog title="选择平台" v-model="dialogMultilyaerVisible" ref="dialogMultilyaer" size="tiny"
+                         custom-class="no-padding" :modal-append-to-body="false">
+                <el-collapse>
+                  <el-collapse-item>
+                    <template slot="title">
+                      线上店铺
+                    </template>
+                    <div class="template-multi-content">
+                      <el-multi
+                        :data="dataOnline"
+                        accordion
+                        node-key="id"
+                        :default-checked-keys="defaultCheckedKeys"
+                        @check-change="handleCheckChange"
+                        ref="online"
+                        :cols="2"
+                        :show-Selectall="false"
+                        :props="onlineProps">
+                      </el-multi>
+                    </div>
+                  </el-collapse-item>
+                </el-collapse>
+                <!-- <div class="template-multi">
+                   <div class="template-multi-header">
+                     <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange" >线上店铺</el-checkbox>
+                   </div>
+
+                 </div>-->
+                <div slot="footer" class="dialog-footer">
+                  <el-button @click="saveMultilayerSelect">取 消</el-button>
+                  <el-button type="primary" @click="saveMultilayerSelect">确 定</el-button>
+                </div>
+              </el-dialog>
+            </el-col>
+          </el-row>
+    </div>
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

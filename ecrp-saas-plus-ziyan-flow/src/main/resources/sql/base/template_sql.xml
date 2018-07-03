@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="base.template">
+		<sql id="queryTemplateBytemplateType" value="SELECT id AS v ,template_title AS k  from kd_marketing_template WHERE  1=1 ">
+		<if value=" and marketing_manner = #{marketingManner}"></if>
+		</sql>
+		
+	    <sql id="getTemplateByName" value="SELECT template  from kd_marketing_template WHERE  state =1  ">
+		   <if value=" and id = #{id}"></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>

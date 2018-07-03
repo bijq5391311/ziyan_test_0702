@@ -1,0 +1,57 @@
+<% include ../../../include/layout/start.ejs %>
+<div id="example" v-cloak>
+  <div class="template-page">
+        <div class="tmp-page__header">
+          <div class="tmp-page__menu">
+            <a class="tmp-page__menu-item is-active">组织机构</a>
+          </div>
+        </div>
+        <div class="template-layout">
+          <div class="template-layout-left">左侧内容</div>
+          <div class="template-layout-right">
+            <!--  内容区域 筛选及表格结构 / begin -->
+            <div class="tmp-page__content">
+              <el-row>
+                <el-col :span="24">
+                  <div class="template-table-bar">
+                    <el-row type="flex">
+                      <el-col :span="18">
+                        <el-form-grid>
+                          <el-button type="primary"><i class="bui-edit"></i>批量备注</el-button>
+                        </el-form-grid>
+                        <el-form-grid>
+                          <el-button type="primary"><i class="bui-send"></i>批量发送短信</el-button>
+                        </el-form-grid>
+                        <el-form-grid>
+                          <el-button type="primary"><i class="bui-import"></i>导入数据（CSV）表格</el-button>
+                        </el-form-grid>
+                      </el-col>
+                      <el-col :span="6">
+                        <el-form class="pull-right" :inline="true">
+                          <el-form-item>
+                            <el-input
+                              placeholder="请输入姓名"
+                              icon="search"
+                            >
+                            </el-input>
+                          </el-form-item>
+                        </el-form>
+                      </el-col>
+                    </el-row>
+                  </div>
+                  <el-table :data="tableData" border>
+                    <el-table-column type="selection" width="40" align="center"></el-table-column>
+                    <el-table-column prop="date" label="日期" width="180" align="center"></el-table-column>
+                    <el-table-column prop="name" label="姓名"></el-table-column>
+                    <el-table-column prop="province" label="省份"></el-table-column>
+                    <el-table-column prop="address" label="地址"></el-table-column>
+                  </el-table>
+                </el-col>
+              </el-row>
+            </div>
+            <!--  内容区域 筛选及表格结构 / end -->
+          </div>
+        </div>
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

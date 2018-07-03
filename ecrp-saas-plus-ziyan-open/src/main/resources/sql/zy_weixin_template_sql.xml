@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="zy.weixin.sendWxConcern">
+
+		<!--通过用户手机号，查找用户关注的公众号的appKey-->
+		<sql id= "queryKdCustomerByMobile"  value="SELECT sys_customer_id AS sysCustomerId,customer_name AS customerName,mobile FROM kd_customer where 1 = 1">
+			<if value=" AND mobile = #{mobile}"></if>
+			<if value=" AND state = #{state}"></if>
+		</sql>
+
+		<!--通过用户sysID，查找用户关注的公众号的appKey-->
+		<sql id= "queryKdCustomerWeiXinInfos"  value="SELECT sys_customer_id AS sysCustomerId ,open_id AS openId,app_key AS appKey,user_nick AS userNick FROM kd_customer_weixin WHERE 1 = 1">
+			<if value=" AND sys_customer_id = #{sysCustomerId}"></if>
+			<if value=" AND state = #{state}"></if>
+		</sql>
+
+		<sql id="queryKdCustomerBrands"
+			 value="SELECT sys_customer_id AS sysCustomerId, brand_id AS brandId FROM kd_customer_brand WHERE 1=1">
+			<if value="AND sys_customer_id = #{sysCustomerId}"></if>
+			<if value="AND state = #{state}"></if>
+		</sql>
+		
+		<sql id= "queryWXCustomerByMobile"  value="SELECT
+	kc.sys_customer_id,
+	kcw.open_id AS openId,
+	kcw.app_key AS appKey,
+	kcw.user_nick AS userNick,
+	kcb.brand_id AS brandId
+FROM
+	kd_customer kc
+LEFT JOIN kd_customer_weixin kcw ON kc.sys_customer_id = kcw.sys_customer_id
+LEFT JOIN kd_customer_brand kcb ON kc.sys_customer_id = kcb.sys_customer_id
+WHERE 1=1">
+			<if value="AND kc.mobile = #{mobile}"></if>
+			<if value="AND kc.state = 1"/>
+			<if value="AND kcb.state = 1"/>
+			<if value="AND kcw.state = 1"/>
+		</sql>
+
+		<sql id="queryWxTemplateByAppKeyAndType" value="SELECT id AS templateId, name AS templateName,type,remark,
+	           template_code AS templateCode,app_key AS appKey,weixin_id AS weixinId,
+	           weixin_name AS weixinName FROM wx_template WHERE 1 = 1"  >
+			<if value=" AND app_key = #{appKey}" ></if>
+			<if value=" AND type = #{type}"></if>
+			<if value=" AND state = #{state}"></if>
+		</sql>
+
+	</sqlGroup>
+</sqlRoot>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+<sqlGroup name="marketing.activities">
+    <sql id="getFlowTemplate" value="SELECT a.* from MKT_FLOW_TEMPLATE a
+              LEFT JOIN activities s ON a.name = s.activities_name where s.activities_name = #{name}">
+    </sql>
+    <sql id="getActivitiesByInstance" value="select * from MKT_FLOW_RUNNING_PROCESS a,activities b where a.Name = b.activities_name and a.ID = #{instanceId} ">
+    </sql>
+</sqlGroup>
+</sqlRoot>

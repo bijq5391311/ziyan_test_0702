@@ -1,0 +1,133 @@
+<th:block th:fragment="renderjs(dslJSON, context)">
+	[(${T(com.nascent.ecrpsaas.render.GridHelper).preprocessing(context, dslJSON)})]
+	<th:block th:inline="javascript", 
+		th:with="
+		    compName = ${context.get('name')},
+		    deps = ${context.get('deps')},
+			methods = ${dslJSON.get('methods')},
+			state = ${#strings.isEmpty(dslJSON.get('state'))? '{}' : dslJSON.get('state')},
+			model = ${#strings.isEmpty(dslJSON.get('model'))? '{}' : dslJSON.get('model')},
+			rules = ${#strings.isEmpty(dslJSON.get('rules'))? '{}' : dslJSON.get('rules')},
+			computed = ${#strings.isEmpty(dslJSON.get('computed'))? '{}' : dslJSON.get('computed')},
+			quickInput = ${context.get('quickSearch') ?: 'null'},
+			pagination = ${dslJSON.get('pagination') ?: '{}'},
+			tableButtons = ${context.get('tableButtons')},
+			operateButtons = ${dslJSON.get('buttons')}
+		"
+	>
+		define([[${compName}]], [ [(${#strings.isEmpty(deps) ? "" : "'"+deps.replace(",","','")+"',"})] "vue", "nui", "jquery", "utilbuild/main", "/public/renderEngine3.0/helper.js"], 
+		 function([(${#strings.isEmpty(deps) ? "" : deps+","})] Vue, Nui, $, _, {vueEvent,httpPost,tree_mixin,table_mixin,form_mixin}) {
+			
+			[#th:block th:if="${context.get('enable_tree')}" th:insert="../public/renderEngine3.0/tree/js::renderjs(${dslJSON.get('tree')}, ${context})"][/th:block]
+			
+			var template = `[#th:block th:insert="../public/renderEngine3.0/grid/template::renderTemplate(${dslJSON}, ${context})"][/th:block]`;
+				
+			Vue.component([[${compName}]], {
+				mixins: [table_mixin,tree_mixin,vueEvent],
+				template: template,
+				data: function() {
+					var pagination = {
+	                	enable: [(${pagination.get("enable")})],
+	                	size: [(${pagination.get("size")})],
+	                	sizeOpts: [(${pagination.get('sizeOpts')})],
+	                	page: 1,
+	                	total: 0,
+	                }
+	                
+	                var table_buttons = [
+	                	[#th:block th:if="${tableButtons != null}"]
+							[#th:block th:each="item,stat:${tableButtons}"]{
+								"func": [(${#strings.isEmpty(item.get('func')) ? "$.noop" : item.get('func')})],
+								"icon": [[${#strings.isEmpty(item.get('icon')) ? "$.noop" : item.get('icon')}]],
+								"name": [[${#strings.isEmpty(item.get('name')) ? "" : item.get('name')}]],
+								"auth": `[(${#strings.isEmpty(item.get('auth')) ? "" : item.get('auth')})]`,
+								"visible":` [(${#strings.isEmpty(item.get('visible')) ? "" : item.get('visible')})] `,
+								},
+							[/th:block] 
+						[/th:block]
+	                ]
+	                
+	                var operate_buttons = [
+	                	[#th:block th:if="${operateButtons != null}"]
+							[#th:block th:each="item,stat:${operateButtons}"]{
+								"func": [(${#strings.isEmpty(item.get('action')) ? "$.noop" : item.get('action')})],
+								"icon": [[${#strings.isEmpty(item.get('icon')) ? "$.noop" : item.get('icon')}]],
+								"name": [[${#strings.isEmpty(item.get('text')) ? "" : item.get('text')}]],
+								"auth": `[(${#strings.isEmpty(item.get('auth')) ? "" : item.get('auth')})]`,
+								"visible":` [(${#strings.isEmpty(item.get('visible')) ? "" : item.get('visible')})] `,
+								},
+							[/th:block] 
+						[/th:block]
+	                ]
+				
+					var quickInput = [(${quickInput})];
+					var quickSearchNames = quickInput.map(x => x.name);
+					var quickSearchModel = {};
+					var model = Object.assign({}, <!--/* 输入组件中的name集合 */-->[(${context.get('model') ?: "{}"} )],<!--/* 自定义的name集合 */--> [(${model})]);
+					var that = this;
+					
+					quickInput.map(item => {
+						Object.defineProperty(quickSearchModel, item.name, {
+							get: function() {
+								return model[item.name];
+							},
+							set: function(val) {
+								model[item.name] = val;
+								//TODO 由于特殊需求导致下列写法
+								if(item.type === "radio") {
+									that._data._table.quickSearchMap[item.name] = val;
+									that.$quickSearch$();
+								}
+							},
+							enumerable: true
+						})
+					});
+					
+					return {
+						model: model,
+						quickSearchModel: quickSearchModel,
+						rules: Object.assign({}, [(${context.get('rules') ?: "{}"})], [(${rules})]),
+						state: [(${state})],
+						url: [[${dslJSON.get('url')}]],
+						_pagination: pagination,
+						_table: {
+							table_buttons: table_buttons,
+							operate_buttons: operate_buttons,
+							quickSearchNames: quickSearchNames,
+							quickSearchMap: {},
+						}
+					};
+				},
+				mounted: function() {
+					var vm = this;
+					if(typeof this.$init === "function") {
+						this.$init(this, this.$generateParams$);
+					} else
+						this.$reload();
+					if(this.$refs.table_filter_form.$el) {
+						this.$refs.table_filter_form.$el.onkeyup = function(event) {
+							if(event.keyCode === 13) {
+								vm.$searchAction$();
+							}
+						}
+					}
+					if(this.$refs.quickText && this.$refs.quickText.$el) {
+						this.$refs.quickText.$el.onkeyup = function(event) {
+							if(event.keyCode === 13) {
+								vm.$quickSearchAction$(event);
+							}
+						}
+						
+						this.$refs.quickText.$el.onkeydown = function(event) {
+							if(event.keyCode === 13) {
+								return false;
+							}
+						}
+					}
+				},
+				computed: {},
+				methods: [#th:block th:insert="../public/renderEngine3.0/common/method::createMethods(${methods})"][/th:block]
+			})
+		})
+	</th:block>
+</th:block>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="core.Employee">
+	
+		<sql id="query1" value="select ID,Name,EName,CompanyName from employees where 1 = 1" >
+	    	<if value = "and ID = #{ID}"></if>
+	    	<if test="#{Name}!=null" value="and (Name like ${'%Name%'} or EName like ${'%Name%'})"></if>
+	    </sql>
+	    
+	</sqlGroup>
+	
+</sqlRoot>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="base.touch">
+	    <!-- 下拉数据 -->
+		<sql id="querySignatureOptions" value="select id as id,signature_name as signatureName from kd_sms_signature where 1=1 ">
+			<if test="#groupId!=null and #groupId!=''" value="and group_id=#{groupId}"></if>
+			<if value=" and state=1"></if>
+		</sql>
+		
+        
+	    <sql id="queryMarketingTemplate" value="select id as templateId, template_title as templateTitle, marketing_manner as marketingManner, template as template, 
+				template_type as templateType
+				from kd_marketing_template where 1=1">
+		  <if value=" and template_type=#{templateType}"></if>
+		  <if value=" and marketing_manner=#{marketingManner}"></if>
+	      <if value=" and state=#{state}"></if>
+	    </sql>
+	    <sql id="queryMarketingTemplateById" value="select id as templateId, template_title as templateTitle, marketing_manner as marketingManner, template as template, 
+                template_type as templateType
+                from kd_marketing_template where 1=1 and id=#{id}">
+        </sql>
+	<!-- 查询部门下的通道 -->
+	    <sql id="queryYsConfigInfo" value="select y.*, y.department_code as departmentCode
+	            from  kd_ys_config_info y
+	            where 1 = 1 and y.state = 1">
+	    	<if value=" and y.type=#{type}"></if>
+	       <if value=" and y.id = #{id}"></if>
+	    </sql>
+	     <sql id="queryYsConfigInfoOptions" value="select y.id as v,sp_name as k
+                from  kd_ys_config_info y
+                where 1 = 1 and y.state = 1">
+            <if value=" and y.type=#{type}"></if>
+           <if value=" and y.id = #{id}"></if>
+           <if value="and y.department_code=#{deptCode}"></if>
+        </sql>
+	    <sql id="queryWxTemplate" value="select id as templateId, name as templateName,type,remark,
+	           template_code as templateCode,app_key as appKey,weixin_id as weixinId,
+	           weixin_name as weixinName from wx_template where 1 = 1"  >
+	       <if value=" and id=#{id}" ></if>
+	       <if value=" and type=#{type}"></if>
+	       <if value=" and state = #{state}"></if>
+	    </sql>
+	    <sql id= "touchBlackCount" value="select count(*) from kd_touch_black where 1 = 1">
+	           <if test="#sysCustomerId > 0 or #target != null" value="and (sys_customer_id = #{sysCustomerId} or target = #{target})"></if>
+	           <if value="and type= #{type}"></if>
+	           <if value="and brand_id = #{brandId}"></if>
+	    </sql>
+	    
+	    <sql id= "touchBlackByTarget" value="select * from kd_touch_black where 1 = 1 ">
+	     	<if value=" and (sys_customer_id = ${sysCustomerId} or target in ( ${'target'} )) " ></if>
+	    	<if value="and type= #{type}"></if>
+	    </sql>
+	    
+	    <sql id= "queryTouchBlackListByBrandIdsAndType"
+	       value= "select * from kd_touch_black where 1= 1">
+	       <if value="and brand_id in(${brandIDs})"></if>
+	       <if value="and type=#{type}"></if>
+	    </sql>
+	    <sql id= "queryWxAccout"
+	    	 value = "select app_key as appKey,app_secret as appSecret from wx_account where 1=1">
+	    	<if value="and state = #{state}"></if>
+	         <if value="and app_key = #{appKey}"></if>
+	    </sql>
+	    <sql id= "queryMarketingWxTemplate"
+	    	 value = "select template_code as templateCode,name from wx_template where 1=1">
+	    	 <if value="and state = #{state}"></if>
+				 <if value="and app_key = #{appKey}"></if>
+				 <if value="and type = #{type}"></if>
+	    </sql>
+	    <sql id= "queryWxTemplateTags"
+             value = "select wx_tag_code as wxTagCode, ecrp_tag_code as ecrpTagCode, ecrp_tag_name as ecrpTagName 
+                        from wx_template_tags t 
+                     inner join wx_template_tags_detail td on td.tags_id = t.id
+                     where 1=1">
+            <if value=" and td.template_id = #{templateId}"></if>
+        </sql>
+        <sql id="queryMaketingTemplateOptions" value ="select template_title as k, id as v from kd_marketing_template where 1=1">
+            <if value=" and template_type=#{templateType}"></if>
+            <if value=" and marketing_manner=#{marketingManner}"></if>
+						<if value=" union select template_title as k, id as v from kd_marketing_template where 1=1"></if>
+						<if value=" and template_type = 4"></if>
+						<if value=" and marketing_manner=#{marketingManner}"></if>
+        </sql>
+        <sql id="queryWxAccountOptions" value ="select app_key as v, name as k from wx_account where 1=1">
+            <if value=" and state=#{state}"></if>
+        </sql>
+         <sql id="queryWxTemplateOptions" value ="select name as k, id as v from wx_template where 1=1">
+            <if value="and type=#{type}"></if>
+            <if value="and app_key=#{appKey}"></if>
+            <if value="and state=#{state}"></if>
+        </sql>
+        <sql id="queryKdTouchInfo" value="select * from kd_touch_info"></sql>
+        <!-- 验证数据  -->
+        <sql id="validataTouch" value="select count(1) from kd_touch_black where 1=1">
+        	<if value=" and target = #{target}"></if>
+        	<if value=" and type = #{type}"></if>
+        	<if value=" and sys_customer_id = #{sys_customer_id}"></if>
+        	<if value=" and brand_id = #{brand_id}"></if>
+        </sql>
+        
+        
+        
+	</sqlGroup>
+</sqlRoot>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+    <sqlGroup name="zyCouponExt">
+        <sql id="findList" count="select count(1)" value="
+        select * from zy_coupon_customer_ext c
+        inner join kd_customer_weixin w on w.sys_customer_id = c.sys_customer_id
+        where 1=1">
+            <if value="and w.open_id = #{openId}"/>
+            <if value="and c.state = #{state}"/>
+            <if value="and c.create_time &gt;= #{startTime}"></if>
+            <!--<if value="and c.create_time &lt;= #{endTime}"></if>-->
+            <if value=" order by c.update_time desc "></if>
+        </sql>
+        <sql id="findCouponExtByCode" count="select count(1)" value="
+	        select * from zy_coupon_customer_ext c
+	        where 1=1">
+            <if value="and c.coupon_code = #{couponCode}"/>
+        </sql>
+    </sqlGroup>
+</sqlRoot> 

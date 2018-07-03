@@ -1,0 +1,171 @@
+<% include ../../../include/layout/start.ejs %>
+<div id="example" v-cloak>
+  <div class="template-page">
+    <div class="tmp-page__content">
+      <el-row :gutter="10">
+        <el-col :span="16">
+          <div class="interactive-panel interactive-main">
+            <p class="text-title"><i class="bui-fenxi-o"></i>实时订单数据监控</p>
+            <div class="interactive-content">
+              <div class="unit-main">
+                <div class="main-left">下单</div>
+                <div class="unit-part">
+                  <div class="unit-list">
+                    <span class="unit-left">
+                        <span>待付款订单</span>
+                        <span>338</span>
+                    </span>
+                    <span class="unit-right">
+                        <span>1天内将关闭订单</span>
+                        <span>338<i class="icon  el-icon-search" ></i></span>
+                    </span>
+                  </div>
+                  <div class="unit-shadow level-1"></div>
+                </div>
+                <div class="main-right"></div>
+              </div>
+
+              <div class="unit-main">
+                <div class="main-left">付款</div>
+                <div class="unit-part level-2">
+                  <div class="unit-list level-2">
+                    <span class="unit-left">
+                        <span>待发货订单</span>
+                        <span>284</span>
+                    </span>
+                    <span class="unit-right">
+                        <span>延时发货订单<el-tooltip content="付款后超过3天未发货的订单" effect="light" placement="right"><i class="icon bui-question"></i></el-tooltip></span>
+                        <span>0<i class="icon  el-icon-search"></i></span>
+                    </span>
+                  </div>
+                  <div class="unit-shadow level-2"></div>
+                </div>
+                <div class="main-right">今日已关怀:<span>0</span></div>
+              </div>
+
+              <div class="unit-main">
+                <div class="main-left">发货</div>
+                <div class="unit-part level-3">
+                  <div class="unit-list level-3">
+                    <span class="unit-left">
+                        <span>待签收订单</span>
+                        <span>2292</span>
+                    </span>
+                    <span class="unit-right">
+                        <span>快递滞留订单<el-tooltip content="快递流转信息超过3天未更新的订单" effect="light" placement="right"><i class="icon bui-question"></i></el-tooltip></span>
+                        <span>818<i class="icon el-icon-search"></i></span>
+                    </span>
+                  </div>
+                  <div class="unit-shadow level-3"></div>
+                </div>
+                <div class="main-right">今日已关怀:<span>23</span></div>
+              </div>
+
+              <div class="unit-main">
+                <div class="main-left">签收</div>
+                <div class="unit-part level-4">
+                  <div class="unit-list level-4">
+                                  <span class="unit-one">
+                                      <span>待确认订单</span>
+                                      <span id="WaitReceiveOrderCount">0</span>
+                                  </span>
+                  </div>
+                  <div class="unit-shadow level-4"></div>
+                </div>
+                <div class="main-right">今日已关怀:<span id="CurrenReceiveConcernCount">12</span></div>
+              </div>
+
+              <div class="unit-main">
+                <div class="main-left">确认/退款</div>
+                <div class="unit-part level-5">
+                  <div class="unit-list level-5">
+                                  <span class="unit-one">
+                                      <span>退款中订单</span>
+                                      <span id="RefundingOrderCount">4550</span>
+                                  </span>
+                  </div>
+                </div>
+                <div class="main-right">今日已关怀:<span id="CurrenRefundConcernCount">0</span></div>
+              </div>
+
+            </div>
+          </div>
+        </el-col>
+        <el-col :span="8">
+          <div class="interactive-right">
+            <div class="interactive-panel panel-rt">
+              <p>购物关怀</p>
+              <div class="clearfix">
+                <a class="list-area chosed-unit"  href="#">
+                  <span class="icon bui-expediting-o"></span>
+                  <span>首次催付</span>
+                  <label>1</label>
+                </a>
+                <a class="list-area "  href="#">
+                  <span class="icon bui-on-off-o"></span>
+                  <span>关闭前催付</span>
+                </a>
+                <a class="list-area "  href="#">
+                  <span class="icon bui-order-o"></span>
+                  <span>下单关怀</span>
+                </a>
+                <a class="list-area "  href="#">
+                  <span class="icon bui-pre-payment-o"></span>
+                  <span>付款关怀</span>
+                </a>
+                <a class="list-area "   href="#">
+                  <span class="icon bui-box-o"></span>
+                  <span>发货提醒</span>
+                </a>
+                <a class="list-area"  href="#">
+                  <span class="icon bui-address-o"></span>
+                  <span>到达提醒</span>
+                </a>
+                <a class="list-area " href="#">
+                  <span class="icon bui-sign-o"></span>
+                  <span>签收关怀</span>
+                </a>
+                <a class="list-area " href="#">
+                  <span class="icon bui-confirm-o"></span>
+                  <span>确认关怀</span>
+                </a>
+                <a class="list-area " href="#">
+                  <span class="icon bui-refund-o"></span>
+                  <span>退款关怀</span>
+                </a>
+                <a class="list-area chosed-unit" href="#">
+                  <span class="icon bui-package-o"></span>
+                  <span>个性化包裹</span>
+                  <label>16</label>
+                </a>
+
+              </div>
+            </div>
+            <div class="interactive-panel panel-rb">
+              <p>事件关怀</p>
+              <div class="clearfix">
+                <a class="list-area " href="#">
+                  <span class="icon bui-integral-o"></span>
+                  <span>积分触发器</span>
+                </a>
+                <a class="list-area " href="#">
+                  <span class="icon bui-birthday-o"></span>
+                  <span>生日祝福</span>
+                </a>
+                <a class="list-area " href="#">
+                  <span class="icon bui-concern-o"></span>
+                  <span>节日关怀</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+        </el-col>
+      </el-row>
+
+
+
+    </div>
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

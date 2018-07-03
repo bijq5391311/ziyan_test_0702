@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="touch.KdSmsSendLog">
+		<sql id="queryTableRespans" value="select ss.* from kd_sms_send_log ss where 1=1 and state = 1" >
+			<bind  name="target" value="#target == null ? null : ('%'+#target+'%')"></bind>
+			<if  value=" and ss.target like #{target}"></if>
+			<bind name="employee_name" value="#employee_name == null ? null : ('%'+#employee_name+'%')"></bind>
+			<if  value=" and ss.employee_name like #{employee_name}"></if>
+			<if test="#send_status != null" value=" and ss.send_status = #{send_status}"></if>
+			<bind  name="customer_name" value="#customer_name == null ? null : ('%'+#customer_name+'%')"></bind>
+			<if  value=" and ss.customer_name like #{customer_name}"></if>
+<!-- 			<bind name="tag" value="'%'+#tag+'%'"></bind> -->
+<!--       		<if value=" and tags like #{tag}"></if> -->
+			
+			<if test="#starTime != null" value=" and ss.update_time between #{starTime} and #{endTime}"></if>
+			<if value=" order by ss.create_time desc"></if>
+	    </sql>
+		<sql id="queryMarketingNote" value="select kssl.*,ksb.customer_name,ksb.send_time from kd_sms_send_log kssl ">
+			<if value="left join kd_sms_back ksb on kssl.group_id=ksb.group_id "></if>
+		</sql>
+		
+ 		<sql id="querySmsReport" value="select kssl.update_time as updateTime, kssl.source_model as sourceModer from kd_sms_send_log kssl where 1=1"></sql>
+	</sqlGroup>
+</sqlRoot>

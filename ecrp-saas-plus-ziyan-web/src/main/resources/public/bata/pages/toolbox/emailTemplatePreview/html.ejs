@@ -1,0 +1,179 @@
+<% include ../../../include/layout-full/start.ejs %>
+<div class="preview">
+  <!-- 输入内容 -->
+  <div class="compose-message-editor preview_bor">
+    <span class="text-title">尊敬的 {$Nick$}：您好，</span>
+    <div>
+      邮件头部自定义内容，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位。
+    </div>
+  </div>
+  <!-- 物流信息，订单信息 商品信息 -->
+  <div class="compose-message-editor">
+    <table width="100%" border="0" class="wuliu">
+      <tbody>
+      <tr>
+        <td class="padding_10">物流信息：</td>
+      </tr>
+      <tr>
+        <td class="border-bottom-0">
+          <table width="90%" class="margin-5-auto">
+            <tbody>
+            <tr>
+              <td>物流公司：</td>
+              <td>{$logisticsCompany$}</td>
+            </tr>
+            <tr>
+              <td>物流单号：</td>
+              <td>{$logisticsCode$}</td>
+            </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+
+    <table width="100%" border="0" class="wuliu">
+      <tbody>
+      <tr>
+        <td class="padding_10">订单信息：</td>
+      </tr>
+      <tr>
+        <td class="border-bottom-0">
+          <table width="90%" class="margin-5-auto">
+            <tbody>
+            <tr>
+              <td>订单编号：</td>
+              <td>{$tradeid$}(点击订单号，可以查看订单详情)</td>
+            </tr>
+            <tr>
+              <td>订单日期：</td>
+              <td>{$date$}</td>
+            </tr>
+            <tr>
+              <td>实付金额：</td>
+              <td>{$money$}元</td>
+            </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <table width="100%" border="0" class="wuliu">
+      <tbody>
+      <tr>
+        <td class="padding_10">所购商品：</td>
+      </tr>
+      <tr>
+        <td>
+          <table width="90%" class="margin-5-auto produce_list">
+            <thead>
+            <tr class="produce_title">
+              <td>商品名称</td>
+              <td align="right">数量</td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+              <td>商品名称</td>
+              <td align="right">3</td>
+            </tr>
+            <tr>
+              <td>商品名称</td>
+              <td align="right">12</td>
+            </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 推荐商品 -->
+  <div class="compose-message-editor margin-top-10">
+    <table width="100%" border="0" class="recommend">
+      <tbody>
+      <tr class="recommend-title">
+        <td>
+          <span class="text-title">推荐商品</span>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+
+    <table width="100%" border="0" class="recommend_list">
+      <tbody>
+      <tr>
+        <td>
+          <div>
+            <div class="addpic">
+              <a data-placement="bottom-right" data-content="点击添加商品可以关联四个在售商品到发货提醒做为推荐商品" data-target="webuiPopover1">
+                <img src="https://img.alicdn.com/bao/uploaded/i4/TB1KmkVGXXXXXaZXXXXXXXXXXXX_!!0-item_pic.jpg">
+              </a>
+            </div>
+            <div class="addinfo">
+              <div class="addname">百雀羚 邮费链接</div>
+              <div class="addprice">
+                <table border="0" width="100%" class="recommend_price">
+                  <tbody>
+                  <tr>
+                    <td><span id="itemPrice1">5元</span></td>
+                    <td class="text-center">
+                      <div class="preview_btn"> 购买</div>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </td>
+        <td>
+          <div>
+            <div class="addpic">
+              <a data-placement="bottom-right" data-content="点击添加商品可以关联四个在售商品到发货提醒做为推荐商品" data-target="webuiPopover1">
+                <img src="https://img.alicdn.com/bao/uploaded/i4/TB1yvOMKpXXXXX0XpXXXXXXXXXX_!!0-item_pic.jpg">
+              </a>
+            </div>
+            <div class="addinfo">
+              <div class="addname">【预售秒杀】百雀羚保湿精华乳女 至臻皙白晶亮焕肤乳</div>
+              <div class="addprice">
+                <table border="0" width="100%" class="recommend_price">
+                  <tbody>
+                  <tr>
+                    <td><span id="itemPrice1">168元</span></td>
+                    <td class="text-center">
+                      <div class="preview_btn"> 购买</div>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </td>
+        <td>
+
+        </td>
+        <td>
+
+        </td>
+        <td>
+
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="compose-message-editor user_defined margin-top-10">
+    <h1 label="标题居左"
+        style="font-size: 18px; font-weight: bold; border-bottom: 2px solid rgb(204, 204, 204); padding: 0 4px 5px 0; text-align: left; margin: 0 0 10px;">
+      富文本编辑器里的文本区域占位</h1>
+    <p>富文本编辑器里的文本区域占位</p>
+    <p>富文本编辑器里的文本区域占位</p>
+  </div>
+</div>
+<% include ../../../include/layout-full/end.ejs %>

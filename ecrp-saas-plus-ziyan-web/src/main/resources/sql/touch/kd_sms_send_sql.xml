@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="touch.KdSmsBack">
+		<sql id="queryKdsmsBack"
+			value="SELECT id,  mobile , send_time AS sendTime , content,respondent,reply_content AS replyContent from kd_sms_back WHERE state = 1 ">
+			<if value="  and send_time    &gt;=  #{startTime} "></if>
+			<if value="  and send_time  &lt;=    #{endTime} "></if>
+			<bind name="content" value="@com.nascent.plugins.taobao.StringUtils@isEmpty(#content) ? null : '%'+#content+'%'"></bind>
+			<if value=" and  content like  #{content}"></if>
+			<if value="  and  mobile =  #{mobile} "></if>
+		</sql>
+
+		<sql id="batchReplay"
+			value="UPDATE kd_sms_back SET reply_content  = #{replyContent} AND  respondent = #{respondent} WHERE id = ?">
+		</sql>
+
+		<sql id="getLastSmsBackTime"
+			value="select create_time  from kd_sms_back where sp_id= #{spId} order by create_time desc">
+		</sql>
+		
+		<sql id="queryCount"  value="select count(0) as count from kd_sms_back where 1=1">
+		   <if value=" and send_time BETWEEN #{startDate} and #{endDate}"></if>
+		</sql>
+
+	</sqlGroup>
+</sqlRoot>

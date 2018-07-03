@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot source="">
+  <sqlGroup name="flow.marketing">
+    <!--红包短信数据-->
+    <sql id="getLuckeyMoneySmsJson" value="
+			select t.mobile as SendObjectAddress,
+				case when p.nickname is null then '' else p.nickname end as Name,
+				'1' as RedEnvelope,
+				'' as EleCode,
+				p.card_no as redCardNo,
+				p.card_password as redCardPwd,
+				'' as clearScore
+			from
+				(SELECT @rownum:=@rownum+1 AS rownum, marketing_msg_send_log.*
+					FROM (SELECT @rownum:=0) r, marketing_msg_send_log
+					WHERE red_pocket_id = #{reredPocket}
+					AND instance_id = #{instanceId} AND node_id = #{nodeId}) t
+			join
+				(SELECT @rownum2:=@rownum2+1 AS rownum, red_send_record.*
+					FROM (SELECT @rownum2:=0) r, red_send_record
+					WHERE red_envelope_id = #{reredPocket}) p
+			where t.rownum = p.rownum
+			">
+    </sql>
+    <!--红包短信数据-->
+    <sql id="getLuckeyMoneySmsJson2" value="
+			select
+				a.mobile as SendObjectAddress,
+				a.customer_name end as Name,
+				'1' as RedEnvelope,
+				'' as EleCode,
+				p.card_no as redCardNo,
+				p.card_password as redCardPwd,
+				'' as clearScore
+			from kd_customer a
+			join
+				(SELECT @rownum:=@rownum+1 AS rownum, marketing_msg_send_log.*
+					FROM (SELECT @rownum:=0) r, marketing_msg_send_log
+					WHERE red_pocket_id = #{reredPocket}
+					AND instance_id = #{instanceId} AND node_id = #{nodeId}) t
+			join
+				(SELECT @rownum2:=@rownum2+1 AS rownum, red_send_record.*
+					FROM (SELECT @rownum2:=0) r, red_send_record
+					WHERE red_envelope_id = #{reredPocket}) p
+			where t.rownum = p.rownum
+			and a.id = t.sys_customer_id;
+			">
+    </sql>
+    <sql id="updateRedSendRecord" value="
+			update
+			red_send_record a,
+				(SELECT @rownum:=@rownum+1 AS rownum, marketing_msg_send_log.*
+					FROM (SELECT @rownum:=0) r, marketing_msg_send_log
+					WHERE red_pocket_id = #{reredPocket}
+					AND instance_id = #{instanceId} AND node_id = #{nodeId}) t
+			join
+				(SELECT @rownum2:=@rownum2+1 AS rownum, red_send_record.*
+					FROM (SELECT @rownum2:=0) r, red_send_record where red_envelope_id = #{reredPocket}) p
+			set a.nickname = t.mobile ,a.state = 1,a.sys_customer_id = t.sys_customer_id
+			where t.rownum = p.rownum
+			and a.id = p.id;
+			">
+    </sql>
+    <sql id="updateMemberPoint" value="
+			update kd_customer_brand a
+			set a.score = (a.score + #{score})
+			where a.brand_id = #{brandId} and a.sys_customer_id in (#{IDS});
+			">
+    </sql>
+    <sql id="cleanMemberPoint" value="
+			update kd_customer_brand a
+			set a.score = 0
+			where a.brand_id = #{brandId} and a.sys_customer_id in (#{IDS});
+			">
+    </sql>
+    <sql id="sendCoupon" value="
+			select a.out_nick as BuyerNick from kd_customer_shop a inner join kd_coupon b where a.shop_code = b.shop_code and a.shop_code = #{shopCode} and a.sys_customer_id in (#{IDS});
+			">
+    </sql>
+    <sql id="insertMarketingDetailHash" value="
+				insert into marketing_detail_hash{table}(sys_customer_id,create_time,update_time)
+				values(#{sysCustomerId},now(),now())
+			">
+    </sql>
+    <sql id="insertMarketingDetailHash" value="
+				insert into marketing_detail_hash{table}(sys_customer_id,create_time,update_time)
+				values(#{sysCustomerId},now(),now())
+			">
+    </sql>
+    <sql id="queryPrevNode"
+      value="select PrevNodeID from mkt_flow_running_node where InstanceID = #{instanceId} and NodeID = #{nodeId} ">
+    </sql>
+    <sql id="updateSendCustomerName" value="
+				update marketing_detail${table} a,kd_customer b
+				set a.name = b.customer_name where a.sys_customer_id = b.sys_customer_id
+			">
+    </sql>
+    <sql id="updateDetailReport" value="
+				update marketing_detail${table} a
+				set state = ?, read_time = ? ,is_successed = ? , failure_reason = ? , `usage` = ?  where target = ?
+			">
+    </sql>
+    <sql id="updateMarketingError" value="
+				update marketing a
+				set submit_state = -1,remark = #{remark}, update_time = now()  where #{instanceId} and node_id = #{nodeId}
+			">
+    </sql>
+  </sqlGroup>
+
+</sqlRoot>

@@ -1,0 +1,8 @@
+<th:block th:fragment="render(code, subffix, dep)">
+	<th:block th:with="
+		tdsl = ${T(com.nascent.ecrpsaas.base.model.PreviewSysUi).getDSL(currUser.tenantId,code).getJSON()},
+		form = ${T(com.nascent.ecrpsaas.render.ELTokenHandler).handleToken(#ctx, tdsl)}
+	">
+		<th:block th:insert="../public/renderEngineV2-1/form/js::render(${form}, ${subffix}, ${dep})"></th:block>
+	</th:block>
+</th:block>

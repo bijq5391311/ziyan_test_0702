@@ -1,0 +1,43 @@
+<th:block th:fragment="renderTemplate(dslJSON, context)">
+	<th:block th:with="
+		regions = ${dslJSON.getJSONArray('regions')},
+		buttons = ${dslJSON.get('buttons')}
+	">
+		<el-form ref="form" placement="right" label-width="120px" :model="model" :rules="rules">
+			<th:block th:insert="::renderInputTemplate(${dslJSON}, ${context})"/>
+			<el-form-item th:if="${buttons != null && buttons.size() > 0}">
+				<th:block th:each="item,stat : ${buttons}">
+					<el-button th:@click = "${'$$$button'+stat.index}">[(${item.get('text')})]</el-button>
+				</th:block>
+			</el-form-item>
+		</el-form>
+	</th:block>
+</th:block>
+
+
+<th:block th:fragment="renderInputTemplate(dslJSON, context)">
+	<th:block th:with="
+		regions = ${dslJSON.getJSONArray('regions')}
+	">
+		<th:block th:each="region,stat : ${regions}">
+			<th:block th:each="input, stat : ${region.getJSONArray('inputs')}">
+				<th:block th:insert="../public/renderEngine3.0/form/inputFactory::createInput(${input})"></th:block>
+			</th:block>
+		</th:block>
+	</th:block>
+</th:block>
+
+<!--/* 渲染区域模版 */-->
+<th:block th:fragment="renderTemplateOfRegion(dslJSON, context)">
+	<th:block th:with="
+		regions = ${dslJSON.getJSONArray('regions')}
+	">
+		<th:block th:each="region,stat : ${regions}" th:inline="text">
+			[[${region.getString('name')}]]:`
+				<th:block th:each="input, stat : ${region.getJSONArray('inputs')}" >
+					<th:block th:insert="../public/renderEngine3.0/form/inputFactory::createInput(${input})"></th:block>
+				</th:block>
+			`,
+		</th:block>
+	</th:block>
+</th:block>

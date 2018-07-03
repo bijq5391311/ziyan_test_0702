@@ -1,0 +1,18 @@
+
+<th:block th:fragment="render(item)">
+	<th:block th:include="../public/renderEngine3.0/form/inputFactory::formItem(${item}, ~{::inputFragment})">
+		<th:block th:fragment="inputFragment">
+			<el-date-picker v-showRequired th:if="${item.type == 'datetime'}" 
+				type="datetime" 
+				th:v-model="${'model.'+item.get('name')}" 
+				format="yyyy-MM-dd hh:mm:ss">
+			</el-date-picker>
+			
+			<el-date-picker v-showRequired th:if="${item.type == 'date'}" 
+				type="date" 
+				th:v-model="${'model.'+item.get('name')}" 
+				format="yyyy-MM-dd">
+			</el-date-picker>
+		</th:block>
+	</th:block>
+</th:block>

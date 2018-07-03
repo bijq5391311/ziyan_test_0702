@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="organization.KdBrandAuthorize">
+		<sql id="queryList" 
+		      value="select k.*,if(k.is_group = 0 ,false,true) as isGroup,s.brand_name as brandName
+		           from kd_brand_authorize k 
+		       left join  sys_brand s on k.brand_id = s.id  where 1=1">
+		       <if value="order by k.create_time desc"></if>
+		</sql>
+		<sql id="queryNoBindShopTree"
+		  value="SELECT s1.id AS id,s1.name AS label, s1.parent_id AS parentId, s1.code AS CODE,s1.id AS ref,
+		  IF(s1.is_shop = 1, TRUE,FALSE) AS showAdd,IF(s2.code IS NULL, FALSE ,TRUE) AS disabled ">
+        <if test ="true" value="FROM sys_shop s1 LEFT JOIN (SELECT * FROM sys_shop WHERE `code` IN (${'bindCodes'})) s2 ON s1.`code` = s2.code WHERE 1=1"></if>
+        <!--<if test ="true" value="and s1.is_shop=0 or s1.is_shop = 1 and s1.code in (${'shopCodes'})"></if>-->
+        <!--<if value ="and s1.brand_id in (${brandIds})"></if>-->
+        <if value = "and s1.state = #{state}"> </if>
+       </sql>
+	</sqlGroup>
+</sqlRoot>

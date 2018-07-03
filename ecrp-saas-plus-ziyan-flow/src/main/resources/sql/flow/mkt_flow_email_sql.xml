@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot source="">
+  <sqlGroup name="flow.email">
+    <sql id="updateSendCidTable" value="
+				update marketing_detail${table} a,kd_customer b
+				set a.target = b.email,a.name = b.customer_name  where a.sys_customer_id = b.sys_customer_id
+			">
+    </sql>
+    <sql id="blackFilter" value="UPDATE marketing_detail${table} b,kd_touch_black a
+        SET b.failure_reason = '[黑名单或邮件退订]',b.state = 0,b.is_successed = 0
+        WHERE a.target = b.target and  a.type = 2 and b.target is not null
+			">
+    </sql>
+    <sql id="sendTargetFilter" value="UPDATE marketing_detail${table}
+        SET state = 0,failure_reason = '[邮件格式错误]',is_successed =0
+        WHERE target NOT REGEXP '^[a-zA-Z0-9._-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$'
+			">
+    </sql>
+    <sql id="getEmailJson4Member" value="
+			select a.target as SendObjectAddress, a.name as Name from marketing_detail${table} a
+			where a.state = 1
+		  group by a.target
+			">
+    </sql>
+  </sqlGroup>
+
+</sqlRoot>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+    <sqlGroup name="vip.KdCustomerSyn">
+        <sql id="queryList" value="select * from kd_customer_syn where 1=1">
+            <if value="and syn_status=#{synStatus}"></if>
+            <if value="limit #{limit}"></if>
+        </sql>
+        <sql id="queryCustomerTempVo"
+             value="select cb.sys_customer_id as sysCustomerId, cb.brand_id as brandId,cb.member_grade as grade from kd_customer_brand cb
+			   where 1 = 1">
+            <if value="and cb.sys_customer_id = #{sysCustomerId}"></if>
+        </sql>
+    </sqlGroup>
+
+    <sqlGroup name="base.vip">
+        <sql id="queryKdCustomerSyn" value="select sys_customer_id as sysCustomerId from kd_customer_syn where 1=1">
+            <if value="and out_customer_id = #{outCustomerId}"></if>
+        </sql>
+    </sqlGroup>
+</sqlRoot>

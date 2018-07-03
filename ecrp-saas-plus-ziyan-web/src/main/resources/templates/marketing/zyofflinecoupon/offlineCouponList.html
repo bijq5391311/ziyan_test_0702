@@ -1,0 +1,69 @@
+<th:block th:include="../public/include/layout::layout(~{::content},~{::script})">
+    <div th:fragment="content">
+        <div id="app" v-cloak>
+			<!-- <template>
+				<div class="template-layout">
+					<div class="template-layout__right"><div is="offlineCouponList_table"></div></div>
+				</div>
+			</template> -->
+			<div ref="couponTable" is="offlineCouponList_table"></div>
+            <th:block th:insert="../templates/marketing/zyofflinecoupon/edit/addofflineCoupon::form"></th:block>
+        	<th:block th:insert="../templates/marketing/zyofflinecoupon/edit/favorCouponDetail::form"></th:block>
+        	<el-dialog :modal-append-to-body=false title="券码导出" 
+				:visible.sync="ecportCoupons"  :close-on-click-modal="false"
+				:before-close="closeDialogExport" content-min-height="100px" size="tiny"> 
+					<el-form :inline="false" :model="exports" ref='exportForm' label-width="100px">
+						<el-form-item label="活动名称：" >
+							<el-form-grid size="xxmd">
+								<el-input disabled v-model="exports.couponName"></el-input>
+							</el-form-grid>
+						</el-form-item>
+						<el-form-item v-if='exports.validTimeType == 0' label="有效时间：" class=" form-text" >
+		                   <el-form-grid >
+			                   <div>{{exports.beginTime}}~ {{exports.endTime}}</div>
+		                   </el-form-grid>
+			            </el-form-item>
+						<el-form-item label="生成数量：" >
+							<el-form-grid v-if="exports.couponAmouet == -1" size="sm">
+								<el-input disabled value="无限张"></el-input>
+							</el-form-grid>
+							<el-form-grid v-else size="sm">
+								<el-input disabled v-model="exports.couponAmouet"></el-input>
+							</el-form-grid>
+						</el-form-item>
+						
+						<el-form-item label="已发放数量：" >
+							<el-form-grid size="sm">
+								<el-input disabled v-model="exports.sentAmount"></el-input>
+							</el-form-grid>
+						</el-form-item>
+						<el-form-item label="可导出数量：" >
+							<el-form-grid v-if="exports.couponAmouet == -1" size="sm">
+								<el-input disabled value="无限张"></el-input>
+							</el-form-grid>
+							<el-form-grid v-else size="sm">
+								<el-input disabled v-model="exports.exportAmount"></el-input>
+							</el-form-grid>
+						</el-form-item>
+						<el-form-item label="导出数量：" required>
+							<el-form-grid size="xxmd">
+								<el-form-item prop="exportCount" :rules=" {validator:checkExportCount, trigger: 'blur' }">
+									<el-input  v-model="exports.exportCount"></el-input>
+								</el-form-item>
+								<div class="tmp-tips text-info"><br><i class="bui-info">亲，请确认输入的导出数量，保存后不可更改！</i></div>
+							</el-form-grid>
+						</el-form-item>
+					</el-form>
+					
+				<div slot="footer" class="dialog-footer">
+					<el-button @click="closeDialogExport" >关闭</el-button>
+					<el-button @click="saveEduit" type="primary" >保存</el-button>
+				</div>
+			</el-dialog>
+        </div>
+    </div>
+
+    <th:block th:fragment="script" th:inline="javascript">
+        <script type="text/javascript" src="/static/plus/ziyan/marketing/js/offlineCouponList.jss"></script>
+    </th:block>
+</th:block>

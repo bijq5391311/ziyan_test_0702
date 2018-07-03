@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="core.Questionnaire">
+	
+		<sql id="getLists" value="
+select kq.create_time,kq.question_naire_topic naireTitle,kqr.coupon_end_time couponEndTime,kq.write_num writeNum,kq.control_jing_ling_power JingLingPower,kq.web_access_path webUrl,kq.quertion_naire_state NaireState
+  from kdjl_questionnaire kq left join kdjl_questionnaire_reward kqr on  kq.guid=kqr.guid where 1=1 and kq.state=1" >
+	    	
+	    </sql>
+	    
+	</sqlGroup>
+	
+</sqlRoot>

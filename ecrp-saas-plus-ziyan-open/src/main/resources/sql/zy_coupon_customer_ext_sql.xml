@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+    <sqlGroup name="zyCouponCustomerExt">
+        <sql id="getCount" count="select count(1)" value="select count(c.id) from zy_coupon_customer_ext c
+        inner join kd_customer w on w.sys_customer_id = c.sys_customer_id where 1=1">
+            <if value="and w.kd_open_id = #{openId}"/>
+            <if test="state != null" value="and c.state = #{state}"/>
+            <if test="entTimeBefore != null" value="and c.valid_time_end &gt;= #{entTimeBefore}"/>
+            <if test="endTimeLater != null" value="and c.valid_time_end &lt; #{endTimeLater}"/>
+        </sql>
+        <sql id="findList" value="select
+        c.coupon_id couponId,c.coupon_code couponCode,c.valid_time_begin startTime,c.valid_time_end endTime,c.state state,
+        s.coupon_name couponName,s.coupon_type couponType,if(s.coupon_type=3,s.appoint_goods_ids,s.rights_and_interests) couponRights,s.conditions_of_use conditions,
+        if(s.shop_ids is null,0,1) appointShopState,if(s.appoint_goods_ids='',0,1) appointGoodsState
+        from zy_coupon_customer_ext c
+        inner join kd_customer w on w.sys_customer_id = c.sys_customer_id
+        left join sys_coupon s on s.coupon_id = c.coupon_id
+        where 1=1">
+            <if value="and w.kd_open_id = #{openId}"/>
+            <if test="state != null" value="and c.state = #{state}"/>
+            <if test="entTimeBefore != null" value="and c.valid_time_end &gt;= #{entTimeBefore}"/>
+            <if test="endTimeLater != null" value="and c.valid_time_end &lt; #{endTimeLater}"/>
+            <if value="order by c.create_time desc "/>
+            <if test="pageStart != null and pageSize != null" value="limit #{pageStart},#{pageSize}"/>
+            <if test="limit != null" value="limit #{limit}"/>
+        </sql>
+        <sql id="save" value="insert zy_coupon_customer_ext
+        (state,update_time,create_time,coupon_id,coupon_code,sys_customer_id,type,price,valid_time_begin,valid_time_end,purpose_type,export_identification,guid,activity_title)
+        values
+        (#{state},now(),now(),#{couponId},#{couponCode},#{sysCustomerId},#{type},#{price},#{validTimeBegin},#{validTimeEnd},#{purposeType},#{exportIdentification},#{guid},#{activityTitle})
+ ">
+        </sql>
+    </sqlGroup>
+</sqlRoot> 

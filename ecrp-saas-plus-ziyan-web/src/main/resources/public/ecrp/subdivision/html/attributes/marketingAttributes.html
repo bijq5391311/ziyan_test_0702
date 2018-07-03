@@ -1,0 +1,390 @@
+<th:block th:fragment="attributes">
+
+            <el-collapse-item style="margin-left: 10px" :title="item.key"  name= "marker" :key="index"  id="marker" v-if="item.value.length>0 && item.name =='marker'"  v-for="(item, index) in A1">
+                
+            
+            <!-- 短信营销次数 -->
+                <el-form-item    v-if="sms_timess.key === 'sms_times' && sms_timess.value.length >0" :key="sms_timesindexs" v-for="(sms_timess,sms_timesindexs) in item.value">
+                <el-form-item label="短信营销次数："  label-width="110px" :key="sms_timesindex" v-for="(sms_times,sms_timesindex) in sms_timess.value">
+                    <el-form ref="sms_times" placement="right" :model="sms_times">
+                     <el-form-grid size="xs">
+                      <el-select v-model="sms_times.condition"   placeholder="请选择" class="is-gray">
+                      <el-option label="等于" value="equal"></el-option>
+                      <el-option label="不等于" value="notEqual"></el-option>
+                      <el-option label="大于" value="larger"></el-option>
+                      <el-option label="大于等于" value="largerEqual"></el-option>
+                      <el-option label="小于" value="smaller"></el-option>
+                      <el-option label="小于等于" value="smallerEqual"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                  <el-form-grid>
+                  <el-form-item prop="CDATA" :rules="  {validator:commonValueReg, trigger: 'blur,change' }">
+                  <el-input  type="text" class="text-left"  th:v-model="sms_times.CDATA" ></el-input>
+                 </el-form-item>
+                  </el-form-grid>
+                   <el-form-grid>次</el-form-grid>
+                  <el-form-grid size="xxs" v-if="sms_timesindex !== sms_timess.value.length - 1">
+                          <el-select v-model="sms_times.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid>
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(sms_timesindex,sms_timesindexs,sms_timess,item,index)"><i class="bui-delete"></i></a>
+                  <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'sms_times')"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+             
+                <!-- 邮件营销次数 -->
+                <el-form-item    v-if="email_timess.key === 'email_times' && email_timess.value.length >0" :key="email_timesindexs" v-for="(email_timess,email_timesindexs) in item.value">
+                <el-form-item label="邮件营销次数："  label-width="110px" :key="email_timesindex" v-for="(email_times,email_timesindex) in email_timess.value">
+                    <el-form ref="email_times" placement="right" :model="email_times">
+                     <el-form-grid size="xs">
+                      <el-select v-model="email_times.condition"   placeholder="请选择" class="is-gray">
+                      <el-option label="等于" value="equal"></el-option>
+                      <el-option label="不等于" value="notEqual"></el-option>
+                      <el-option label="大于" value="larger"></el-option>
+                      <el-option label="大于等于" value="largerEqual"></el-option>
+                      <el-option label="小于" value="smaller"></el-option>
+                      <el-option label="小于等于" value="smallerEqual"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                  <el-form-grid>
+                  <el-form-item prop="CDATA" :rules=" {validator:commonValueReg, trigger: 'blur,change' }">
+                  <el-input  type="text" class="text-left"  th:v-model="email_times.CDATA" ></el-input>
+                  </el-form-item>
+                  </el-form-grid>
+                  <el-form-grid>次</el-form-grid>
+                  <el-form-grid size="xxs" v-if="email_timesindex !== email_timess.value.length - 1">
+                          <el-select v-model="email_times.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid>
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(email_timesindex,email_timesindexs,email_timess,item,index)"><i class="bui-delete"></i></a>
+                 <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'email_times')"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+            <!--  最后短信营销时间  -->
+            <el-form-item    v-if="last_sms_times.key === 'last_sms_time' && last_sms_times.value.length >0" :key="last_sms_timeindexs" v-for="(last_sms_times,last_sms_timeindexs) in item.value">
+                <el-form-item label="最后短信营销时间："  label-width="110px" :key="last_sms_timeindex" v-for="(last_sms_time,last_sms_timeindex) in last_sms_times.value">
+                     <el-form ref="last_sms_time" placement="right" :model="last_sms_time">
+                     <el-form-grid size="xs">
+                      <el-select v-model="last_sms_time.condition"   placeholder="请选择" class="is-gray">
+                      <el-option label="等于" value="equal"></el-option>
+                      <el-option label="不等于" value="notEqual"></el-option>
+                      <el-option label="早于等于" value="smallerEqual"></el-option>
+                      <el-option label="晚于等于" value="largerEqual"></el-option>
+                      <el-option label="距离当前" value="earlierNow"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                    <el-form-grid v-if="last_sms_time.condition == 'equal' || last_sms_time.condition == 'notEqual' || last_sms_time.condition == 'largerEqual' || last_sms_time.condition == 'smallerEqual'">
+                     <el-form-item prop="date" :rules="  {type: 'date',required: true, message: '请选择日期时间', trigger: 'change' }">
+                     <el-date-picker v-model="last_sms_time.date" type="date" :editable="false"    placeholder="选择日期"></el-date-picker>
+                   </el-form-item>
+                   </el-form-grid>
+                  <el-form-grid v-if="last_sms_time.condition == 'earlierNow'">
+                    <el-form-grid size="sm">
+                        <el-row>
+                            <el-col :span="11">
+                             <el-form-item prop="oldday" :rules="  {validator:commonValueReg, trigger: 'blur,change' }">
+                              <el-input type="text" v-model="last_sms_time.oldday" placeholder="" :max="5" class="text-right"></el-input>
+                            </el-form-item>
+                            </el-col>
+                            <el-col :span="2" class="text-center">~</el-col>
+                            <el-col :span="11">
+                            <el-form-item prop="newday" :rules="  {validator:commonValueReg, trigger: 'blur,change' }">
+                            <el-input placeholder="" type="text" v-model="last_sms_time.newday"  :max="5" class="text-right"></el-input>
+                            </el-form-item>
+                    </el-col>
+                  </el-row>
+                    </el-form-grid>
+                     <el-form-grid>天内</el-form-grid>
+                  </el-form-grid>
+                   
+                  <el-form-grid size="xxs" v-if="last_sms_timeindex !== last_sms_times.value.length - 1">
+                          <el-select v-model="last_sms_time.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid>
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(last_sms_timeindex,last_sms_timeindexs,last_sms_times,item,index)"><i class="bui-delete"></i></a>
+                  <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'last_sms_time')"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+            
+            <!--  最后邮件营销时间 -->
+            <el-form-item    v-if="last_email_times.key === 'last_email_time' && last_email_times.value.length >0" :key="last_email_timeindexs" v-for="(last_email_times,last_email_timeindexs) in item.value">
+                <el-form-item label="最后邮件营销时间："  label-width="110px" :key="last_email_timeindex" v-for="(last_email_time,last_email_timeindex) in last_email_times.value">
+                      <el-form ref="last_email_time" placement="right" :model="last_email_time">
+                     <el-form-grid size="xs">
+                      <el-select v-model="last_email_time.condition"   placeholder="请选择" class="is-gray">
+                      <el-option label="等于" value="equal"></el-option>
+                      <el-option label="不等于" value="notEqual"></el-option>
+                      <el-option label="早于等于" value="smallerEqual"></el-option>
+                      <el-option label="晚于等于" value="largerEqual"></el-option>
+                      <el-option label="距离当前" value="earlierNow"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                    <el-form-grid v-if="last_email_time.condition == 'equal' || last_email_time.condition == 'notEqual' || last_email_time.condition == 'largerEqual' || last_email_time.condition == 'smallerEqual'">
+                    <el-form-item prop="date" :rules="  {type: 'date',  required: true, message: '请选择日期时间', trigger: 'change' }">
+                     <el-date-picker v-model="last_email_time.date" type="date" :editable="false"    placeholder="选择日期"></el-date-picker>
+                    </el-form-item>
+                   </el-form-grid>
+                  <el-form-grid v-if="last_email_time.condition == 'earlierNow'">
+                    <el-form-grid size="sm">
+                        <el-row>
+                            <el-col :span="11">
+                             <el-form-item prop="oldday" :rules=" { validator:commonValueReg, trigger: 'blur,change' }"> 
+                              <el-input type="text" v-model="last_email_time.oldday" placeholder="" :max="5" class="text-right"></el-input>
+                            </el-form-item>
+                            </el-col>
+                            <el-col :span="2" class="text-center">~</el-col>
+                            <el-col :span="11">
+                            <el-form-item prop="newday" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                            <el-input placeholder="" type="text" v-model="last_email_time.newday"  :max="5" class="text-right"></el-input>
+                    </el-form-item>
+                    </el-col>
+                  </el-row>
+                    </el-form-grid>
+                     <el-form-grid>天内</el-form-grid>
+                  </el-form-grid>
+                   
+                  <el-form-grid size="xxs" v-if="last_email_timeindex !== last_email_times.value.length - 1">
+                          <el-select v-model="last_email_time.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid>
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(last_email_timeindex,last_email_timeindexs,last_email_times,item,index)"><i class="bui-delete"></i></a>
+                 <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'last_email_time')"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+            
+            <!-- 短信营销休眠天数 -->
+            <el-form-item    v-if="sleep_sms_times.key === 'sleep_sms_time' && sleep_sms_times.value.length >0" :key="sleep_sms_timeindexs" v-for="(sleep_sms_times,sleep_sms_timeindexs) in item.value">
+                <el-form-item label="短信营销休眠天数："  label-width="110px" :key="sleep_sms_timeindex" v-for="(sleep_sms_time,sleep_sms_timeindex) in sleep_sms_times.value">
+                    <el-form ref="sleep_sms_time" placement="right" :model="sleep_sms_time">
+                     <el-form-grid size="xs">
+                      <el-select v-model="sleep_sms_time.condition"   placeholder="请选择" class="is-gray">
+                      <el-option label="等于" value="equal"></el-option>
+                      <el-option label="不等于" value="notEqual"></el-option>
+                      <el-option label="大于" value="smaller"></el-option>
+                      <el-option label="大于等于" value="smallerEqual"></el-option>
+                      <el-option label="小于" value="larger"></el-option>
+                      <el-option label="小于等于" value="largerEqual"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                  <el-form-grid>
+                  <el-form-item prop="CDATA" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                  <el-input  type="text" class="text-right" th:v-model="sleep_sms_time.CDATA" ></el-input>
+                  </el-form-item>
+                  </el-form-grid>
+                   <el-form-grid>天
+                    </el-form-grid>
+                  <el-form-grid size="xxs" v-if="sleep_sms_timeindex !== sleep_sms_times.value.length - 1">
+                          <el-select v-model="sleep_sms_time.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid>
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(sleep_sms_timeindex,sleep_sms_timeindexs,sleep_sms_times,item,index)"><i class="bui-delete"></i></a>
+                  <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'sleep_sms_time')"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item>  
+            
+            
+            <!--  邮件营销休眠天数 -->
+            <el-form-item   v-if="sleep_email_times.key === 'sleep_email_time' && sleep_email_times.value.length >0" :key="sleep_email_timeindexs" v-for="(sleep_email_times,sleep_email_timeindexs) in item.value">
+                <el-form-item label="邮件营销休眠天数："  label-width="110px" :key="sleep_email_timeindex" v-for="(sleep_email_time,sleep_email_timeindex) in sleep_email_times.value">
+                     <el-form ref="sleep_email_time" placement="right" :model="sleep_email_time">
+                     <el-form-grid size="xs">
+                      <el-select v-model="sleep_email_time.condition"   placeholder="请选择" class="is-gray">
+                      <el-option label="等于" value="equal"></el-option>
+                      <el-option label="不等于" value="notEqual"></el-option>
+                      <el-option label="大于" value="smaller"></el-option>
+                      <el-option label="大于等于" value="smallerEqual"></el-option>
+                      <el-option label="小于" value="larger"></el-option>
+                      <el-option label="小于等于" value="largerEqual"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                  <el-form-grid>
+                  <el-form-item prop="CDATA" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                  <el-input  type="text" class="text-right" th:v-model="sleep_email_time.CDATA" ></el-input>
+                  </el-form-item>
+                  </el-form-grid>
+                   <el-form-grid>天</el-form-grid>
+                  <el-form-grid size="xxs" v-if="sleep_email_timeindex !== sleep_email_times.value.length - 1">
+                          <el-select v-model="sleep_email_time.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid>
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(sleep_email_timeindex,sleep_email_timeindexs,sleep_email_times,item,index)"><i class="bui-delete"></i></a>
+                  <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'sleep_email_time')"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item>
+            
+            
+            
+            <!--  优惠券名称 -->
+             <el-form-item    v-if="coupon_names.key === 'coupon_name' && coupon_names.value.length >0" :key="coupon_nameindexs" v-for="(coupon_names,coupon_nameindexs) in item.value">
+                <el-form-item label="优惠券名称："  label-width="110px" :key="coupon_nameindex" v-for="(coupon_name,coupon_nameindex) in coupon_names.value">
+                     <el-form ref="coupon_name" placement="right" :model="coupon_name">
+                     <el-form-grid size="xxs">
+                      <el-select v-model="coupon_name.condition"   placeholder="请选择" class="is-gray">
+                      <el-option label="包含" value="like"></el-option>
+                      <el-option label="不包含" value="notLike"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                  <el-form-grid>
+                  <el-form-grid >
+                 <el-form-item prop="shop" :rules="  { required: true, message: '请选择店铺', trigger:'blur' }">
+                 <el-select v-model="coupon_name.shop"   placeholder="请选择" class="is-gray">
+                      <el-option :label="shop.k" :value="shop.v" v-for="(shop,index) in coupon_name.shops" :key="index"></el-option>
+                   </el-select>
+                 </el-form-item>
+                  </el-form-grid>
+                  <el-form-grid >
+                 <el-form-item prop="CDATA" :rules="  { required: true, message: '请选择优惠卷', trigger:'blur' }">
+                 <el-select v-model="coupon_name.CDATA"  filterable  placeholder="请选择" class="is-gray">
+                      <el-option v-if="coupon_name.shop == shop.shopCode" :label="shop.couponTitle" :value="shop.id" v-for="(shop,index) in coupon_name.coupons" :key="index"></el-option>
+                   </el-select>
+                 </el-form-item>
+                  </el-form-grid>
+                 
+                   
+                  <el-form-grid size="xxs" v-if="coupon_nameindex !== coupon_names.value.length - 1">
+                          <el-select v-model="coupon_name.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid>
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(coupon_nameindex,coupon_nameindexs,coupon_names,item,index)"><i class="bui-delete"></i></a>
+                 <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'coupon_name')"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+            <!-- 优惠券编号 -->
+             <el-form-item    v-if="coupon_codes.key === 'coupon_code' && coupon_codes.value.length >0" :key="coupon_codeindexs" v-for="(coupon_codes,coupon_codeindexs) in item.value">
+                <el-form-item label="优惠券编号："  label-width="110px" :key="coupon_codeindex" v-for="(coupon_code,coupon_codeindex) in coupon_codes.value">
+                     <el-form ref="coupon_code" placement="right" :model="coupon_code">
+                     <el-form-grid size="xxs">
+                      <el-select v-model="coupon_code.condition"   placeholder="请选择" class="is-gray">
+                      <el-option label="包含" value="like"></el-option>
+                      <el-option label="不包含" value="notLike"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                  <el-form-grid>
+                  <el-form-item prop="CDATA" :rules="  { required: true, message: '请输入优惠券编号', trigger:'blur' }">
+                  <el-input  type="text" class="text-left"  th:v-model="coupon_code.CDATA" ></el-input>
+                  </el-form-item>
+                  </el-form-grid>
+                   
+                  <el-form-grid size="xxs" v-if="coupon_codeindex !== coupon_codes.value.length - 1">
+                          <el-select v-model="coupon_code.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid>
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(coupon_codeindex,coupon_codeindexs,coupon_codes,item,index)"><i class="bui-delete"></i></a>
+                  <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'coupon_code')"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+            <!--  优惠券状态 -->
+            <el-form-item  v-if="coupon_statuss.key == 'coupon_status' && coupon_statuss.value.length >0"  :key="coupon_statussindexs" v-for="(coupon_statuss,coupon_statussindexs) in item.value">
+                <el-form-item label="优惠券状态：" label-width="110px"  :key="coupon_statusindex" v-for="(coupon_status,coupon_statusindex) in coupon_statuss.value">
+               <el-form ref="coupon_status" placement="right" :model="coupon_status">
+                <el-form-grid >
+                 <el-radio-group v-model="coupon_status.CDATA">
+                    <el-radio label="1">是</el-radio>
+                    <el-radio label="0">否</el-radio>
+                  </el-radio-group>
+                </el-form-grid>    
+                  <el-form-grid>
+                    <a class="member-choose__delete" @click="deleteSubdivisionCondition(coupon_statusindex,coupon_statussindexs,coupon_statuss,item,index)"><i class="bui-delete"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                </el-form-item>
+            </el-form-item>
+            
+            <!--  优惠券过期时间  -->
+            <el-form-item    v-if="end_times.key === 'end_time' && end_times.value.length >0" :key="end_timeindexs" v-for="(end_times,end_timeindexs) in item.value">
+                <el-form-item label="优惠券过期时间："  label-width="110px" :key="end_timeindex" v-for="(end_time,end_timeindex) in end_times.value">
+                     <el-form ref="end_time" placement="right" :model="end_time">  
+                     <el-form-grid size="xs">
+                      <el-select v-model="end_time.condition"   placeholder="请选择" class="is-gray">
+                      <el-option label="等于" value="equal"></el-option>
+                      <el-option label="不等于" value="notEqual"></el-option>
+                      <el-option label="早于等于" value="smallerEqual"></el-option>
+                      <el-option label="晚于等于" value="largerEqual"></el-option>
+                      <el-option label="距离当前" value="earlierNow"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                    <el-form-grid v-if="end_time.condition =='equal' || end_time.condition =='notEqual' || end_time.condition =='largerEqual' ||end_time.condition =='smallerEqual' ">
+                    <el-form-item prop="date" :rules="  { type: 'date', required: true, message: '请选择日期时间', trigger: 'change' }">
+                     <el-date-picker v-model="end_time.date" type="date" :editable="false"    placeholder="选择日期"></el-date-picker>
+                    </el-form-item>
+                   </el-form-grid>
+                  <el-form-grid v-if="end_time.condition == 'earlierNow'">
+                    <el-form-grid size="sm">
+                        <el-row>
+                            <el-col :span="11">
+                             <el-form-item prop="oldday" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                              <el-input type="text" v-model="end_time.oldday" placeholder="" :max="5" class="text-right"></el-input>
+                            </el-form-item>
+                            </el-col>
+                            <el-col :span="2" class="text-center">~</el-col>
+                            <el-col :span="11">
+                            <el-form-item prop="newday" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                            <el-input placeholder="" type="text" v-model="end_time.newday"  :max="5" class="text-right"></el-input>
+                            </el-form-item>
+                    </el-col>
+                  </el-row>
+                    </el-form-grid>
+                     <el-form-grid>天内</el-form-grid>
+                  </el-form-grid>
+                  
+                  <el-form-grid size="xxs" v-if="end_timeindex !== end_times.value.length - 1">
+                          <el-select v-model="end_time.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid>
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(end_timeindex,end_timeindexs,end_times,item,index)"><i class="bui-delete"></i></a>
+                  <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'end_time')"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+            </el-collapse-item>
+</th:block>

@@ -1,0 +1,5 @@
+
+<th:block th:fragment="render(item)">
+	<input type="hidden" th:v-model="${'model.'+item.get('name')}" />
+</th:block>
+

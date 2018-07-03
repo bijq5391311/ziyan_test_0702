@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+  <sqlGroup name="dispatch.pointBatchDetail">
+    <sql id="pointRemoveGenTable"
+      value="create table m_point_remove_gen  engine=memory select a.sys_customer_id,sum(a.point) point from
+		(select t.sys_customer_id,t.point FROM kd_point_log t where    t.operation = 1   and t.action in (1,2)
+		 and point_create_time  &lt;=   #{endTime} and out_id is null  and t.brand_id = #{brandId}) a  group by a.sys_customer_id ">
+    </sql>
+    
+      <sql id="pointRemoveGen"
+      value="create table m_point_remove_gen  engine=memory select a.sys_customer_id,sum(a.point) point from
+		(select t.sys_customer_id,t.point FROM kd_point_log t where    t.operation = 1   and t.action in (1,2) 
+		 and date_add(point_create_time,interval #{runDays} day)  &lt;=   #{endTime} and out_id is null  and t.brand_id = #{brandId}) a  group by a.sys_customer_id ">
+    </sql>
+
+    <sql id="updatePointRemoveGenTable"
+      value="ALTER TABLE `m_point_remove_gen` ADD PRIMARY KEY (`sys_customer_id`)"></sql>
+    <sql id="pointRemoveUsedTable"
+      value="create table m_point_remove_used  engine=memory select a.sys_customer_id,sum(a.point) point from
+					(select t.sys_customer_id,t.point FROM kd_point_log t where t.operation = 2  and t.action in (3,4,5)  and out_id is null  and t.brand_id = #{brandId}) a 
+					group by a.sys_customer_id ">
+    </sql>
+    <sql id="updatePointRemoveUsedTable"
+      value="ALTER TABLE `m_point_remove_used` ADD PRIMARY KEY (`sys_customer_id`)"></sql>
+
+
+    <sql id="pointRemoveGenTable1"
+      value="create table m_point_remove_gen1  engine=memory select a.sys_customer_id,sum(a.point) point from
+		(select t.sys_customer_id,t.point FROM kd_point_log t where  t.action in (1,2)  and t.operation = 1   
+		 and date_add(point_create_time,interval #{runDays} day)  &lt;=   #{endTime} and t.brand_id = #{brandId} ) a  group by a.sys_customer_id ">
+    </sql>
+    
+      <sql id="pointRemoveGen1"
+      value="create table m_point_remove_gen1  engine=memory select a.sys_customer_id,sum(a.point) point from
+		(select t.sys_customer_id,t.point FROM kd_point_log t where  t.action in (1,2)  and t.operation = 1   
+		 and point_create_time,interval  &lt;=   #{endTime} and t.brand_id = #{brandId} ) a  group by a.sys_customer_id ">
+    </sql>
+
+    <sql id="updatePointRemoveGenTable1"
+      value="ALTER TABLE `m_point_remove_gen1` ADD PRIMARY KEY (`sys_customer_id`)"></sql>
+
+    <sql id="pointRemoveUsedTable1"
+      value="create table m_point_remove_used1  engine=memory select a.sys_customer_id,sum(a.point) point from
+					(select t.sys_customer_id,t.point FROM kd_point_log t where t.operation = 2 and t.action in (3,4,5)    and t.brand_id = #{brandId}) a 
+					group by a.sys_customer_id ">
+    </sql>
+    <sql id="updatePointRemoveUsedTable1"
+      value="ALTER TABLE `m_point_remove_used1` ADD PRIMARY KEY (`sys_customer_id`)"></sql>
+
+    <sql id="queryCustomerInfo"
+      value="	select c.sys_customer_id as sysCustomerId  ,c.mobile,c.email,c.customer_name as customerName,ext.score,b.limit_point  as limitPoint from kd_customer_brand ext inner join
+				(select m_point_remove_gen.sys_customer_id,(m_point_remove_gen.point-ifnull(m_point_remove_used.point,0)) limitPoint FROM
+				m_point_remove_gen left join
+				m_point_remove_used on m_point_remove_gen.sys_customer_id=m_point_remove_used.sys_customer_id
+				where m_point_remove_gen.point>ifnull(m_point_remove_used.point,0)) b on ext.sys_customer_id=b.sys_customer_id
+				inner join kd_customer c on ext.sys_customer_id=c.sys_customer_id
+				inner join kd_customer_shop on ext.sys_customer_id not in (select sys_customer_id from kd_customer_shop where state = 1)
+				where ext.score is not null and ext.score>=ifnull(b.limitPoint,0)">
+    </sql>
+
+    <sql id="kdPointRemoveLog"
+	value="	insert into kd_point_remove_log
+					select null, now() create_time,now() update_time,date_format(#{endTime},'%Y-%m-%d') limit_date,0 state,ext.sys_customer_id,ext.score,ifnull(b.limit_point,0) limit_point,2 is_sync from kd_customer_brand ext inner join
+					(select m_point_remove_gen.sys_customer_id,(m_point_remove_gen.point-ifnull(m_point_remove_used.point,0)) limit_point FROM
+					m_point_remove_gen left join
+					m_point_remove_used on m_point_remove_gen.sys_customer_id=m_point_remove_used.sys_customer_id
+					where m_point_remove_gen.point>ifnull(m_point_remove_used.point,0)) b on ext.sys_customer_id=b.sys_customer_id
+					where ext.score is not null and ext.score>=ifnull(b.limit_point,0)">
+    </sql>
+
+    <sql id="insertPointLog" value="INSERT INTO `kd_point_log` (`state`, `create_time`, `update_time`,`sys_customer_id`, `action`,  `point`,operation)
+                  select 1 state,now() create_time,now() update_time,log.sys_customer_id,3 `action`,log.limit_point point,2 operation  FROM kd_point_remove_log log  where log.state=1 and  is_sync = 2 ">
+    </sql>
+
+
+    <sql id="updateBrandCustomer"
+      value="	update kd_customer_brand ext inner join kd_point_remove_log log on ext.sys_customer_id=log.sys_customer_id and log.state=0 set ext.score=(log.score-log.limit_point)">
+    </sql>
+
+    <sql id="updatePointRemoveLog"
+      value="update kd_point_remove_log log set log.state=1   where log.state=0 ">
+    </sql>
+    
+    <sql id="updatePointRemoveLogIsSync"
+      value="update kd_point_remove_log log set log.is_sync=1   where log.is_sync=2 ">
+    </sql>
+    <sql id="getGeneratedPoint" value="select point  from  m_point_remove_gen1  ">
+      <if value=" where  sys_customer_id  = #{sysCustId}"></if>
+    </sql>
+    <sql id="getConsumePoint" value="select point  from  m_point_remove_used1  ">
+      <if value=" where  sys_customer_id  = #{sysCustId}"></if>
+    </sql>
+
+    <sql id="removePointRemoveGen1" value="drop table if exists m_point_remove_gen1"></sql>
+    <sql id="removePointRemoveUsed1" value="drop table if exists m_point_remove_used1"></sql>
+    <sql id="removePointRemoveGen" value="drop table if exists m_point_remove_gen"></sql>
+    <sql id="removePointRemoveUsed" value="drop table if exists m_point_remove_used"></sql>
+  </sqlGroup>
+</sqlRoot>

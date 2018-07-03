@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="base.area">
+		<sql id="queryAreaTree" value="select tb_id as id,parent_id as parentId,tb_name as label
+		       from  area where state = 1">
+		       <if value="and parent_id = #{parent_id}"></if>
+		       <if value="and tb_type = #{tb_type}"></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>

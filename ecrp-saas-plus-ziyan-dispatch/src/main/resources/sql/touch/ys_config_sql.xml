@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="touch.YSConfigModel">
+		<sql id="queryInfoByName" value="select * from kd_ys_config_info where 1 = 1 " >
+	    	<if test="#spName!=null" value="and (sp_name like ${'%spName%'})"></if>
+	    </sql>
+	    <sql id="queryYSList" value="select * from kd_ys_config_info where 1 = 1 " >
+	    	<if value="and (state = 1)"></if>
+	    </sql>
+	    <!--  
+	    <sql id="deleteYSInfo" value="update kd_ys_config_info set state=0 where 1 = 1 " >
+	    	<if value="and id = #{id}"></if>
+	    </sql>
+	    -->
+	    <sql id="deleteYSInfo" value="" >
+	    	<if value="update kd_ys_config_info set state=0 where id =  #{id}"></if>
+	    </sql>
+	    <sql id="deleteMenuBatch" value="">
+	    	<if value="delete from kd_ys_config_info where id = ?"></if>
+	    </sql>
+	    <sql id = "queryName" value="select * from kd_ys_config_info 
+	    	where user_name=#{user_name}">
+	    	<if test="#id!=-1" value="and id != #{id}"></if>
+	    	<auth tenant="group_id"></auth>
+	    </sql>
+		<!-- 下拉数据 -->
+		<sql id="getOptions" value="select id,sp_name from kd_ys_config_info where 1=1 ">
+			<if value=" and type=#{type}"></if>
+			<if test="#groupId!=null and #groupId!=''" value=" and group_id=#{groupId}"></if>
+		</sql>
+		
+		<sql id="queryAllYsConfigInfo" value="select ys.* ,dept.name as deptName ,dept.id as deptId from kd_ys_config_info ys 
+				left join sys_department dept on dept.code = ys.department_code where 1=1 ">
+			<bind name="sp_name" value="#sp_name == null ? null : ('%'+#sp_name+'%')"></bind>	
+			<if value=" and ys.sp_name like #{sp_name}"></if>	
+			<if value=" order by ys.create_time desc"></if>
+		</sql>
+		
+		
+	    <sql id="queryUserYSInfo" value="select DISTINCT user_name ,password,sp_name from kd_ys_config_info where state=1">
+	    	<if value=" and department_code like concat(#{department_code},'%')"></if>
+	    	<if value=" and is_public=#{is_public}"></if>
+	    </sql>
+	</sqlGroup>
+</sqlRoot>

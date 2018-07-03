@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="organization.SysUserRole">
+		<sql id="queryRoleById" value="select * from sys_user_role where sys_user_id=#{user_id} and state=1"> </sql>
+	</sqlGroup>
+</sqlRoot>

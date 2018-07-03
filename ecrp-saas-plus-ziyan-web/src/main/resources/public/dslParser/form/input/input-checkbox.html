@@ -1,0 +1,31 @@
+ <th:block th:fragment="render(input, preffix)">
+ 	<th:block th:with="
+		label = ${input.text + '：'},
+		class = ${input.inline ? 'el-inline-block' : null},
+		name = ${input.name}
+	">
+		<el-form-item th:label="${label}" th:class = "${class}">
+			<el-form-grid size="xmd">
+				<el-form-item th:prop = "${name}">
+					<th:block th:with="control = ${input.control}">
+						<el-checkbox-group th:if="${control.isServerMode() == true}" v-showRequired th:v-model="${preffix+input.name}">
+				            <th:block th:with="options = ${control.getOptions(#ctx)}">
+				            	<el-checkbox th:each="item,iterStat : ${options}" 
+				            		th:attr = "
+						                ':value'= ${#strings.startsWith(item.v,'#') ? #strings.substringAfter(item.v,'#') : null},
+						                'value'= ${!#strings.startsWith(item.v,'#') ? item.v : null },
+						                 ':label'= ${#strings.startsWith(item.v,'#') ? #strings.substringAfter(item.v,'#') : null},
+						                'label'= ${!#strings.startsWith(item.v,'#') ? item.v : null },
+						                name = ${name}
+						              "
+					            >[[${item.k}]]
+					          	</el-checkbox>
+				            </th:block>
+				        </el-checkbox-group>
+					</th:block>
+				</el-form-item>
+			</el-form-grid>
+		</el-form-item>
+	</th:block>
+</th:block>
+

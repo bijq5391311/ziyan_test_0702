@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="SysUser">
+		<sql id="GetAclMap" value="
+select distinct m.url as code, IF(ua.UserId is null, null, m.url) as name from sys_menu m 
+      left join vw_user_acl_temp ua on  ua.MenuId = m.id and ua.GroupId = m.group_id and ua.UserId = #{UserId} and ua.GroupId = #{TenantId} where 1 = 1 and m.url is not null">
+		</sql>
+		
+		<sql id="GetACLMapOfCode" value="select distinct m1.code as code, IF(ua.UserId is null, null, 'Y') as name from sys_menu m1 inner join sys_menu m2 on m2.id = m1.parent_id 
+			left join vw_user_acl_temp ua on  ua.MenuId = m1.id and ua.GroupId = m1.group_id and  ua.UserId = #{UserId} and ua.GroupId = #{TenantId} where 1 = 1 and m2.url = #{PageUrl}"></sql>
+	</sqlGroup>
+	
+	<sqlGroup name="core.SysUI">
+		<sql id="queryDSL" value="select * from sys_ui where 1 = 1">
+			<if value="and Code = #{Code}"></if>
+			<if value="and CompanyId = #{CompanyId}"></if>
+			<if value="and Code in (${'Codes'})"></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>

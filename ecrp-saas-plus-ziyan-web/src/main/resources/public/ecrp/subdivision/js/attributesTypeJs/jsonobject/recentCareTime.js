@@ -1,0 +1,1 @@
+var recentCareTime=[{k:"last_urge_time",v:"订单催付"},{k:"last_pay_concern_time",v:"付款关怀"},{k:"last_ship_remind_time",v:"发货提醒"},{k:"last_arrival_reminder_time",v:"到达提醒"},{k:"last_receive_concern_time",v:"签收关怀"},{k:"last_confirm_concern_time",v:"确认关怀"},{k:"last_refund_concern_time",v:"退款关怀"},{k:"last_memberup_time",v:"升级提醒"}];

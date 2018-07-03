@@ -1,0 +1,18 @@
+#添加外部积分表
+CREATE TABLE `out_customer_integral` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+	`state` INT(2) NULL DEFAULT NULL COMMENT '1正常 0 删除',
+	`create_time` DATETIME NOT NULL COMMENT '创建时间',
+	`update_time` DATETIME NOT NULL COMMENT '更新时间',
+	`integral` DECIMAL(10,2) NOT NULL DEFAULT '0.00' COMMENT '积分',
+	`syn_status` INT(2) NOT NULL DEFAULT '0' COMMENT '同步状态 1 已同步 0 :未同步 2 ：信息更新',
+	`out_customer_id` BIGINT(20) NULL DEFAULT '0' COMMENT '外部会员id',
+	`group_id` INT(11) NOT NULL DEFAULT '0' COMMENT '集团id',
+	`brand_id` INT(11) NOT NULL DEFAULT '0' COMMENT '品牌id',
+	PRIMARY KEY (`id`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB;
+
+ #会员ID规则索引添加
+ alter table `sys_customerid_rule` add index `target_type_index` (`target`, `type`);

@@ -1,0 +1,76 @@
+	<th:block th:fragment="attributes">
+<el-scrollbar ref="layoutLeftScroll"  wrap-class="template-layout__scroll" style="width:300px">
+          <el-collapse class="member-property" v-model="memberProperty" accordion >
+          <el-collapse-item name="base" style="width:295px">
+          <template slot="title" >会员基本属性 <el-badge  :value="propNum.base" ></el-badge></template>
+           <div class="member-property-list" style="text-overflow:ellipsis">
+             <span style="float:left;width:91px"  :key="index" v-for="(customerBasicProperty , index) in SubdivisionPropertys.customerBasicPropertys">
+              <a  href="#" style="width:71px;white-space:nowrap;overflow:hidden" :id="customerBasicProperty.col_name" @click="function(){setPropertyChoose('base','会员基本属性',customerBasicProperty,index);}" :title="customerBasicProperty.con_name">{{customerBasicProperty.con_name}}</a>
+          </span>
+          </div>
+          </el-collapse-item>
+          <el-collapse-item name="group"  v-if="attributeType != 'marketing'" style="width:295px">
+          <template slot="title">集团自定义属性<el-badge  :value="propNum.group" ></el-badge></template>
+           <div class="member-property-list">         
+                    <span class="member-property-list" style="float:left;width:91px;text-overflow:ellipsis;white-space:nowrap;overflow:hidden"  :key="groupProperty.id"  v-for="groupProperty in groupPropertys">
+                          <a href="#group" style="width:71px;white-space:nowrap;overflow:hidden" :id="groupProperty.id" @click="setcustomerPropertyChoose('group','集团自定义属性',groupProperty,this,9)" :title="groupProperty.name">{{groupProperty.name}}</a>
+                    </span>
+         </div>
+          </el-collapse-item>
+          <el-collapse-item name="brand" v-if="attributeType != 'marketing'" style="width:295px">
+          <template slot="title">自定义标签<el-badge  :value="propNum.brand" ></el-badge></template>
+                 <div class="member-property-list"> 
+                 <el-form-grid style="width: 100%;margin-bottom: 15px">
+                 <el-select v-model="brandRadio" placeholder="请选择" >
+                            <el-option :label="brandpropkey" :value="brandpropkey" :key="brandpropkey" v-for="(brandprop,brandpropkey) in brandPropertys"></el-option>
+                 </el-select>
+                 </el-form-grid>
+              </div>
+              <div class="member-property-list" >
+                    <div v-if="brandRadio === brandpropdataindex" class="member-property-list" :key="brandpropdataindex"  v-for="(brandpropdata, brandpropdataindex) in brandPropertys">      
+                    <span class="member-property-list" style="float:left;width:91px;text-overflow:ellipsis;white-space:nowrap;overflow:hidden"  :key="branditem"  v-for="(brandvalue, branditem) in brandpropdata">
+                       <a href="#brand" style="width:71px;white-space:nowrap;overflow:hidden" :id="brandvalue.id" @click="setcustomerPropertyChoose('brand','运营自定义属性',brandvalue,this)" :title="brandvalue.name">{{brandvalue.name}}</a>
+                    </span>
+                    </div> 
+             </div>
+          </el-collapse-item>
+          <el-collapse-item name="rfm" style="width:295px">
+          <template slot="title">RFM模型属性  <el-badge  :value="propNum.rfm" ></el-badge></template>
+                   <div class="member-property-list">
+                    <span class="member-property-list" style="float:left;width:91px;text-overflow:ellipsis;white-space:nowrap;overflow:hidden"  :key="index" v-for="(rfmProperty, index) in SubdivisionPropertys.rfmPropertys">
+                      <a href="#rfm" style="width:71px;white-space:nowrap;overflow:hidden" :id="rfmProperty.col_name" @click="setPropertyChoose('rfm','RFM模型属性',rfmProperty,this)" :title="rfmProperty.con_name">{{rfmProperty.con_name}}</a>
+                       <span class="hidden times">{{rfmProperty.times}}</span>
+                    </span>
+                    </div>
+          </el-collapse-item>
+          <el-collapse-item name="trade" on-show="GroupPermissions.tradePermission" v-if="attributeType != 'marketing'" style="width:295px">
+          <template slot="title">交易属性<el-badge  :value="propNum.trade" ></el-badge></template>
+            <div class="member-property-list">      
+                    <a href="#trade" style="width:71px;white-space:nowrap;overflow:hidden" id="tradeData"  @click = tradesubdivision()>订单商品筛选</a>
+                     <span class="hidden times">n</span>
+            </div>
+          </el-collapse-item>
+          <el-collapse-item name="hudong" on-show="GroupPermissions.hudongPermission" v-if="attributeType != 'marketing'" style="width:295px">
+          <template slot="title">互动属性<el-badge  :value="propNum.hudong" ></el-badge></template>
+            <div class="member-property-list">
+                     <a href="#hudong" id="hudongDoing" title="互动行为" style="float:left;width:81px"  @click="showHuDong">互动行为</a>
+                     <span class="member-property-list" style="float:left;width:91px;text-overflow:ellipsis;white-space:nowrap;overflow:hidden"  :key="index" v-for="(hudongProperty, index) in SubdivisionPropertys.hudongPropertys">
+                      <a href="#hudong" style="width:71px;white-space:nowrap;overflow:hidden" :id="hudongProperty.col_name" @click="setPropertyChoose('hudong','互动属性',hudongProperty,this)" :title="hudongProperty.con_name">{{hudongProperty.con_name}}</a>
+                      <span class="hidden times">n</span>
+                    </span>
+            </div>
+          </el-collapse-item>
+          <el-collapse-item name="marker" v-if="attributeType != 'marketing'" style="width:295px">
+          <template slot="title" >营销属性<el-badge  :value="propNum.marker" ></el-badge></template>
+            <div class="member-property-list">      
+                     <span  style="float:left;width:91px;white-space:nowrap"  class="member-property-list"   :key="index" v-for="(marketingProperty, index) in SubdivisionPropertys.marketingPropertys">
+                      <a href="#marker" style="width:71px;white-space:nowrap;overflow:hidden" :id="marketingProperty.col_name" @click="setPropertyChoose('marker','营销属性',marketingProperty,this)" :title="marketingProperty.con_name">{{marketingProperty.con_name}}</a>
+                      <span  class="hidden times">{{marketingProperty.times}}</span>
+                    </span>
+                   
+            </div>
+            
+          </el-collapse-item>
+          </el-collapse>
+          </el-scrollbar>
+</th:block>

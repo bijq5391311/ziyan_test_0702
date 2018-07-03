@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="vip.KaCustomerValue">
+		<sql id="queryList" value="select cv.* from ka_customer_value cv
+                 where cv.brand_id = #{brandId}">
+			<bind name="customerName" value="#customerName == null ? null : ('%' + #customerName +'%')"></bind>
+			<if value="and cv.consume_sleep_day &gt;= #{beginSleepDay} "></if>
+			<if value="and cv.consume_sleep_day &lt;= #{endSleepDay} "></if>
+			<if value="and cv.nearly_one_year_paytimes &gt;= #{beginPaytimes} "></if>
+			<if value="and cv.nearly_one_year_paytimes &lt;= #{endPaytimes} "></if>
+			<if value="and cv.nearly_one_year_payment &gt;= #{beginPayment} "></if>
+			<if value="and cv.nearly_one_year_payment &lt;= #{endPayment} "></if>
+			<if value="and cv.update_time &gt;= #{beginTime} "></if>
+			<if value="and cv.update_time &lt;= #{endTime} "></if>
+			<if test="#customerName != null and #customerName != '%%'" value="and cv.customer_name like #{customerName}"></if>
+		</sql>
+
+		<sql id="queryByBrandAndCustomer" value = "select c.*,f.* from ka_customer_value c
+				join customer_value_formula f on c.formula_id = f.id
+		 	where c.brand_id =#{brandId} and c.sys_customer_id = #{sysCustomerId}">
+		</sql>
+
+	</sqlGroup>
+</sqlRoot>

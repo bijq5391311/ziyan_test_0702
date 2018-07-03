@@ -1,0 +1,13 @@
+<th:block th:include="../public/include/layout::layout(~{::content},~{::script})">
+    <div th:fragment="content" >
+                <div id="app">
+                    <iframe  id="jin10" width="100%" height="576px" frameborder="0"
+                             style="position:relative; top:-60px; float:left; left:-0%;" scrolling="no"
+                             th:src="${url}+'?userName='+${userName}+'&userType='+${userType}+'&shopId='+${shopId}+'&loginToken='+${loginToken}" name="jin10" >
+                    </iframe>
+                </div>
+    </div>
+    <th:block th:fragment="script" th:inline="javascript">
+
+    </th:block>
+</th:block>

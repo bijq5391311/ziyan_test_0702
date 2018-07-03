@@ -1,0 +1,174 @@
+<% include ../../../include/layout/start.ejs %>
+<div id="example" v-cloak>
+  <div class="template-page">
+    <el-row :gutter="20" class="tmp-screening">
+      <el-col :span="12">
+        <div class="tmp-panel">
+          <div class="tmp-panel__title">
+            <span>会员生命周期图谱</span>
+            <div class="tmp-panel__options pull-right">
+              <el-popover
+                popper-class="tmp-popover-add"
+                trigger="click"
+                title="选择条件"
+                placement="bottom-end"
+                width="248"
+                v-model="visible2">
+                <el-form>
+                  <el-form-item label="品牌：">
+                    <el-form-grid size="xmd">
+                      <el-input placeholder="请输入品牌名"></el-input>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="时间：">
+                    <el-form-grid size="xmd">
+                      <el-date-picker
+                        v-model="dateValue"
+                        type="daterange"
+                        placeholder="选择日期范围">
+                      </el-date-picker>
+                    </el-form-grid>
+                  </el-form-item>
+                </el-form>
+                <div class="tmp-popover-footer">
+                  <el-button size="mini" type="text" @click="visible2 = false">取消</el-button>
+                  <el-button type="primary" size="mini" @click="visible2 = false">确定</el-button>
+                </div>
+                <a class="item" title="设置" slot="reference"><i class="bui-setting"></i></a>
+              </el-popover>
+            </div>
+          </div>
+          <div class="tmp-panel__body">
+            <business-echarts :options="sourceChart1" auto-resize></business-echarts>
+          </div>
+        </div>
+      </el-col>
+      <el-col :span="12">
+        <div class="tmp-panel">
+          <div class="tmp-panel__title">
+            <span>会员来源分析</span>
+            <div class="tmp-panel__options pull-right">
+
+              <el-popover
+                popper-class="tmp-popover-add"
+                trigger="click"
+                title="选择条件"
+                placement="bottom-end"
+                width="248"
+                v-model="visible1">
+                <el-form>
+                  <el-form-item label="品牌：">
+                    <el-form-grid size="xmd">
+                      <el-input placeholder="请输入品牌名"></el-input>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="时间：">
+                    <el-form-grid size="xmd">
+                      <el-date-picker
+                        v-model="dateValue"
+                        type="daterange"
+                        placeholder="选择日期范围">
+                      </el-date-picker>
+                    </el-form-grid>
+                  </el-form-item>
+                </el-form>
+                <div class="tmp-popover-footer">
+                  <el-button size="mini" type="text" @click="visible1 = false">取消</el-button>
+                  <el-button type="primary" size="mini" @click="visible1 = false">确定</el-button>
+                </div>
+                <a class="item" title="设置" slot="reference"><i class="bui-setting"></i></a>
+              </el-popover>
+            </div>
+          </div>
+          <div class="tmp-panel__body">
+            <business-echarts :options="sourceChart1" ref="sourceChart1" auto-resize></business-echarts>
+          </div>
+        </div>
+      </el-col>
+      <el-col :span="12">
+        <div class="tmp-panel">
+          <div class="tmp-panel__title">
+            <span>品牌会员等级分布</span>
+            <div class="tmp-panel__options pull-right"><a class="item" title="设置"><i class="bui-setting"></i></a></div>
+          </div>
+          <div class="tmp-panel__body">
+            <business-echarts :options="levelChart" ref="levelChart" auto-resize></business-echarts>
+          </div>
+        </div>
+      </el-col>
+      <el-col :span="12">
+        <div class="tmp-panel">
+          <div class="tmp-panel__title">
+            <span>会员地域分布</span>
+            <div class="tmp-panel__options pull-right"><a class="item" title="设置"><i class="bui-setting"></i></a></div>
+          </div>
+          <div class="tmp-panel__body">
+            <business-echarts :options="levelChart" ref="levelChart" auto-resize></business-echarts>
+          </div>
+        </div>
+      </el-col>
+      <el-col :span="12">
+        <div class="tmp-panel  no-margin">
+          <div class="tmp-panel__title">
+            <span>会员触达方式分析</span>
+            <div class="tmp-panel__options pull-right"><a class="item" title="设置"><i class="bui-setting"></i></a></div>
+          </div>
+          <div class="tmp-panel__body">
+            <business-echarts class="touchmode-lg" :options="touchMode1" ref="touchMode1"
+                              auto-resize></business-echarts>
+            <business-echarts class="touchmode-sm" :options="touchMode2" ref="touchMode2"
+                              auto-resize></business-echarts>
+            <el-row class="touchmode-list text-center">
+              <el-col :span="6">
+                <div class="touchmode-item"><i class="bui-mobile-fill"></i><span>有手机号会员<br>10000人</span></div>
+              </el-col>
+              <el-col :span="6">
+                <div class="touchmode-item"><i class="bui-mail-fill"></i><span>有邮箱会员<br>10000人</span></div>
+              </el-col>
+              <el-col :span="6">
+                <div class="touchmode-item"><i class="bui-qq-fill"></i><span>有QQ会员<br>10000人</span></div>
+              </el-col>
+              <el-col :span="6">
+                <div class="touchmode-item"><i class="bui-wechat-fill"></i><span>有微信会员<br>10000人</span></div>
+              </el-col>
+            </el-row>
+          </div>
+        </div>
+      </el-col>
+      <el-col :span="12">
+        <div class="tmp-panel  no-margin">
+          <div class="tmp-panel__title">
+            <span>会员性别分析</span>
+            <div class="tmp-panel__options pull-right"><a class="item" title="设置"><i class="bui-setting"></i></a></div>
+          </div>
+          <div class="tmp-panel__body">
+            <el-row class="sexy-list text-center">
+              <el-col :span="8" class="sexy-item female">
+                <div class="sexy-icon"><i class="bui-female"></i></div>
+                <div class="sexy-des">
+                  <p>女性</p>
+                  <p>1000000人</p>
+                </div>
+              </el-col>
+              <el-col :span="8" class="sexy-item male">
+                <div class="sexy-icon"><i class="bui-male"></i></div>
+                <div class="sexy-des">
+                  <p>男性</p>
+                  <p>1000000人</p>
+                </div>
+              </el-col>
+              <el-col :span="8" class="sexy-item unknown">
+                <div class="sexy-icon"><i class="bui-unknown"></i></div>
+                <div class="sexy-des">
+                  <p>未知性别</p>
+                  <p>1000000人</p>
+                </div>
+              </el-col>
+            </el-row>
+          </div>
+        </div>
+      </el-col>
+    </el-row>
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

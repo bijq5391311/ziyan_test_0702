@@ -1,0 +1,62 @@
+<th:block th:fragment="render(columns)">
+	<th:block th:each="item,stat : ${columns}">
+		<th:block th:insert="::renderColumn(${item})"></th:block>
+	</th:block>
+</th:block>
+
+<th:block th:fragment="renderColumn(column)">
+    <th:block th:switch = "${column.type}">
+        <th:block th:case="'action'" th:insert = "::renderAction(${column})"></th:block>
+        <th:block th:case="'selection'" th:insert = "::renderSelection(${column})"></th:block>
+        <th:block th:case="*" th:insert = "::renderDefault(${column})"></th:block>
+    </th:block>
+</th:block>
+
+<th:block th:fragment="renderSelection(column)">
+    <th:block>
+        <el-table-column 
+        	type = "selection"
+            th:align = "center"
+            :width = "30"
+         >
+         </el-table-column>
+    </th:block>
+</th:block>
+
+<th:block th:fragment="renderDefault(column)">
+    <th:block>
+        <el-table-column :show-overflow-tooltip="true"
+        	th:type = "${column.type} ? ${column.type} : 'default'"
+            th:prop = "${column.field}"
+            th:label = "${column.title}"
+            th:dbcolumn = "${column.column}"
+            th:column = "${column.column}"
+            th:align = "${column.align}"
+            th:width = "${column.width == 0 ? null : column.width}"
+            th::sortable = "${column.sortable !=null && column.sortable ?'status.custom':'false'}"
+         >
+            <!--/* 如果存在模版，则使用模版内容 */-->
+	         <th:block th:if="${!#strings.isEmpty(column.template)}">
+	             <template scope="scope">
+	                 [(${column.template})]
+	             </template>
+	         </th:block>
+         </el-table-column>
+    </th:block>
+</th:block>
+
+<th:block th:fragment="renderAction(column)">
+	<el-table-column :show-overflow-tooltip="true"
+	    th:prop="${column.field}"
+	    th:label="${column.title}"
+	    th:column="${column.column}"
+	    th:align="${column.align}"
+	    th:width="${column.width == 0 ? null : column.width}"
+	 >
+	     <th:block th:if="${!#strings.isEmpty(column.template)}">
+	         <template scope="scope">
+	         	<nns-table-column-operate-button :buttons="table.rowButtons" :prop="scope" :context="vm"></nns-table-column-operate-button>
+	         </template>
+	     </th:block>
+	 </el-table-column>
+</th:block>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="dispatch.member">
+		<sql id="queryMemberDownList"
+			value=" select c.sys_customer_id as sysCustomerId,t.out_nick as outNick, c.member_grade as memberGrade,t.end_time as endTime, c.is_right_black as isRightblack,
+        t.payment,c.group_id as groupId   from kd_customer_brand c,kd_trade t where  c.sys_customer_id = t.sys_customer_id   and c.member_grade >1 ">
+			<if value="  and t.end_time  &lt;    #{endTime} "></if>
+			<if value="  and t.brand_id =  #{brandId} "></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>

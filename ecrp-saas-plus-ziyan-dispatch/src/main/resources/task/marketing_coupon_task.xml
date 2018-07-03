@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:task="http://www.springframework.org/schema/task"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+
+
+
+    http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/task
+    http://www.springframework.org/schema/task/spring-task.xsd">
+
+  <!-- 	营销优惠券服务 -->
+  <bean id="marketingRebackJob"
+    class="com.nascent.ecrpsaas.dispatch.task.marketing.MarketingRebackJob"></bean>
+
+  <task:scheduler id="couponjob" pool-size="100"/>
+  <!-- 调度任务配置 -->
+  <task:scheduled-tasks scheduler="couponjob">
+    <task:scheduled ref="marketingRebackJob" method="work" cron="0 0 0/1 * * ?"/>
+  </task:scheduled-tasks>
+
+</beans>  

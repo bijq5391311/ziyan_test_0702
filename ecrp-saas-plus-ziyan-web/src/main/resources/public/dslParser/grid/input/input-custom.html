@@ -1,0 +1,5 @@
+<th:block th:fragment="render(item,preffix)">
+     <th:block th:inline="text" th:if="!${#strings.isEmpty(item.template)}">
+	    [(${item.template})]
+	  </th:block>
+</th:block>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="marketing.KdCoupon">
+	    <sql id="queryListByAuth" count="select count(1)" 
+	           value="select c.* ,se.name as shopName,0 as usingCount,
+	           0 as usedCount,0 as unusedCount
+	               from kd_coupon c inner join sys_shop_ext se on se.code= c.shop_code
+                where 1=1">
+        <if test="shopCode != '' and shopCode != null" value="and c.shop_code in (${'shopCodes'})"></if>
+        <if value="and c.shop_code= #{shopCode}"></if>
+	    <if test="#state == 1 " value="and c.end_time &lt; now()"></if><if test="#state == 0 " value="and c.end_time &gt; now()"></if>
+	    <if value="and c.coupon_title=#{couponTitle}"></if>
+	    <if value="and c.denominations=#{denominations}"></if>
+	    <if value="and c.start_time &gt;= #{startTime}"></if>
+	    <if value="and c.end_time &lt;= #{endTime}"></if>
+	    <if value="group by c.coupon_id"></if>
+	    <if value="order by c.create_time desc"></if>
+	    </sql>
+	    <!-- 更新店铺过期时间 -->
+	    <sql id="updateExpireTime"
+                value="update sys_shop_ext set jl_session_key=#{jlSessionKey},jlkey_expire_time=#{jlkeyExpireTime} where code=#{shopCode}">
+        </sql>
+		<!--查询有效的优惠券-->
+		<sql id="countEnableCoupon" value="select * from kd_coupon
+						where 1=1 and start_time &lt;= #{now} and end_time &gt;= #{now}">
+			<if value="and shop_code = #{shopCode}"></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot> 

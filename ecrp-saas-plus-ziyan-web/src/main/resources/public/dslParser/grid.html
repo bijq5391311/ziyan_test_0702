@@ -1,0 +1,24 @@
+<th:block th:fragment="render(dsl2)" th:inline="javascript">
+	(function(){
+		var templateObject = [#th:block th:insert="../public/dslParser/grid/template::render(${dsl2})"][/th:block];
+		return mergeTableOption({
+			template: templateObject,
+			tableOption: {
+				url: [[${dsl2.url}]],
+				quickSearchName: [[${(dsl2.allInput.size() > 0 && dsl2.allInput[0].type == 'text') ? dsl2.allInput[0].name : 'null'}]],
+				model: [(${dsl2.model})],
+				rules: [(${dsl2.rules})],
+				state: {},
+				rowButtons: [(${dsl2.configToJSOfRowButton})], //行按钮配置信息
+				operateButtons: [(${dsl2.configToJSOfButton})],
+				methods: [(${dsl2.getJSMethods()})]
+			},
+			treeOption: {
+				enable: [(${dsl2.tree.enable})],
+				url: [[${dsl2.tree.url}]],
+				showCheckbox: [(${dsl2.tree.showCheckbox})],
+				expandAll: [(${dsl2.tree.expandAll})],
+			}
+		});
+	})()
+</th:block>

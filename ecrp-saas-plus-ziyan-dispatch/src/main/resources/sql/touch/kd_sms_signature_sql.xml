@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="touch.KdSmsSignature">
+		<sql id="batchUpdate" value="update kd_sms_signature set state = 0 where 1 = 1 and id = ?">
+		</sql> 
+		
+	    <sql id="queryList" value="select s.id, s.signature_name as signatureName, s.create_time as createTime, s.update_time as updateTime, s.state,
+	        s.group_id as groupId, s.department_code as departmentCode, s.create_account as createAccount , d.name as departmentName , u.user_name as createName 
+	       from kd_sms_signature s left join  sys_department d on s.department_code = d.code 
+	       left join sys_user u on s.create_account = u.login_account where 1 = 1 and s.state = 1 and d.state = 1">
+	    	<bind name="departmentName" value= "#departmentName == null ? null : ('%'+#departmentName+'%')"></bind>
+	    	<bind name="signatureName" value= "#signatureName == null ? null : ('%'+#signatureName+'%')"></bind>
+	    	<bind name="createName" value= "#createName == null ? null : ('%'+#createName+'%')"></bind>
+	       <if value = " and s.id = #{id}"></if>
+	       <if value = " and d.name like #{departmentName}"></if>
+	       <if value = " and s.signature_name like #{signatureName}"></if>
+	       <if value = " and u.user_name like #{createName}"></if>
+	       <if value = " order by s.create_time desc"></if>
+	    </sql>
+
+	    <sql id="queryById" value="select s.id, s.signature_name, d.name as department_name,u.user_name as create_name 
+           from kd_sms_signature s left join sys_department d  on s.department_code = d.code 
+           left join sys_user u on s.create_account = u.login_account where s.id = #{id} and s.state = 1">
+	    </sql>
+	</sqlGroup>
+</sqlRoot>

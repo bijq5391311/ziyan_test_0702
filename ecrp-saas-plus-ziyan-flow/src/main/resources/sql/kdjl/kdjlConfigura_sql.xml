@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="kdjl.Configura">
+		<sql id="queryConfiguraList"
+				value="select kc.id, kc.brand_name,kc.shop_names,kc.employee_name,kc.dept_name,kc.create_time,kc.state
+				from kdjl_configura kc where 1=1" >
+			<bind name="shop_names" value="#shop_names == null ? null : ('%'+#shop_names+'%')"></bind>
+			<if value=" and kc.shop_names like #{shop_names}"></if>
+			<if value=" and kc.brand_id=#{brand_id}"></if>
+			<bind name="shop_codes" value="#shop_codes == null ? null : ('%'+#shop_codes+'%')"></bind>
+			<if value=" and kc.shop_codes like #{shop_codes}"></if>
+			<bind name="dept_code" value="#dept_code == null ? null : ('%'+#dept_code+'%')"></bind>
+			<if value=" and kc.dept_code like #{dept_code}"></if>
+			<if value=" and kc.employee_id in (${employee_id})"></if>
+			<if value=" and kc.create_time between #{create_time$GTE} and #{create_time$LTE}"></if>
+			<if value=" order by kc.create_time desc"></if>
+		</sql>
+	<!-- 通过当前登录用户岗位编码获取可看到的品牌下拉框 -->
+		<sql id="querySysbrandInfo" value="SELECT distinct sys_brand.id as v,sys_brand.brand_name as k from sys_position_shop join sys_shop 
+      	on sys_position_shop.shop_code= sys_shop.`code`
+      	join sys_brand on sys_shop.brand_id=sys_brand.id
+      	where sys_brand.state=1 and sys_position_shop.position_code=#{position} " >
+		   
+	    </sql>
+	    <!-- 根据品牌id和已选中的店铺，获取可选店铺下拉框 -->
+	    <sql id="queryShopTreeByBrandId" value="select ss.code as v,ss.name as k
+	     from sys_shop ss inner join sys_shop_ext sse 
+	    on ss.code=sse.code where ss.state=1 and sse.plat_from_type=1 ">
+	    	<if value=" and ss.brand_id=${brandId}"></if>
+	    	<if value=" and ss.code not in (${'codes'})"></if>
+	    </sql>
+	    <!-- 获取物流公司下拉框 -->
+	    <sql id="queryExpressCompanyOptions" value="select code as v,name as k from express_company_code where state=1">
+	    </sql>
+	    <sql id="queryExpressCompanyByCode" value="select * from express_company_code where state=1 ">
+	    <if value=" and code in (${'codes'})"></if>
+	    </sql>
+	   
+	</sqlGroup>
+</sqlRoot>

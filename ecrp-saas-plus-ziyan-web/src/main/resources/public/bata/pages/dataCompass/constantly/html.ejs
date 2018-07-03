@@ -1,0 +1,309 @@
+<% include ../../../include/layout/start.ejs %>
+<div id="constantly" v-cloak>
+  <div class="constantly-content">
+    <el-row>
+      <el-col :span="24">
+        <el-form :inline="true" class="constantly-form">
+          <el-form-item label="数据视角：">
+            <el-form-grid size="xs">
+              <el-select placeholder="请选择" clearable v-model="defaultSelect">
+                <el-option label="部门" value="part"></el-option>
+                <el-option label="品牌" value="brand"></el-option>
+                <el-option label="渠道 " value="brand"></el-option>
+              </el-select>
+            </el-form-grid>
+            <el-form-grid size="xmd">
+              <el-popover ref="droptreepopover"
+                          v-model="dropTreeVisible"
+                          :width="droptreeWidth"
+                          placement="bottom-start"
+                          trigger="click"
+                          popper-class="tmp-droptree-popover">
+                <el-scrollbar
+                  wrap-class="tmp-droptree-scroll"
+                >
+                  <el-input class="tmp-droptree-search" placeholder="输入关键字进行过滤"></el-input>
+                  <el-tree-extra :data="dropTreeList"
+                                 ref="dropTree"
+                                 :expand-on-click-node="false"
+                                 show-checkbox
+                                 node-key="id"
+                                 @check-change="handleSelectValue"
+                                 class="tmp-droptree-tree"></el-tree-extra>
+                </el-scrollbar>
+                <div class="tmp-droptree-footer">
+                  <el-button size="mini" type="text" @click="dropTreeVisible = false">取消</el-button>
+                  <el-button type="primary" size="mini" @click="handleHideDroptree">确定</el-button>
+                </div>
+              </el-popover>
+              <el-input ref="droptreeinput"
+                        v-model="dropTreeValue"
+                        icon="circle-close"
+                        :on-icon-click="handleCleanClick"
+                        @click.native="handleShowDropTree" placeholder="点击选择" class="tmp-droptree-input"
+                        v-popover:droptreepopover class="tmp-droptree-input"></el-input>
+            </el-form-grid>
+          </el-form-item>
+          <el-form-item label="平台：">
+            <business-popover-select v-model="platformValue"
+                                     :data="platform"
+                                     :width="280"
+                                     :cols="2"
+                                     @item-click="handlePlateClick"
+                                     @confirm-click="popoverConfirmClick"></business-popover-select>
+          </el-form-item>
+
+          <el-form-item label="来源：">
+            <el-form-grid>
+              <el-checkbox-group v-model="checkChannel">
+                <el-checkbox label="PC"></el-checkbox>
+                <el-checkbox label="移动"></el-checkbox>
+              </el-checkbox-group>
+            </el-form-grid>
+          </el-form-item>
+          <el-form-item class="pull-right constantly-form__lastform">
+            <el-form-grid>
+              <el-button type="primary">实时播报</el-button>
+            </el-form-grid>
+            <el-form-grid>16:21:12 <a href=""><i class="bui-refresh"></i></a></el-form-grid>
+          </el-form-item>
+        </el-form>
+      </el-col>
+    </el-row>
+    <el-row class="constantly-grid" :gutter="15">
+      <el-col :span="6" v-for="data in constantlyData1" :key="data.id">
+        <div class="constantly-grid__content">
+          <div class="xe-widget xe-counter constantly-widget is-unfill">
+            <div class="xe-icon">
+              <i :class="'bui-' + data.icon"></i>
+            </div>
+            <div class="xe-label">
+              <strong class="num"><b v-if="data.type === 'price'">￥</b>
+                <el-countup class="normal-span" :start="0" :end="data.value"></el-countup>
+              </strong>
+              <span>{{data.description}}
+             <el-popover
+               v-if="data.tips !== ''"
+               popper-class="constantly-popover"
+               class="constantly-widget-tips"
+               placement="right"
+               trigger="hover"
+               :content="data.tips">
+                <i slot="reference" class="bui-question-fill"></i>
+              </el-popover>
+            </span>
+            </div>
+          </div>
+          <ul class="constantly-flow">
+            <li class="constantly-flow__item" v-for="item in data.list" :key="item.name">
+              <span class="name" :title="item.name">{{item.name}}</span>
+              <el-popover
+                v-if="item.tips !== ''"
+                class="tips"
+                placement="right"
+                trigger="hover"
+                :content="item.tips">
+                <i slot="reference" class="bui-question-fill"></i>
+              </el-popover>
+              <span class="number pull-right">{{item.numbers}} <b class="percent" v-text="item.percent"></b></span>
+            </li>
+          </ul>
+        </div>
+      </el-col>
+    </el-row>
+
+    <el-row class="constantly-grid" :gutter="15">
+      <el-col :span="6" v-for="data in constantlyData2" :key="data.id">
+        <div class="constantly-grid__content">
+          <div class="xe-widget xe-counter constantly-widget">
+            <div class="xe-icon">
+              <i :class="'bui-' + data.icon"></i>
+            </div>
+            <div class="xe-label" v-if="data.twice">
+              <strong v-show="data.nowIndex === '0'" class="num"><b v-if="data.type === 'price'">￥</b>{{data.child[0].value}}</strong>
+              <strong v-show="data.nowIndex === '1'" class="num"><b v-if="data.type === 'price'">￥</b>{{data.child[1].value}}</strong>
+              <span class="cut">
+                <b :class="{ 'is-active': data.nowIndex === '0'}" @click="data.nowIndex = '0'">{{data.child[0].description}}</b>
+                <b :class="{ 'is-active': data.nowIndex === '1'}" @click="data.nowIndex = '1'">{{data.child[1].description}}</b>
+                 <el-popover
+                   v-if="data.tips !== ''"
+                   class="constantly-widget-tips"
+                   placement="right"
+                   trigger="hover"
+                   :content="data.tips">
+                    <i slot="reference" class="bui-question-fill"></i>
+                  </el-popover>
+              </span>
+            </div>
+            <div class="xe-label" v-else>
+              <strong class="num"><b v-if="data.type === 'price'">￥</b>{{data.value}}</strong>
+              <span>{{data.description}}
+             <el-popover
+               v-if="data.tips !== ''"
+               class="constantly-widget-tips"
+               placement="right"
+               trigger="hover"
+               :content="data.tips">
+                <i slot="reference" class="bui-question-fill"></i>
+              </el-popover>
+            </span>
+            </div>
+          </div>
+        </div>
+      </el-col>
+    </el-row>
+    <el-row :gutter="15" class="constantly-grid">
+      <!--客户总览-->
+      <el-col :span="18">
+        <div class="constantly-panel">
+          <div class="constantly-panel__title">
+            <span>客户总览</span>
+          </div>
+          <div class="constantly-panel__body">
+            <ul class="custom" ref="customlist" id="custom">
+              <li v-for="cus in customData">
+                <div class="custom-widget">
+                  <div class="custom-total">
+                    <div class="custom-percent">
+                      <span><b v-if="cus.percent > 0">{{cus.percent}}<i>%</i></b></span>
+                    </div>
+                    <div class="custom-des">
+                      <strong class="num">{{cus.number}}</strong>
+                      <span>{{cus.name}}</span>
+                    </div>
+                  </div>
+                  <div class="custom-more">
+                    <a :href="cus.view" target="_blank">查看会员</a> | <a :href="cus.touch" target="_blank">客户触达</a>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </el-col>
+      <!--转化漏斗-->
+      <el-col :span="6">
+        <div class="constantly-panel">
+          <div class="constantly-panel__title">
+            <span>转化漏斗</span>
+          </div>
+          <div class="constantly-panel__body">
+            <div class="constantly-echarts" :style="{'height': funnelHeight + 'px', 'width': '100%'}">
+              <business-echarts :options="funnel" class="funnel" ref="funnel" auto-resize></business-echarts>
+            </div>
+          </div>
+        </div>
+      </el-col>
+      <!--转化漏斗-->
+    </el-row>
+    <el-row>
+      <el-col :span="24">
+
+        <div class="constantly-panel">
+          <div class="constantly-panel__title">
+            <span>销售趋势</span>
+          </div>
+          <div class="constantly-panel__body">
+            <div class="constantly-salestrend">
+              <el-form :inline="true" class="constantly-form">
+                <el-form-item>
+                  <el-form-grid>
+                    <el-radio-group v-model="trendCompareRadio" class="spacing-button">
+                      <el-radio-button v-for="rad in trendCompareRadioData" :key="rad" :label="rad"></el-radio-button>
+                    </el-radio-group>
+                    <el-popover placement="right"
+                                popper-class="order-popover"
+                                trigger="click"
+                                title="选择参数"
+                                v-model="orderPopover"
+                                width="150">
+                      <el-checkbox-group v-model="trendCompareCheck" :max="4" @change="handleChangeCheck">
+                        <el-checkbox v-for="che in trendCompareCheckData" :key="che" :label="che"></el-checkbox>
+                      </el-checkbox-group>
+                      <div class="order-popover-footer">
+                        <el-button size="mini">取消</el-button>
+                        <el-button type="primary" size="mini" @click="handleSaveCheck">确定</el-button>
+                      </div>
+                      <el-button slot="reference" class="order-addbtn"><i class="bui-add"></i></el-button>
+                    </el-popover>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="最近：" class="pull-right" style="margin-right:0">
+                  <div class="constantly-form__platform">
+                    <el-badge>
+                      <span :class="{ 'is-active': currentRecent === 'today'}" @click="chooseRecent('today')">今日</span>
+                    </el-badge>
+                    <el-badge>
+                      <span :class="{ 'is-active': currentRecent === 'yesterday'}" @click="chooseRecent('yesterday')">昨日</span>
+                    </el-badge>
+                    <el-badge>
+                      <span :class="{ 'is-active': currentRecent === 'seven'}" @click="chooseRecent('seven')">7日</span>
+                    </el-badge>
+                    <el-badge>
+                      <span :class="{ 'is-active': currentRecent === 'month'}" @click="chooseRecent('month')">30日</span>
+                    </el-badge>
+                  </div>
+                </el-form-item>
+                <el-form-item label="渠道：" class="el-block">
+                  <el-form-grid size="xs">
+                    <el-select placeholder="请选择" v-model="defaultSelect">
+                      <el-option label="PC" value="pc"></el-option>
+                      <el-option label="移动" value="mobile"></el-option>
+                    </el-select>
+                  </el-form-grid>
+                  <el-form-item label="平台：">
+                    <el-form-grid size="xs">
+                      <el-select placeholder="请选择" v-model="defaultSelect">
+                        <el-option label="全部" value="all"></el-option>
+                        <el-option label="天猫" value="tmall"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                    <el-form-grid size="xmd">
+                      <el-select placeholder="请选择" v-model="defaultSelect">
+                        <el-option label="全部" value="all"></el-option>
+                        <el-option label="天猫旗舰店铺" value="tmall"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                    <el-form-grid>
+                      <el-button type="primary">添加对比</el-button>
+                    </el-form-grid>
+                  </el-form-item>
+                </el-form-item>
+                <el-form-item label="渠道：" class="el-block">
+                  <el-form-grid size="xs">
+                    <el-select placeholder="请选择" v-model="defaultSelect">
+                      <el-option label="PC" value="pc"></el-option>
+                      <el-option label="移动" value="mobile"></el-option>
+                    </el-select>
+                  </el-form-grid>
+                  <el-form-item label="平台：">
+                    <el-form-grid size="xs">
+                      <el-select placeholder="请选择" v-model="defaultSelect">
+                        <el-option label="全部" value="all"></el-option>
+                        <el-option label="天猫" value="tmall"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                    <el-form-grid size="xmd">
+                      <el-select placeholder="请选择" v-model="defaultSelect">
+                        <el-option label="全部" value="all"></el-option>
+                        <el-option label="天猫旗舰店铺" value="tmall"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                    <el-form-grid>
+                      <el-button type="primary">确认</el-button>
+                    </el-form-grid>
+                  </el-form-item>
+                </el-form-item>
+              </el-form>
+
+              <div class="constantly-echarts">
+                <business-echarts :options="option" class="oscillogram" auto-resize></business-echarts>
+              </div>
+            </div>
+          </div>
+        </div>
+      </el-col>
+    </el-row>
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

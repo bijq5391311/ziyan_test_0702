@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+  <sqlGroup name="marketing.marketing">
+    <sql id="findActivitiesInstanceRelation"
+      value="select * from activities_instance_relation where 1=1 and instance_id = #{instanceId}">
+    </sql>
+  </sqlGroup>
+</sqlRoot>

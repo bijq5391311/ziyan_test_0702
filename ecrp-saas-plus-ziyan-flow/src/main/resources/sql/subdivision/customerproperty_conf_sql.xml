@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="vip.CustomerProperty">
+		<sql id="propertyAnalysisexo" value="SELECT #{property} as property,COUNT(DISTINCT kd_customer.ID) AS count FROM kd_customer 
+		INNER JOIN #{tempName} temp on kd_customer.sys_customer_id = temp.sys_customer_id group by ">
+		</sql>
+		<sql id="propertyAnalysis" value="SELECT #{property} as property,COUNT(DISTINCT kd_customer.id) AS count from kd_customer 
+		where kd_customer.sys_customer_id in (#{ids}) group by #{property}">
+		</sql>
+		<sql id="queryCustomerproperty" value="
+		select * from kd_customer_property where state =1 
+		">
+		</sql>
+		
+	</sqlGroup>
+	
+</sqlRoot>

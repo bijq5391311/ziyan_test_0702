@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="database.KdTrade">
+		<sql id="queryList"  value="select distinct
+				shop.name as shopName,
+				trade.out_nick as outNick,
+				trade.sys_trade_id as sysTradeId,
+				trade.trade_status as tradeStatus,
+				trade.created,
+				trade.pay_time as payTime,
+				trade.payment,
+				trade.total_fee,
+				trade.post_fee,
+				trade.service_fee,
+				trade.discount_type,
+				trade.num,trade.total_fee as totalFee,
+				trade.receiver_name as receiverName,
+				trade.receiver_mobile as receiverMobile,
+				trade.shop_code as shopCode,
+			    trade.out_trade_id as outTradeId,
+				ext.trade_type as trade_type
+                from kd_trade trade 
+                inner join sys_shop shop on shop.code = trade.shop_code
+                left join kd_trade_ext ext on trade.sys_trade_id = ext.sys_trade_id ">
+                
+                <if test="#title!=null and #title!=''" value=" left join kd_order od on od.sys_trade_id = trade.sys_trade_id"></if>
+                <if test="(#title!=null and #title!='') and (#sellerCat!=null and #sellerCat!='')" value=" left join kd_item item on item.sys_item_id=od.sys_item_id"></if>
+                 <if test="(#title==null or #title!='') and (#sellerCat!=null and #sellerCat!='')" 
+                 		value=" left join kd_order od on od.sys_trade_id = trade.sys_trade_id
+                           left join kd_item item on item.sys_item_id=od.sys_item_id"></if>
+               <!-- 查询地址 -->
+               <if test="(#receiverProvince!=null and #receiverProvince!='')
+               				and (#receiverCity == null or #receiverCity=='')
+               				and (#receiverDistrict == null or #receiverDistrict=='')"
+					value=" inner join area a on a.tb_name = trade.receiver_province ">
+				</if>
+				 <if test="(#receiverProvince!=null and #receiverProvince!='')
+               				and (#receiverCity != null and #receiverCity!='')
+               				and (#receiverDistrict == null or #receiverDistrict=='')"
+					value=" inner join area a on a.tb_name = trade.receiver_city ">
+				</if>
+				 <if test="(#receiverProvince!=null and #receiverProvince!='')
+               				and (#receiverCity != null and #receiverCity!='')
+               				and (#receiverDistrict != null and #receiverDistrict!='')"
+					value=" inner join area a on a.tb_name = trade.receiver_district ">
+				</if>
+               
+                <if  value="  where 1=1"></if>
+                
+                <!-- 店铺权限过滤 -->
+                <if test="" value="and trade.shop_code in (${'authShop'})"></if>
+                
+                <bind name="outNick" value="#outNick == null ? null : ('%'+#outNick+'%')"></bind>
+                <bind name="outerId" value="#outerId == null ? null : ('%'+#outerId+'%')"></bind>
+                <bind name="outTradeId" value="#outTradeId == null ? null : ('%'+#outTradeId+'%')"></bind>
+                <bind name="receiverName" value="#receiverName == null ? null : ('%'+#receiverName+'%')"></bind>
+                <bind name="receiverMobile" value="#receiverMobile == null ? null : ('%'+#receiverMobile+'%')"></bind>
+                <bind name="title" value="#title == null ? null : ('%'+#title+'%')"></bind>
+                <bind name="sellerCat" value="#sellerCat == null ? null : #sellerCat"></bind>
+				
+                <if test="#tradeType!=null and #tradeType!=''" value=" and ext.trade_type = #{tradeType} "></if>
+				
+                <if test="#outNick!=null and #outNick!='%%'" value="and trade.out_nick like #{outNick}"></if>
+                <if test="#outTradeId!=null and #outTradeId!='%%'" value="and trade.out_trade_id like #{outTradeId}"></if>
+                <if test="#receiverName!=null and #receiverName!='%%'" value="and trade.receiver_name like #{receiverName}"></if>
+                <if test="#receiverMobile!=null and #receiverMobile!='%%'" value="and trade.receiver_mobile like #{receiverMobile}"></if>
+				<if test="(#numStart!=0 and #numStart!=null and #numEnd!=null) or (#numStart!=null  and #numEnd!=0 and #numEnd!=null)" value="and trade.num between #{numStart} and #{numEnd}"></if>
+		   		<if test="(#paymentStart!=0 and #paymentStart!=null and #paymentEnd!=null) or (#paymentStart!=null  and #paymentEnd!=0 and #paymentEnd!=null)" value="and trade.payment between ${'paymentStart'} and ${'paymentEnd'}"></if>
+		   		<if value="and (trade.created >= #{createStartTime} and  trade.created &lt;=#{createEndTime})"></if>
+		   		<if value="and (pay_time >= #{payStartTime} and  pay_time &lt;=#{payEndTime})"></if>
+				<if value="and ext.trade_type=#{trade_type}"></if>
+				<if value=" and trade.shop_code in (${'tradeBrand'})"></if>
+		   		<if value="and trade.brand_id=#{brand}"></if>
+				<if value="and ext.out_company_name=#{outCompanyName}"></if>
+				<!-- 
+				<if test="#receiverProvince!=null and #receiverProvince!='' " value="and trade.receiver_province=#{receiverProvince}"></if>
+				<if test="#receiverCity!=null and #receiverCity!='' " value="and trade.receiver_city=#{receiverCity}"></if>
+				<if test="#receiverDistrict!=null and #receiverDistrict!='' " value="and trade.receiver_district=#{receiverDistrict}"></if>
+				-->
+				<if test="(#receiverProvince!=null and #receiverProvince!='')
+               				and (#receiverCity == null or #receiverCity=='')
+               				and (#receiverDistrict == null or #receiverDistrict=='')"
+               		value=" and a.tb_id = #{receiverProvince}">
+                </if>	
+                <if test="(#receiverProvince!=null and #receiverProvince!='')
+               				and (#receiverCity != null and #receiverCity!='')
+               				and (#receiverDistrict == null or #receiverDistrict=='')"
+               		value=" and a.tb_id = #{receiverCity}">
+                </if>	
+                <if test="(#receiverProvince!=null and #receiverProvince!='')
+               				and (#receiverCity != null and #receiverCity!='')
+               				and (#receiverDistrict != null and #receiverDistrict!='')"
+               		value=" and a.tb_id = #{receiverDistrict}">
+                </if>	
+               	<if test="#outerId != null and #outerId !='%%' " value=" and od.outer_id like #{outerId} "></if>			
+               				
+				<if test="#title!=null and #title!='%%'" value="and od.title like #{title}"></if>
+<!-- 				<if test="#sellerCat!=null and #sellerCat!=''"  value="and item.seller_cids in(${'sellerCat'})"></if> -->
+				<if test="#sellerCat!=null and #sellerCat!=''"  value="and  find_in_set(item.seller_cids,#{sellerCat})"></if>
+				<if value="and ext.out_sid=#{outSid}"></if>
+				<if value="and ext.out_state=#{outState}"></if>
+				<if value="and trade.trade_status in (${'tradeStatus'})"></if>
+		   		<if value="and trade.shop_code in (${'shopCode'})"></if>
+				<if test="#specialStatus == 'willClose'"
+					value="and trade_status = 'WAIT_BUYER_PAY' and (TO_DAYS(NOW()) - TO_DAYS(created)) >= 2"></if>
+				<if test="#specialStatus == 'delayedConsign'"
+					value="and trade_status = 'WAIT_SELLER_SEND_GOODS' and (TO_DAYS(NOW()) - TO_DAYS(pay_time)) >=3"></if>
+				<if test="#specialStatus == 'expressStop'"
+					value="and trade_status = 'WAIT_BUYER_CONFIRM_GOODS' and ext.out_state not in (3,4,6) and (TO_DAYS(NOW()) - TO_DAYS(ext.out_time)) >=3"></if>
+		   	 	
+		   	 	<auth tenant="trade.group_id"></auth>
+		   	 	<if value="order by trade.create_time desc"></if>
+
+		</sql>
+		<sql id="queryTradeDetailBySysTradeId" value="	select se.plat_from_type as platFromType,  shop.name as shopName, trade.id, trade.out_nick as outNick,trade.sys_trade_id as sysTradeId,trade.trade_status as tradeStatus,trade.created,trade.pay_time as payTime,trade.num,trade.total_fee as totalFee,trade.receiver_name as receiverName,trade.receiver_mobile as receiverMobile,ext.shop_code as shopCode,ext.seller_memo as sellerMemo,ext.buyer_message as buyerMessage,trade.out_trade_id as outTradeId,trade.remark_sign as remarkSign,trade.payment
+	         
+                from kd_trade trade 
+                left join kd_trade_ext ext on trade.sys_trade_id = ext.sys_trade_id 
+                
+                inner join sys_shop shop on shop.code = trade.shop_code
+                
+                left join sys_shop_ext se on se.code = shop.code
+                
+                where 1=1">
+            <if value="and trade.sys_trade_id = #{sys_trade_id}"></if>
+		</sql>
+		
+		<sql id="loadTradeBySysTradeId" value="select * from kd_trade where sys_trade_id = #{sys_trade_id}"></sql>
+	
+	    <!-- 隐藏订单 -->
+      <sql id="updateKdTradeIsHidden" 
+              value=" update kd_trade set is_hidden = 0 where 1=1">
+              <if test="true" value="and sys_trade_id in (${'tradeIds'})"></if>
+      </sql>
+      
+      <sql id="updateRemarkSign" value="update kd_trade set remark_sign=#{remark_sign} where sys_trade_id = #{sys_trade_id}"></sql>
+	
+		<sql id="queryShopExtBySysTradeId" value="select ext.app_key as appKey,ext.app_secret as appSecret,ext.access_token as accessToken,ext.plat_from_type as platFromType
+					from sys_shop_ext ext inner join kd_trade t on t.shop_code=ext.code where 1=1">
+			<if value="and t.sys_trade_id=#{sys_trade_id}"></if>			
+		</sql>
+		
+		<sql id="batchUpdateRemark" value="update kd_trade set remark_sign = #{remark_sign} ,update_time=current_timestamp() where 1=1 ">
+			<if value="and sys_trade_id in (${sys_trade_id})"></if>
+		</sql>
+	    <sql id="queryByTidAndShopCode" value="select * from kd_trade where 1=1">
+		    <if value="and out_trade_id=#{outTradeId}"></if>
+		    <if value="and shop_code=#{shopCode}"></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>

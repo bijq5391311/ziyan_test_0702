@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="database.KdGoodsSku">
+		<sql id="queryGoodsSku" value="select gs.sku_id,gs.properties_name from kd_goods_sku gs
+			inner join kd_goods g on gs.outer_id=g.outer_id
+			where g.id=#{id}">
+		</sql>
+		<auth tenant="g.group_id"></auth>
+	</sqlGroup>
+</sqlRoot>

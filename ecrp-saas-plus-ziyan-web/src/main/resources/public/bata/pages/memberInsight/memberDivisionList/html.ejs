@@ -1,0 +1,112 @@
+<% include ../../../include/layout/start.ejs %>
+<div id="example" v-cloak>
+  <div class="template-page">
+    <div class="tmp-page__content">
+        <el-scrollbar ref="layoutScroll"
+                      wrap-class="template-layout__scroll" outsider>
+          <el-row>
+            <el-col :span="24">
+              <div class="tmp-filter">
+                <div class="template-table-bar">
+                  <el-row type="flex">
+                    <el-col :span="10">
+                      <a class="el-button el-button--primary" href="/memberInsight/memberDivisionCreate/index.html">新增分组</a>
+                    </el-col>
+                    <el-col :span="14">
+                      <div class="pull-right">
+                        <!-- 单条件表单 -->
+                        <el-form :inline="true" class="pull-right">
+                          <el-form-item>
+                            <el-popover ref="droptreepopover"
+                                        v-model="dropTreeVisible"
+                                        :width="droptreeWidth"
+                                        placement="bottom-start"
+                                        trigger="click"
+                                        popper-class="tmp-droptree-popover">
+                              <el-scrollbar
+                                wrap-class="tmp-droptree-scroll"
+                              >
+                                <el-input class="tmp-droptree-search" placeholder="输入关键字进行过滤"></el-input>
+                                <el-tree-extra :data="dropTreeList"
+                                               :expand-on-click-node="false"
+                                               @node-click="handleSelectValue"
+                                               class="tmp-droptree-tree"></el-tree-extra>
+                              </el-scrollbar>
+                              <el-input slot="reference" ref="droptreeinput" v-model="dropTreeValue" readonly
+                                        @click.native="handleShowDropTree" placeholder="请选择部门" class="tmp-droptree-input"
+                                        class="tmp-droptree-input"></el-input>
+
+                            </el-popover>
+                          </el-form-item>
+                          <el-form-item>
+                            <el-input
+                              placeholder="请选择分类">
+                            </el-input>
+                          </el-form-item>
+                          <el-form-item>
+                            <el-input
+                              placeholder="请输入会员名称"
+                              icon="search">
+                            </el-input>
+                          </el-form-item>
+                        </el-form>
+                        <!-- end/单条件表单 -->
+                      </div>
+                    </el-col>
+                  </el-row>
+                </div>
+              </div>
+              <ul class="division-list">
+                <li v-for="(list, index) in listData">
+                  <el-panel type="gray" border
+                            :title="list.name">
+                    <template slot="actions" v-if="list.denied">
+                      <el-dropdown>
+                      <span class="el-dropdown-link">
+                        操作<i class="el-icon-caret-bottom el-icon--right"></i>
+                      </span>
+                        <el-dropdown-menu slot="dropdown">
+                          <el-dropdown-item>编辑</el-dropdown-item>
+                          <el-dropdown-item>删除</el-dropdown-item>
+                        </el-dropdown-menu>
+                      </el-dropdown>
+                    </template>
+                    <div class="division-list__data">
+                      <div class="control-item">
+                        <label class="control-label">分组人数约：</label>
+                        <div class="control-content">
+                          <bus-refresh v-model="list.group" @click="handleRefreshClick(index)"></bus-refresh>
+                          <el-tooltip content="上次统计时间xxxx-xx-xx，点击数字更新统计"
+                                      placement="right"
+                                      effect="light">
+                            <i class="bui-question-fill"></i>
+                          </el-tooltip>
+                        </div>
+                      </div>
+                      <div class="control-item">
+                        <label class="control-label">营销使用次数：</label>
+                        <div class="control-content">
+                          <bus-refresh v-model="list.marketing" @click="handleRefreshClick(index)"></bus-refresh>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="division-list__footer">
+                      <el-tag class="cate-tag" type="gray">地区：福建省，厦门市，思明区软件园二期</el-tag>
+                      <el-popover placement="bottom">
+                        <el-form label-width="36px">
+                          <el-form-item class="form-text" label="地区："><el-form-grid>福建省，厦门市，思明区软件园二期</el-form-grid></el-form-item>
+                          <el-form-item class="form-text" label="性别："><el-form-grid>女</el-form-grid></el-form-item>
+                        </el-form>
+                        <el-button slot="reference" class="cate-more" size="mini">…</el-button>
+                      </el-popover>
+                    </div>
+                  </el-panel>
+                </li>
+              </ul>
+            </el-col>
+          </el-row>
+        </el-scrollbar>
+    </div>
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

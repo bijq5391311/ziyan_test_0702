@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot source="">
+  <sqlGroup name="flow.ProcessDef">
+    <sql id="loadInitialProcess" value="select t.* from MKT_FLOW_RUNNING_PROCESS t
+			where t.State=1 and t.InstanceState='READY'
+			and t.ID = #{InstanceID}">
+    </sql>
+
+    <sql id="getActiveProcesses" value="select t.*,p1.TriggerTime,p1.InstanceState
+			from MKT_FLOW_TEMPLATE t
+			left join MKT_FLOW_RUNNING_PROCESS p1 on p1.TemplateID=t.ID
+			left join MKT_FLOW_RUNNING_PROCESS p2 on p2.TemplateID=p1.TemplateID and p2.TriggerTime>p2.TriggerTime
+			 where p2.TemplateID IS NULL
+			 and t.State=1 and t.IsReady=1">
+    </sql>
+
+    <sql id="getRunningTasks" value="select t.* from MKT_FLOW_RUNNING_NODE t
+			 where t.State=1 and t.NodeState='READY'">
+      <if value="and t.TriggerTime &lt; #{TriggerIntervalTime}"/>
+      <if value="order by t.TriggerTime asc"/>
+    </sql>
+
+    <sql id="countUnFinishedTasks" value="select count(1) from MKT_FLOW_RUNNING_NODE t
+			 where t.State=1 and t.NodeState!='COMPLETED'
+			 and t.InstanceID = #{InstanceID}">
+      <if value="and t.NodeID in (${'NodeIDs'})"/>
+      <if value="order by t.TriggerTime asc"/>
+    </sql>
+
+    <sql id="getPrevTasks" value="select t.* from MKT_FLOW_RUNNING_NODE t
+			 where t.State=1
+			 and t.InstanceID = #{InstanceID}">
+      <if value="and t.NodeState = #{NodeState}"/>
+      <if value="and t.NodeID in (${'NodeIDs'})"/>
+      <if value="order by t.TriggerTime asc"/>
+    </sql>
+    <sql id="getPreTriggerTime"
+      value="select TriggerTime from mkt_flow_running_process where Name = #{Name} ">
+      <if value="order by TriggerTime desc limit 1"/>
+    </sql>
+    <sql id="getLastInstanceId"
+      value="select ID from mkt_flow_running_process where Name = #{activityName} ">
+      <if value="order by TriggerTime desc limit 1"/>
+    </sql>
+    <sql id="updateInstancePaused"
+      value="update mkt_flow_running_process set InstanceState = 'PAUSED' where Name = #{activityName} ">
+      <if value=" and InstanceState in('READY','RUNNING')"/>
+    </sql>
+    <sql id="updateNodeTaskPaused"
+      value="update mkt_flow_running_node set NodeState = 'PAUSED' where InstanceID
+      in(select id from mkt_flow_running_process  where Name = #{activityName} and InstanceState in('READY','RUNNING'))">
+      <if value=" and NodeState = 'READY'"/>
+    </sql>
+    <sql id="updateCircleInstanceRunning"
+      value="update mkt_flow_running_process set InstanceState = 'READY' where Name = #{activityName} ">
+      <if value=" and InstanceState = 'PAUSED'"/>
+      <if value=" and TriggerTime > now()"/>
+    </sql>
+    <sql id="updateCircleNodeTaskRunning"
+      value="update mkt_flow_running_node set NodeState = 'READY' where InstanceID
+      in(select id from mkt_flow_running_process  where Name = #{activityName} and InstanceState = 'PAUSED'
+             and TriggerTime > now() )">
+      <if value=" and NodeState = 'PAUSED'"/>
+    </sql>
+    <sql id="updateInstanceRunning"
+      value="update mkt_flow_running_process set InstanceState = 'READY' where Name = #{activityName} ">
+      <if value=" and InstanceState = 'PAUSED'"/>
+    </sql>
+    <sql id="updateNodeTaskRunning"
+      value="update mkt_flow_running_node set NodeState = 'READY' where InstanceID
+      in(select id from mkt_flow_running_process  where Name = #{activityName} and InstanceState = 'PAUSED' )">
+      <if value=" and NodeState = 'PAUSED'"/>
+    </sql>
+
+  </sqlGroup>
+
+</sqlRoot>

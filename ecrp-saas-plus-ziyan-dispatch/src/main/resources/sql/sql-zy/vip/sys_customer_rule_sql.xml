@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+    <sqlGroup name="vip.SysCustomerRule">
+        <sql id="queryByParamsAndNoExistToSave" value="call proc_getsyscustomer_id(#{nick},#{mobile})"></sql>
+    </sqlGroup>
+</sqlRoot>

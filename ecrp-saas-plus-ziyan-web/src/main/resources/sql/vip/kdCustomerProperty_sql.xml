@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="vip.KdCustomerProperty">
+		<sql id="queryList" value="select id as id,state as state,create_time as create_time,update_time as update_time,name as name,type as type,value as value,sort as sort,group_id as group_id,source as source,target as target,is_jingling as is_jingling
+			 from kd_customer_property where  is_jingling=0">
+			<bind name="name" value="#name == null ? null : ('%'+#name+'%')"></bind>		
+			<if test="#target!=0 and #target != null" value="and target=#{target} "></if>
+			<if test="#target==0" value="and target=group_id"></if>
+			<if value="and source = #{source}"></if>
+			<if test=" #state != null and #state!=-1" value="and state = #{state}"></if>
+			<if test="#name!=null and #name !='%%'" value="and name like #{name}"></if>
+			<if value="order by create_time desc"></if>
+		</sql>
+		
+		<sql id="checkPropertyName" value="select count(1) from kd_customer_property where name=#{name}">
+			<if value="and id != #{id}"></if>
+			<if value="and source=#{source}"></if>
+			<if value="and target=#{target}"></if>
+		</sql>
+		
+		<sql id = "queryCustomerPropertyList" value= "select id as id,name as name,type as type,value as value ,source as source,target as target from kd_customer_property where 1=1 and state = 1">
+		      <if value=" and id in (${ids})"></if>
+		</sql>
+		<sql id="queryaAttributes" value=" SELECT id AS id,	'' AS model, NAME AS NAME, VALUE AS value, type AS type from kd_customer_property WHERE state = 1 AND  source = #{source} ">
+			<if test=" #brand_id != null" value=" AND target = #{brand_id}"></if>
+			<if test=" #group_id != null" value=" AND group_id = #{group_id}"></if>
+		</sql>
+		<sql id="queryaAttributesValue" value=" SELECT p.id as pid, v.id as id, v.property_value as property_value from kd_customer_property_value v LEFT JOIN kd_customer_property p ON p.id = v.customer_property_id WHERE p.source = #{source} and sys_customer_id = #{sys_customer_id}">
+			<if test=" #brand_id != null" value=" AND target = #{brand_id}"></if>
+			<if test=" #group_id != null" value=" AND v.group_id = #{group_id}"></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>

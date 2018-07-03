@@ -1,0 +1,121 @@
+<th:block th:include="../public/include/layout::layout(~{::content},~{::script})">
+    <div th:fragment="content" class="template-page-tab">
+        <div id="app" v-cloak>
+
+            <div is="ns-table" ref="table"@edit-careform="editCareForm"  @state-change="stateChange" @delete-care="deleteCare"></div>
+
+            <el-dialog ref="smsDialog" :title="editFormTitle" size="small" :vetically=true :response-limit=true
+                       v-model="visible" :modal-append-to-body="false"
+                       :close-on-click-modal="false" @close="closeAfter" >
+                <el-form ref="smsForm" placement="right" label-width="110px" :model="smsModel" :rules="smsRules"
+                         v-loading="loading"
+                         element-loading-text="拼命加载中">
+                    <el-form-item label="任务名称：" class="el-inline-block" required>
+                        <el-form-grid size="xmd">
+                            <el-form-item prop="topic">
+                                <el-input  type="text" v-model="smsModel.topic" placeholder="请输入任务名称，限制100字">
+                                </el-input>
+                            </el-form-item>
+                        </el-form-grid>
+                    </el-form-item>
+                    <el-form-item label="关怀时间：">
+                        <el-form-grid>注册后</el-form-grid>
+                        <el-form-grid size="xxs">
+                            <el-form-item prop="careTime">
+                                <el-input v-model ="smsModel.careTime" placeholder="0" class="text-right"></el-input>
+                            </el-form-item>
+                        </el-form-grid>
+                        <el-form-grid>分钟后执行</el-form-grid>
+                    </el-form-item>
+                    <el-form-item label="选择优惠券："  required>
+                        <el-form-grid size="xmd">
+                            <el-form-item prop="couponId">
+                                <el-select  v-model="smsModel.couponId" placeholder="请选择" :multiple="false">
+                                    <el-option v-for="coupon in couponList" :label="coupon.coupon_name" :value="coupon.coupon_id" :key="coupon.coupon_id"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-form-grid>
+                        <el-form-grid>送</el-form-grid>
+                        <el-form-grid size="xxs">
+                            <el-form-item prop="couponAmount">
+                                <el-input v-model ="smsModel.couponAmount" placeholder="0" class="text-right"></el-input>
+                            </el-form-item>
+                        </el-form-grid>
+                        <el-form-grid>张</el-form-grid>
+                    </el-form-item>
+                    <el-form-item label="送积分：" class="el-inline-block">
+                        <el-form-grid>赠送</el-form-grid>
+                        <el-form-grid size="xxs">
+                            <el-form-item prop="integral">
+                                 <el-input v-model ="smsModel.integral" placeholder="0" class="text-right"></el-input>
+                            </el-form-item>
+                        </el-form-grid>
+                        <el-form-grid>积分</el-form-grid>
+                    </el-form-item>
+                    <el-form-item label="短信内容：" required>
+                        <el-form-grid size="lg">
+                            <div class="tmp-fieldset">
+                                <div class="tmp-fieldset__tags">
+                                    <el-tag type="gray" color="#fff" v-for="(pattern,$index) in state.tagPatterns" @click.native="smsPattern(pattern.key)" :key="$index">
+                                        {{pattern.text}}
+                                    </el-tag>
+                                </div>
+                                <el-form-item prop="smsContent">
+                                    <el-form-grid size="lg">
+                                        <el-input class="tmp-fieldset__input" v-model="smsModel.smsTemplate" type="textarea" placeholder="请输入短信内容" width="550"></el-input>
+                                    </el-form-grid>
+                                </el-form-item>
+                            </div>
+                        </el-form-grid>
+                        <div class="tmp-tips text-info">
+                            <i class="bui-info"></i>您已录入
+                            <span class="text-warning">{{state.smsTotalLength}}</span>个字符(含店铺签名)，将被做为
+                            <span class="text-warning">{{state.smsCount}}</span>条短信发送，每条按
+                            <span class="text-warning">{{state.smsOneLength}}</span>字计价。
+                        </div>
+                        <div class="tmp-tips text-info">
+                            <i class="bui-info"></i> 内容含有网址请在后面添加网格
+                        </div>
+                    </el-form-item>
+                    <el-form-item label="选择签名：" required>
+                        <el-form-grid size="xmd">
+                            <el-form-item prop="smsSignature">
+                                <el-select  v-model="smsModel.smsSignature"  placeholder="请选择" :multiple="false">
+                                    <el-option v-for="signature in signatureList" :label="signature.k" :value="signature.v" :key="signature.v"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-form-grid>
+                    </el-form-item>
+                    <el-form-item label="选择通道：" class="el-inline-block" required>
+                        <el-form-grid size="xmd">
+                            <el-form-item prop="spId">
+                                <el-select  v-model="smsModel.spId" placeholder="请选择" :multiple="false">
+                                    <el-option v-for="sp in smsSpList" :label="sp.k" :value="sp.v" :key="sp.v"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-form-grid>
+                    </el-form-item>
+                    <el-form-item label="共享其他部门：">
+                        <el-form-grid size="xmd">
+                            <el-form-item prop="isShare">
+                                <el-switch v-model="smsModel.isShare" on-text="启用" off-text="禁用" :width="55" :on-value="1" :off-value="0"></el-switch>
+                            </el-form-item>
+                        </el-form-grid>
+                    </el-form-item>
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="visible = false">取消</el-button>
+                    <el-button type="primary" @click="save">保存</el-button>
+                </div>
+            </el-dialog>
+        </div>
+    </div>
+    <th:block th:fragment="script">
+        <script type="text/javascript" src="/static/plus/ziyan/care/zycareregister/js/careRegisterList.jss"></script>
+    </th:block>
+</th:block>
+
+
+
+
+

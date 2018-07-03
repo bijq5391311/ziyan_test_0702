@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="activeMq">
+	    <sql id="saveMessage" 
+	         value="INSERT INTO zy_mqmessage VALUES(#{message},#{message_tye},#{create_time})" >
+	    </sql>
+	    <!-- 查询外卖订单数据 -->
+	     <sql id="getTakeAwayOrder" value="SELECT * FROM zy_mqmessage WHERE 1=1 AND state = 1" >
+	   	<if  value= "and message_tye =#{messageType} "/>
+	   	<if  value= "limit #{size} "/>
+	    </sql>
+	    <!-- 查询中台外卖订单数据 -->
+	     <sql id="getCenterOrder" value="SELECT * FROM zy_mqmessage WHERE 1=1 AND state = 1" >
+	     <if test = "#message_type !=null" value= "and message_tye =#{messageType} "/>
+	    </sql>
+	     <!-- 查询中台退货外卖订单数据 -->
+	     <sql id="getCenterRtOrder" value="SELECT * FROM zy_mqmessage WHERE 1=1 AND state = 1" >
+	     <if />
+	    </sql>
+	    <!-- 更新订单状态 -->
+	    <sql id="updateMessage" value="update zy_mqmessage set state = 0">
+	    	<if  value= "where orderId = #{orderId}"/>
+	    </sql>
+	    <!-- 删除Mq订单信息 -->
+	    <sql id="deleteMessage" value="DELETE FROM zy_mqmessage WHERE state !=1 ">
+	    	<if value = "AND DATE_FORMAT(create_time,'%Y-%m-%d') = DATE_FORMAT(#{createTime},'%Y-%m-%d')"/>
+	    </sql>
+	</sqlGroup>
+</sqlRoot> 

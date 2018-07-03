@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="integral.KdPointRule">
+		<sql id="queryKdPointRuleByBrandIds" value="select * from kd_point_rule where state=1">
+			<if test="#brand_ids != ''" value=" and brand_id in (${'brand_ids'})"></if>
+			<if test="#brand_ids == ''" value=" and brand_id = #{brand_ids}"></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>

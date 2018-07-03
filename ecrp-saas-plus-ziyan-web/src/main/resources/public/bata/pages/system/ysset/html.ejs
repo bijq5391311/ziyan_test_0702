@@ -1,0 +1,237 @@
+<% include ../../../include/layout/start.ejs %>
+<div id="example" v-cloak>
+  <div class="template-page">
+    <div class="template-page-location">
+      <el-breadcrumb separator=">">
+        <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+        <el-breadcrumb-item>系统设置</el-breadcrumb-item>
+        <el-breadcrumb-item>雁书对接</el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>
+
+    <div class="template-page-tab">
+      <el-tabs v-model="activeName" type="card">
+        <el-tab-pane label="触达设置" name="first">
+          <el-form label-width="120px">
+            <el-form-item label="营销短信：">
+              <el-form-grid size="sm" width="60">
+                <el-input value="3" class="text-right"></el-input>
+              </el-form-grid>
+              <el-form-grid>次/单会员日接收量限定</el-form-grid>
+              <el-form-grid class="text-warning">
+                <el-tooltip class="item" effect="dark" placement="right">
+                  <i class="bui-question"></i>
+                  <div slot="content">为了保证您客户的体验，建议<br/>单店铺营销类手机短信每日同<br/>一个客户接收短信1次。</div>
+                </el-tooltip>
+              </el-form-grid>
+            </el-form-item>
+            <el-form-item label="触发类短信：">
+              <el-form-grid size="sm" width="60">
+                <el-input value="3" class="text-right"></el-input>
+              </el-form-grid>
+              <el-form-grid>次/每日每个电话号码可重复发送短信条数</el-form-grid>
+              <el-form-grid class="text-warning">
+                <el-tooltip class="item" effect="dark" placement="right">
+                  <i class="bui-question"></i>
+                  <div slot="content">触发类短信每日每个电话号码可重复<br/>发送短信条数(除了营销、测试通道的<br/>短信之外，其他的都是触发类短信)。</div>
+                </el-tooltip>
+              </el-form-grid>
+            </el-form-item>
+            <el-form-item label="营销附加手机号：">
+              <el-form-grid size="xlg">
+                <el-input type="textarea"></el-input>
+              </el-form-grid>
+              <div class="tmp-tips text-info"><i class="bui-info"></i>请输入发送短信时附加的测试号码，多个时需用<span class="text-warning">英文逗号</span>隔开</div>
+            </el-form-item>
+            <el-form-item label="营销附加邮件：">
+              <el-form-grid size="xlg">
+                <el-input type="textarea"></el-input>
+              </el-form-grid>
+              <div class="tmp-tips text-info"><i class="bui-info"></i>请输入发送短邮件时附加的测试号码，多个时需用<span class="text-warning">英文逗号</span>隔开</div>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary">保存</el-button>
+            </el-form-item>
+          </el-form>
+        </el-tab-pane>
+        <el-tab-pane label="雁书设置" name="two">
+          <el-form>
+            <el-form-item label="选择通道：" >
+              <el-select placeholder="请选择" v-model="defaultSelect">
+                <el-option label="选择1" value="up"></el-option>
+                <el-option label="选择2" value="down"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-form>
+          <el-row :gutter="20" class="row-top">
+            <el-col :span="12">
+              <el-panel
+                class="border"
+                title="短信设置">
+                <el-row>
+                  <el-col :span="4" class="text-center">
+                    <div class="panel-left-icon">
+                      <i class="bui-mobile"></i>
+                    </div>
+                  </el-col>
+                  <el-col :span="20">
+                    <el-form label-width="100px" class="min-height-panel">
+                      <el-form-item label="手机短信余额：" >
+                        <el-form-grid size="sm">
+                          9999999
+                        </el-form-grid>
+                        <el-form-grid>短信余额少于</el-form-grid>
+                        <el-form-grid size="sm" width="60">
+                          <el-input></el-input>
+                        </el-form-grid>
+                        <el-form-grid> 提醒</el-form-grid>
+                      </el-form-item>
+                      <el-form-item label="已发短信：">
+                        <el-form-grid size="sm">
+                          9999999
+                        </el-form-grid>
+                      </el-form-item>
+                      <el-form-item label="短信营销成本：">
+                        <el-form-grid size="sm" class="text-right" width="60">
+                          <el-input value="0.060" :disabled="value1"></el-input>
+                        </el-form-grid>
+                        <el-form-grid>元/条</el-form-grid>
+                        <el-form-grid><i class="bui-edit cursor-pointer" @click="clickEdit1()"></i></el-form-grid>
+                      </el-form-item>
+                      <el-form-item label="通知目标号码：">
+                        <el-form-grid size="lg" width="">
+                          <el-input></el-input>
+                        </el-form-grid>
+                        <el-form-grid class="text-info"><i class="bui-info"></i>多个号码请用逗号（,）隔开</el-form-grid>
+                      </el-form-item>
+                      <el-form-item label="提醒次数：">
+                        <el-form-grid size="sm">
+                          <el-input class="text-center"></el-input>
+                        </el-form-grid>
+                        <el-form-grid>次</el-form-grid>
+                      </el-form-item>
+                    </el-form>
+                  </el-col>
+                </el-row>
+              </el-panel>
+            </el-col>
+            <el-col :span="12">
+              <el-panel
+                class="border"
+                title="邮件设置">
+                <el-row>
+                  <el-col :span="4" class="text-center">
+                    <div class="panel-left-icon">
+                      <i class="bui-mail-o"></i>
+                    </div>
+                  </el-col>
+                  <el-col :span="20">
+                    <el-form label-width="100px" class="min-height-panel">
+                      <el-form-item label="邮件余额：">
+                        <el-form-grid size="sm">
+                          9999999条
+                        </el-form-grid>
+                      </el-form-item>
+                      <el-form-item label="已发邮件：">
+                        <el-form-grid size="sm">
+                          0 条
+                        </el-form-grid>
+                      </el-form-item>
+                      <el-form-item label="邮件营销成本：">
+                        <el-form-grid size="sm" class="text-right" width="60">
+                          <el-input value="0.010" :disabled="value2"></el-input>
+                        </el-form-grid>
+                        <el-form-grid>元/封</el-form-grid>
+                        <el-form-grid><i class="bui-edit cursor-pointer" @click="clickEdit2()"></i></el-form-grid>
+                      </el-form-item>
+                    </el-form>
+                  </el-col>
+                </el-row>
+              </el-panel>
+            </el-col>
+          </el-row>
+
+          <el-row :gutter="20" class="row-top">
+            <el-col :span="12">
+              <el-panel
+                class="border"
+                title="账号设置">
+                <el-form label-width="160px" class="min-height-panel">
+                  <el-form-item label="雁书帐号：">
+                    <el-form-grid size="sm">
+                      ECRP
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="帐号状态：">
+                    <el-form-grid size="sm">
+                      正常
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="累计充值：">
+                    <el-form-grid size="sm">
+                      0.000元
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="营销短信：">
+                    <el-form-grid size="sm" width="60">
+                      <el-input value="3" :disabled="value3"></el-input>
+                    </el-form-grid>
+                    <el-form-grid>次/单会员日接收量限定</el-form-grid>
+                    <el-form-grid><i class="bui-edit cursor-pointer" @click="clickEdit3()"></i></el-form-grid>
+                    <el-form-grid class="text-warning">
+                      <el-tooltip class="item" effect="dark" placement="right">
+                        <i class="bui-question"></i>
+                        <div slot="content">为了保证您客户的体验，建议<br/>单店铺营销类手机短信每日同<br/>一个客户接收短信1次。</div>
+                      </el-tooltip>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="触发类短信：">
+                    <el-form-grid size="sm" width="60">
+                      <el-input value="2" :disabled="value4"></el-input>
+                    </el-form-grid>
+                    <el-form-grid>次/每日每个电话号码可重复发送短信条数</el-form-grid>
+                    <el-form-grid><i class="bui-edit cursor-pointer" @click="clickEdit4()"></i></el-form-grid>
+                    <el-form-grid class="text-warning">
+                      <el-tooltip class="item" effect="dark" placement="right">
+                        <i class="bui-question"></i>
+                        <div slot="content">触发类短信每日每个电话号码可重复<br/>发送短信条数(除了营销、测试通道的<br/>短信之外，其他的都是触发类短信)。</div>
+                      </el-tooltip>
+                    </el-form-grid>
+                  </el-form-item>
+                </el-form>
+              </el-panel>
+            </el-col>
+            <el-col :span="12">
+              <el-panel
+                class="border"
+                title="其他设置">
+                <el-form label-width="160px" class="min-height-panel">
+                  <el-form-item label="短信签名：">
+                    <el-form-grid size="sm">
+                      <el-input value="d2c" :disabled="true"></el-input>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="发件人名称：">
+                    <el-form-grid size="sm">
+                      <el-input value="测试者" :disabled="true"></el-input>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="发件人邮箱地址：">
+                    <el-form-grid size="sm">
+                      <el-input value="11@qq.com" :disabled="true"></el-input>
+                    </el-form-grid>
+                  </el-form-item>
+                </el-form>
+              </el-panel>
+            </el-col>
+          </el-row>
+          <div class="text-center row-top">
+
+            <el-button type="primary">保存</el-button>
+          </div>
+        </el-tab-pane>
+      </el-tabs>
+    </div>
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

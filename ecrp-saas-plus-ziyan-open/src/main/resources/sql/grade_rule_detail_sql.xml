@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+    <sqlGroup name="gradeRuleDetail">
+        <sql id="findListByBrandId" value="
+        select d.grade grade,d.grade_name gradeName,d.zy_consume grouthValue,d.discount discount
+        from grade_rule_detail d
+        inner join grade_rule r on r.id = d.grade_rule_id
+        where r.brand_id = #{brandId}"/>
+
+    </sqlGroup>
+</sqlRoot> 

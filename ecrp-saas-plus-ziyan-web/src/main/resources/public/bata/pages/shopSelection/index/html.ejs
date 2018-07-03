@@ -1,0 +1,124 @@
+<% include ../../../include/layout/start.ejs %>
+<style>
+  .el-select__tags ~ .el-input .el-input__inner {
+    min-height: 30px !important;
+  }
+</style>
+<div id="example" v-cloak>
+  <div class="template-page">
+    <div class="template-page-location">
+      <el-breadcrumb separator=">">
+        <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+        <el-breadcrumb-item>会员洞察</el-breadcrumb-item>
+        <el-breadcrumb-item>会员分群</el-breadcrumb-item>
+        <el-breadcrumb-item>会员划分</el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>
+    <div class="template-page-tab">
+      <el-tabs v-model="activeName2" type="card">
+        <el-tab-pane label="多层级店铺选择" name="first">
+          <el-row>
+            <el-col :span="20">
+              <h4>线上店铺</h4>
+              <el-multi
+                :data="dataOnline"
+                :show-Selectall="false"
+                :show-checkbox="false"
+                accordion
+                node-key="id"
+                ref="online"
+                :cols="3"
+                :props="onlineProps">
+              </el-multi>
+              <h4>线下店铺</h4>
+              <el-multi
+                :data="dataLine"
+                accordion
+                :show-checkbox="false"
+                :show-Selectall="false"
+                node-key="id"
+                ref="linetree"
+                :cols="2"
+                :props="lineProps">
+              </el-multi>
+              <h4></h4>
+              <h4></h4>
+              <h4></h4>
+              <p
+                style="color:#0f81c1; margin-bottom:0px;border-bottom: 1px solid #0f81c1; width:300px;padding-bottom:10px;">
+                <i class="bui-youhuixinxi"></i> 华东区域(10/50)</p>
+              <el-multi
+                :data="dataSelectLine"
+                accordion
+                :expand-on-click-node="false"
+                :show-checkbox="false"
+                :show-Selectall="false"
+                :cols="2"
+                :props="lineProps">
+              </el-multi>
+              <p
+                style="color:#0f81c1;margin-bottom:0px; border-bottom: 1px solid #0f81c1;width:300px;padding-bottom:10px;">
+                <i class="bui-youhuixinxi"></i> 华东区域(10/50)</p>
+              <el-multi
+                :data="dataSelectLine"
+                accordion
+                :expand-on-click-node="false"
+                :show-checkbox="false"
+                :show-Selectall="false"
+                :cols="2"
+                :props="lineProps">
+              </el-multi>
+              <h4>多层级店铺选择表单应用</h4>
+              <el-form>
+                <el-form-item label="渠道来源：" label-width="80px">
+                  <el-form-grid>
+                    <el-button type="primary" @click="handerlMultilayerVisible()">选择店铺</el-button>
+                  </el-form-grid>
+                  <el-form-grid>已选择<b class="text-danger"> {{resultMultilayer}}</b> 家店铺</el-form-grid>
+                  <el-form-grid class="text-warning"><i class="bui-warn"></i> 多层级店铺选择的弹窗需要配置类名custom-class="no-padding"
+                  </el-form-grid>
+                </el-form-item>
+              </el-form>
+              <el-dialog title="选择平台" v-model="dialogMultilyaerVisible" ref="dialogMultilyaer" size="tiny"
+                         custom-class="no-padding" :modal-append-to-body="false">
+                <div class="template-multi">
+                  <el-collapse v-model="multiNames" accordion>
+                    <el-collapse-item name="brand1" title="百草味">
+
+                      <el-multi
+                        :data="dataOnline"
+                        accordion
+                        node-key="id"
+                        :expand-on-click-node="false"
+                        :default-checked-keys="defaultCheckedKeys"
+                        @check-change="handleCheckChange"
+                        ref="online"
+                        :props="onlineProps"
+                        :set-position="36">
+                      </el-multi>
+                    </el-collapse-item>
+                    <el-collapse-item name="brand2" title="百草味">
+                      <el-multi
+                        :data="dataLine"
+                        accordion
+                        node-key="id"
+                        :expand-on-click-node="false"
+                        ref="line"
+                        :props="lineProps">
+                      </el-multi>
+                    </el-collapse-item>
+                  </el-collapse>
+                </div>
+                <div slot="footer" class="dialog-footer">
+                  <el-button @click="saveMultilayerSelect">取 消</el-button>
+                  <el-button type="primary" @click="saveMultilayerSelect">确 定</el-button>
+                </div>
+              </el-dialog>
+            </el-col>
+          </el-row>
+        </el-tab-pane>
+      </el-tabs>
+    </div>
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

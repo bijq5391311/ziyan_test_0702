@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="marketing.sysCoupon">
+	    <sql id="queryList" count="select count(1)" value="select * from sys_coupon c where 1=1" >
+	         <bind name="couponName" value="#coupon_name == null ? null : ('%' + #coupon_name + '%')"></bind>
+	         <if value=" and c.coupon_name like #{couponName}"></if>
+	         <if value=" and c.coupon_type =#{coupon_type}"></if>
+	         <if value=" and c.state =#{state}"></if>
+	         <if value=" and c.create_time &gt;= #{startTime}"></if>
+	    	 <if value=" and c.create_time &lt;= #{endTime}"></if>
+	    	 <if value=" and c.coupon_id = #{coupon_id}"></if>
+	    	 <if value = " order by c.update_time desc "></if>
+	    </sql>
+	    <sql id="findCouponExtList" count="select count(1)" value="
+	    	select
+         	sc.coupon_name as couponName,sc.coupon_id as couponId,
+			e.coupon_code as code,sc.coupon_type as couponType,
+			e.activity_title as activityTitle,e.guid as guid,
+			sc.rights_and_interests as interests, 
+			sc.shop_ids as shopIds, sc.appoint_goods_ids as goodsIds,
+			kc.customer_name as name,
+			sc.conditions_of_use as conditionsOfUse, 
+			sc.full_or_plus_money as money, 
+			e.state as state, 
+			os.out_name as outName, e.create_time as createTime ,
+			e.update_time as updateTime ,
+			e.valid_time_begin as begin,
+			e.valid_time_end as end
+			from zy_coupon_customer_ext e 
+			left join sys_coupon sc on e.coupon_id = sc.coupon_id
+			left join kd_customer kc on e.sys_customer_id = kc.sys_customer_id
+			left join out_shop os on e.out_shop_code = os.out_code 
+			where e.state in (0,2) and sc.coupon_type in (1,2)  ">
+			<bind name="couponName" value="#coupon_name == null || #coupon_name == '' ? null : (#coupon_name + '%')"></bind>
+			<bind name="name" value="#name == null || #name == '' ? null : (#name + '%')"></bind>
+			<bind name="activityTitle" value="#activityTitle == null || #activityTitle == '' ? null : (#activityTitle + '%')"></bind>
+			<bind name="cancelType" value="((#startTime == '' &amp;&amp;  #endTime == '') || (#startTime == null &amp;&amp;  #endTime == null) ) ? null : 2"></bind>
+			<if value=" and e.coupon_code =#{couponCode}"></if>
+			<if value=" and sc.coupon_id =#{couponId}"></if>
+			<if value=" and e.activity_title like #{activityTitle}"></if>
+			<if value=" and e.guid =#{guid}"></if>
+			<if value=" and e.update_time &gt;= #{startTime}"></if>
+	    	<if value=" and e.update_time &lt;= #{endTime}"></if>
+	    	<if value=" and e.state = #{cancelType}"></if>
+	    	<if value=" and e.state = #{state}"></if>
+			<if value=" and sc.coupon_type  =#{couponType}"></if>
+	        <if value=" and kc.customer_name like #{name}"></if>
+	        <if value=" and sc.coupon_name like #{couponName}"></if>
+			<if value = " order by e.update_time desc "></if>
+	    </sql>
+	     <sql id="exportCouponExtList" value="
+	    	select
+            sc.coupon_name as '1',
+            sc.coupon_id as '2',
+            e.coupon_code as '3',
+            e.create_time as '4',
+			if(sc.coupon_type=1,'现金券','折扣券') as '5',
+			kc.customer_name as '6',
+			e.activity_title as '7',
+			e.guid as '8',
+			os.out_name as '9',
+			if(e.state=2,e.update_time,'') as '10',
+			if(e.state=2,'已核销','未核销') as '11',
+			e.valid_time_begin as '12',
+			e.valid_time_end as '13'
+			from zy_coupon_customer_ext e 
+			left join sys_coupon sc on e.coupon_id = sc.coupon_id
+			left join kd_customer kc on e.sys_customer_id = kc.sys_customer_id
+			left join out_shop os on e.out_shop_code = os.out_code 
+			where e.state in (0,2) and sc.coupon_type in (1,2)  ">
+			<bind name="couponName" value="#coupon_name == null || #coupon_name == '' ? null : (#coupon_name + '%')"></bind>
+			<bind name="name" value="#name == null || #name == '' ? null : (#name + '%')"></bind>
+			<bind name="activityTitle" value="#activityTitle == null || #activityTitle == '' ? null : (#activityTitle + '%')"></bind>
+			<bind name="cancelType" value="((#startTime == '' &amp;&amp;  #endTime == '') || (#startTime == null &amp;&amp;  #endTime == null) ) ? null : 2"></bind>
+			<if value=" and e.coupon_code =#{couponCode}"></if>
+			<if value=" and sc.coupon_id =#{couponId}"></if>
+			<if value=" and e.activity_title like #{activityTitle}"></if>
+			<if value=" and e.guid =#{guid}"></if>
+			<if value=" and e.update_time &gt;= #{startTime}"></if>
+	    	<if value=" and e.update_time &lt;= #{endTime}"></if>
+	    	<if value=" and e.state = #{cancelType}"></if>
+	    	<if value=" and e.state = #{state}"></if>
+			<if value=" and sc.coupon_type  =#{couponType}"></if>
+	        <if value=" and kc.customer_name like #{name}"></if>
+	        <if value=" and sc.coupon_name like #{couponName}"></if>
+			<if value = " order by e.update_time desc "></if>
+	    </sql>
+	    <sql id="couponExtAnalyze" value="
+	    	select e.state,sc.coupon_type as couponType,count(1) as sentAmount,count( distinct e.coupon_id) as count  
+			from zy_coupon_customer_ext e 
+			left join sys_coupon sc on e.coupon_id = sc.coupon_id
+			left join kd_customer kc on e.sys_customer_id = kc.sys_customer_id
+			left join out_shop os on e.out_shop_code = os.out_code 
+			where  e.state in (0,2) and sc.coupon_type in (1,2) ">
+			<bind name="couponName" value="#coupon_name == null || #coupon_name == '' ? null : (#coupon_name + '%')"></bind>
+			<bind name="name" value="#name == null || #name == '' ? null : (#name + '%')"></bind>
+			<bind name="activityTitle" value="#activityTitle == null || #activityTitle == '' ? null : (#activityTitle + '%')"></bind>
+			<bind name="cancelType" value="((#startTime == '' &amp;&amp;  #endTime == '') || (#startTime == null &amp;&amp;  #endTime == null) ) ? null : 2"></bind>
+			<if value=" and e.coupon_code =#{couponCode}"></if>
+			<if value=" and sc.coupon_id =#{couponId}"></if>
+			<if value=" and e.activity_title like #{activityTitle}"></if>
+			<if value=" and e.guid =#{guid}"></if>
+			<if value=" and e.update_time &gt;= #{startTime}"></if>
+	    	<if value=" and e.update_time &lt;= #{endTime}"></if>
+	    	<if value=" and e.state = #{cancelType}"></if>
+	    	<if value=" and e.state = #{state}"></if>
+			<if value=" and sc.coupon_type  =#{couponType}"></if>
+	        <if value=" and kc.customer_name like #{name}"></if>
+	        <if value=" and sc.coupon_name like #{couponName}"></if>
+			<if value=" group by  e.state,sc.coupon_type "></if>
+	    </sql>
+	    
+	    <sql id="queryCouponByCouponId" value =
+				"select * from sys_coupon s where 1=1 ">
+			<if value=" and s.coupon_id = #{couponId}"></if>
+		</sql>
+		<!-- 查询外部平台店铺列表  -->
+		<sql id="queryGoodsNameStr" value="select GROUP_CONCAT(o.out_name SEPARATOR '，') as nameStr from out_shop o where 1=1">
+		   <if value=" and out_code in (${ids})"></if>
+		</sql>
+		<!--查询有效优惠卷-->
+		<sql id="queryAvailableCouponList" value="select * from sys_coupon c where 1=1 and state = 0 "></sql>
+		<!-- 查询外部平台商品列表  -->
+		<sql id="queryKdGoodsList" value="select title as title,picture_url as pictureUrl from kd_goods where 1=1">
+		   <if value=" and id in (${ids})"></if>
+		</sql>
+		<sql id="queryCouponAllList" value="select * from sys_coupon c where 1=1 and state = 0 ">
+		</sql>
+		<!--查询所有有效优惠券-->
+		<sql id="findValidCouponList" value="SELECT *
+		FROM sys_coupon c
+		WHERE c.state = 0 AND ((c.coupon_amouet &gt; 0 AND c.coupon_amouet &gt; c.sent_amount) OR c.coupon_amouet &lt; 0) AND (
+				(c.valid_time_type = 1 AND c.valid_time_type = 0 AND c.valid_time_begin &lt; NOW() AND c.valid_time_end &gt; NOW()
+				) OR
+				 c.valid_time_type = 0
+			) ">
+		</sql>
+		<!--查询所有有效且无限优惠券-->
+		<sql id="findAvailableAndValidCouponList" value="SELECT *
+			FROM sys_coupon c
+			WHERE c.state = 0 AND c.coupon_amouet = -1  
+			AND (
+					( 
+					 c.valid_time_type = 0 AND
+					 NOW() &lt;  c.valid_time_end
+					) OR
+					c.valid_time_type = 1
+			)">
+		</sql>
+		<!--查询优惠券发放统计列表-->
+		<sql id="couponAnalyze" value="SELECT c.coupon_type as couponType, 
+		sum(c.sent_amount) as sentAmount,
+		sum(c.cancel_after_verification) as verification,
+		count(1) as count FROM sys_coupon c 
+			group by c.coupon_type 
+		">
+		
+		</sql>
+		<!-- 优惠券已发放数量 + n  -->
+		<sql id="addCouponSentAmount" value="update sys_coupon c set c.sent_amount =  c.sent_amount +  ">
+            <if value=" #{sentAmount}"/>
+            <if value=" where c.coupon_id = #{couponId} and (c.coupon_amouet=-1 or c.coupon_amouet &gt; c.sent_amount) "/>
+		</sql>
+		<!-- 优惠券已发放数量 - n  -->
+		<sql id="subCouponSentAmount" value="update sys_coupon c set c.sent_amount =  c.sent_amount -  ">
+            <if value=" #{sentAmount}"/>
+            <if value=" where c.coupon_id = #{couponId}"/>
+		</sql>
+		<!-- 店铺组建线下店铺获取-->
+		<sql id="loadOutShopTableNoRight" value="select i.id as id,i.out_name as label, i.out_code as code
+                 from  out_shop i  where 1=1  and
+ i.id in (select out_sid  from sys_shop where 1=1 "> 
+ 			<if value = "and  parent_id in (${channel})"> </if>
+ 			<if value = " ) and i.out_code != '' "></if>
+			<bind name="shopCode" value="#shopCode == null?null:('%'+#shopCode+'%')"></bind>
+			<if  value=" and i.out_code like #{shopCode}"></if>
+			<if value ="and brand_id in (${brandIds})"></if>
+			<if value = "and i.province = #{sheng}"> </if>
+			<if value = "and i.city = #{shi}"> </if>
+			<if value = "and i.district = #{qu}"> </if>
+			<if value = "and i.state = #{state}"> </if>
+			<bind name="shopName" value="#shopName == null?null:('%'+#shopName+'%')"></bind>
+			<if  value = "and i.out_name like #{shopName}"> </if>
+			<if value="  and i.is_related = 1" ></if>
+		</sql>
+		<!-- 店铺组建店铺获取-->
+		<sql id="loadShopTable" value="select i.id as id,i.name as label, i.parent_id as parentId, i.code as code
+                 from sys_shop i left join sys_shop_ext sse on i.code = sse.code where 1=1 and i.is_shop = 1">
+			<bind name="shopCode" value="#shopCode == null?null:('%'+#shopCode+'%')"></bind>
+			<if  value=" and i.code like #{shopCode}"></if>
+			<if  value=" and i.code in (${'shopCodes'})"></if>
+			<!--<if value ="and brand_id in (${brandIds})"></if>-->
+			<if value = "and i.parent_id = #{channel}"> </if>
+			<if value = "and sse.province = #{sheng}"> </if>
+			<if value = "and sse.city = #{shi}"> </if>
+			<if value = "and sse.district = #{qu}"> </if>
+			<if value = "and i.state = #{state}"> </if>
+			<bind name="shopName" value="#shopName == null?null:('%'+#shopName+'%')"></bind>
+			<if  value = "and i.name like #{shopName}"> </if>
+			<if value=" and i.brand_id = #{brand}"></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot> 

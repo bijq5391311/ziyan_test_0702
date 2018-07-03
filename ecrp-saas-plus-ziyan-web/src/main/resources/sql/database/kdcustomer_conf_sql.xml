@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="customer.database">
+		<sql id="queryList" value="SELECT  c.sys_customer_id as sys_customer_id, c.id as id, c.customer_name as customer_name, c.mobile as mobile,
+										c.create_time as create_time , csr.trade_amount as trade_amount, csr.pay_times as pay_times,
+										cs.plat_from_type as plat_from_type
+									from
+										kd_customer c,
+										kd_customer_shop cs,
+										kd_customer_shop_rfm csr
+									WHERE
+										c.sys_customer_id = cs.sys_customer_id and cs.sys_customer_id =csr.sys_customer_id
+									" >
+	    	<if  test="#group_id != null"  value=" and cs.group_id = #{group_id}"></if>
+	    	
+<!-- 	    	店铺过滤 -->
+	    	<if  test="#shop_code != null"  value=" and cs.shop_code = #{shop_code}"></if>
+<!-- 	    	消费金额过滤 -->
+	    	<if  test="#trade_amount != null"  value=" and trade_amount BETWEEN #{trade_amount} and #{endamount}"></if>
+<!-- 	    	<if  test="#rfm != null"  value=" and cs.group_id = #{group_id}"></if> -->
+	    	<if  test="#develop_time != null"  value=" and trade_amount BETWEEN #{develop_time} and #{end_develop_time}"></if>
+<!-- 	    	<if  test="#group_id != null"  value=" and cs.group_id = #{group_id}"></if> -->
+<!-- 	    	<if  test="#group_id != null"  value=" and cs.group_id = #{group_id}"></if> -->
+<!-- 	    	<if  test="#group_id != null"  value=" and cs.group_id = #{group_id}"></if> -->
+	    </sql>
+	   
+<!-- 	   获取会员其他信息   -->
+	   <sql id="loadByCustomerId" value="SELECT * from kd_customer_brand cd, kd_customer_property_value cpv
+									WHERE cd.stat = cpv.state and cd.state = 1 ">
+	   		<if value=" and cd.sys_customer_id = cpv.sys_customer_id"></if>
+	   		<if test="#customer_id != null" value=" and customer_id = #{customer_id}"></if>
+	   </sql>
+	   
+	   <sql id="loadByCustomerId" value="select * from kd_trade kt, kd_trade_ext kte WHERE 1=1">
+	   		<if value=" and state = 1"></if>
+	   		<if test="#customer_id != null" value=" and customer_id = #{customer_id}"></if>
+	   </sql>
+	   
+<!-- 	   购物数据 -->
+	   <sql id="queryShoppingByCustomerId" value="SELECT ( SELECT plat_from_type FROM sys_shop_ext e WHERE
+			r.shop_code = e.`code` and e.group_id = r.group_id ) AS plat_from_type, r.sys_customer_id AS sys_customer_id,
+	r.pay_amount AS pay_amount, r.order_times AS order_times, r.pay_times as pay_times, r.trade_amount as trade_amount,
+r.price_unit as price_unit from kd_customer_shop_rfm r WHERE 1=1">
+	   		<if value=" and state = 1"></if>
+	   		<if test="#group_id != null" value=" and r.group_id = #{group_id}"></if>
+	   		<if test="#customer_id != null" value=" and sys_customer_id = #{customer_id}"></if>
+	   </sql>
+	   
+<!-- 	   触达数据-->
+	   <sql id="loadTouchByCustomerId" value="SELECT sms_times AS sms_times,
+											email_times AS email_times,
+											IFNULL(greatest(last_email_time,last_sms_time),'-') as last_time,
+											IFNULL(LEAST(first_email_time,first_sms_time),'-') as first_time
+							 				from kd_operate_customer where state=1 and sys_customer_id = #{customer_id} ">
+	   </sql>
+	   
+<!-- 	   获取短信记录 -->
+	   <sql id="loadSMSLogByCustomeId" value="select *  from kd_point_log kp  where   state = 1  ">
+	   		<if test="#customer_id != null" value="and kp.sys_customer_id = #{customer_id}"></if>
+	   		<if value=" order by update_time desc"></if>
+	   </sql>
+	   
+<!-- 	   获取平台账号 -->
+	   <sql id="loadAccountByCustomerId" value="SELECT DISTINCT s.out_nick, s.plat_from_type, c.customer_name from kd_customer_shop s
+									INNER JOIN kd_customer c ON c.sys_customer_id = s.sys_customer_id
+									WHERE state = 1">
+	   		<if test="#customer_id != null" value=" AND s.sys_customer_id=#{customer_id}"></if>
+	   </sql>
+	   
+<!-- 	  获取收件人信息 -->
+	   <sql id="loadAddressByCustomerId" value="SELECT s.plat_from_type, s.out_nick, c.customer_name, c.mobile,
+	c.province, c.city, c.district, c.address from kd_customer_shop s, kd_customer c
+WHERE c.state =1 and c.sys_customer_id = s.sys_customer_id">
+	   		<if test="#customer_id != null" value=" AND s.sys_customer_id = #{customer_id}"></if>
+	   		<if value=" GROUP BY c.address"></if>
+	   </sql>
+	   
+<!-- 	   获取积分日志 -->
+	   <sql id="loadPointLogByCustomeId" value="SELECT * from kd_point_log kp WHERE state = 1">
+	   
+	   		<if test="#customer_id != null" value="AND kp.sys_customer_id = #{customer_id} "></if>
+	   		
+	   		<if value="	ORDER BY update_time DESC "></if>
+	   </sql>
+	   
+<!-- 	   评价内容 -->
+	   <sql id="" value="SELECT p.item_title,( CASE WHEN p.result = 'good' THEN '好评' WHEN p.result = 'neutral' THEN '中评' WHEN p.result = 'bad' THEN
+					'差评' END ) AS result,
+			p.time  from evaluate_info  p where 1=1 ">
+	   		<if test="#customer_id != null" value=" and p.sys_customer_id = #{customer_id} "></if>
+	   		<if test="#group_id != null" value=" and p.group_id=#{group_id}"></if>
+	   </sql>
+	   
+<!-- 	   会员轨迹 -->
+	   <sql id="loadCustomerTrailByCustomeId" value="SELECT kt.created, kt.out_trade_id, kt.sys_trade_id, kt.shop_code, kt.sys_customer_id, kt.payment,
+					kt.num, kt.out_nick, kt.trade_status from kd_trade kt WHERE 1=1 ">
+	   		<if test="#customer_id" value="kt.sys_customer_id =#{customer_id}"></if>
+	   </sql>
+	   
+<!-- 	   营销参与 -->
+	   <sql id="" value="SELECT m.sys_customer_id, m.marketing_type, m.target, m.create_user_name, m.is_successed, a.create_time, a.activities_name
+						from marketing_detail m, activities a WHERE 1 = 1 AND m.activities_id = a.id ">
+	   		<if test="#customer_id != null " value=" AND sys_customer_id =#{customer_id}"></if>
+	   		<if  value=" ORDER BY activities_name DESC"></if>
+	   </sql>
+	   
+<!-- 	   关怀 -->
+	   <sql id="" value=" SELECT * from member_auto_record kp WHERE mark IN ( 'ConsignNotify', 'ReceiveConcern',
+			'PayConcern', 'MemberUpgrade', 'RefundConcern', 'ConfirmConcern' )">
+	   		<if value=" AND kp.sys_customer_id = #{customer_id}"></if>
+	   		<if test="" value="AND kp.group_id =#{group_id} "></if>
+	   		<if value=" ORDER BY update_time DESC"></if>
+	   </sql>
+<!-- 	   交易明细 -->
+	   <sql id="queryTreadByCustomerId" value=" SELECT shop_code AS shop_code, out_trade_id AS out_trade_id, out_nick AS out_nick,
+														receiver_name AS receiver_name, receiver_mobile AS receiver_mobile, trade_status AS trade_status, created AS created,
+														pay_time AS pay_time, num AS num, payment AS payment from kd_trade WHERE state =1 ">
+	   		<if test="#customer_id != null" value=" AND sys_customer_id = #{customer_id}"></if>
+	   </sql>
+	   
+<!-- 	   购物轨迹 -->
+	   <sql id="queryShoppingPathByCustomerId" value="SELECT e.time AS time, e.content as content, e.item_url,t.* from kd_trade t, evaluate_info e
+				WHERE t.sys_trade_id = e.sys_trade_id ">
+	   		<if test="#customer_id != null" value="and t.sys_customer_id = #{customer_id}"></if>
+	   </sql>
+	   
+	   <sql id="loadOutActivities" value="SELECT
+										IFNULL((
+												SELECT
+													SUM(point)
+												FROM
+													kd_point_log
+												WHERE
+													sys_customer_id = #{sys_customer_id}
+												AND action = 6
+												AND operation = 1
+											) ,0)
+											AS add_point,
+										
+										IFNULL((
+												SELECT
+													SUM(point)
+												FROM
+													kd_point_log
+												WHERE
+													sys_customer_id =  #{sys_customer_id}
+												AND action = 6
+												AND operation = 2
+											),0)
+											 AS del_point,
+											(
+												SELECT
+													count(1)
+												FROM
+													kd_point_log
+												WHERE
+													sys_customer_id =  #{sys_customer_id}
+												AND action = 6
+											) AS interact_times,
+										
+											MIN(point_create_time) as first_interact_time,
+											max(point_create_time) as last_interact_time
+										FROM
+											kd_point_log where  sys_customer_id = #{sys_customer_id} and action = 6 LIMIT 1
+ 						"></sql>
+	   
+	   
+	</sqlGroup>
+	
+</sqlRoot>	

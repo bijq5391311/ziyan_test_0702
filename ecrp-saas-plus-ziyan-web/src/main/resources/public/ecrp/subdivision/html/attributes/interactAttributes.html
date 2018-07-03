@@ -1,0 +1,221 @@
+<th:block th:fragment="attributes">
+    <el-collapse-item style="margin-left: 10px"   :title="item.key"   name= "hudong" :key="index"  id="hudong" v-if="item.value.length>0 && item.key =='互动属性'"  v-for="(item, index) in A1">
+             
+            <!-- 互动行为 -->
+            <el-form-item    v-if="hudongDoings.key === 'hudongDoing' && hudongDoings.value.length >0" :key="hudongDoingindexs" v-for="(hudongDoings,hudongDoingindexs) in item.value">
+                <el-form-item   label-width="58px" :key="hudongDoingindex" v-for="(hudongDoing,hudongDoingindex) in hudongDoings.value">
+                    <el-form ref="hudongDoing" >
+                     <el-form-grid v-if="hudongDoing.hudongTimeType == 1">
+                     <el-form-item>
+                        <el-form-grid>
+                        互动行为：{{hudongDoing.hudongTypeShow}}
+                        </el-form-grid>
+                     </el-form-item>
+                     <el-form-item>
+                        <el-form-grid>
+                        互动时间：{{hudongDoing.hudongDateBeforeShow}}~{{hudongDoing.hudongDateAfterShow}}
+                        </el-form-grid>
+                     </el-form-item>
+                     </el-form-grid>
+                     <el-form-grid v-if="hudongDoing.hudongTimeType == 0">
+                     <el-form-item>
+                        <el-form-grid>
+                        互动行为：{{hudongDoing.hudongTypeShow}}
+                        </el-form-grid>
+                     </el-form-item>
+                     <el-form-item>
+                        <el-form-grid>
+                        互动时间：距离当前{{hudongDoing.hudongDayBefore}}~{{hudongDoing.hudongDayAfter}}天内参与互动
+                        </el-form-grid>
+                     </el-form-item>
+                     </el-form-grid>
+                  <el-form-grid size="xxs" v-if="hudongDoingindex !== hudongDoings.value.length - 1">
+                          <el-select v-model="hudongDoing.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid>
+                  <a class="member-choose__edit" @click="editHudong(hudongDoingindex,hudongDoingindexs,hudongDoings,item,index)"><i class="bui-edit"></i></a>
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(hudongDoingindex,hudongDoingindexs,hudongDoings,item,index)"><i class="bui-delete"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+           
+            
+            <!-- 互动次数 -->
+            <el-form-item    v-if="hudong_timess.key === 'hudong_times' && hudong_timess.value.length >0" :key="hudong_timesindexs" v-for="(hudong_timess,hudong_timesindexs) in item.value">
+                <el-form-item label="互动次数："  label-width="130px" :key="hudong_timesindex" v-for="(hudong_times,hudong_timesindex) in hudong_timess.value">
+                     <el-form ref="hudong_times" placement="right" :model="hudong_times">
+                     <el-form-grid size="sm">
+                        <el-row>
+                            <el-col :span="11">
+                             <el-form-item prop="start" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                              <el-input type="text" v-model="hudong_times.start" placeholder="" :max="5" class="text-right"></el-input>
+                            </el-form-item>
+                            </el-col>
+                            <el-col :span="2" class="text-center">~</el-col>
+                            <el-col :span="11">
+                            <el-form-item prop="end" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                            <el-input placeholder="" type="text" v-model="hudong_times.end"  :max="5" class="text-right"></el-input>
+                        </el-form-item>
+                    </el-col>
+                  </el-row>
+                    </el-form-grid>
+                   <el-form-grid>
+                   次
+                  </el-form-grid>
+                 <el-form-grid size="xxs" v-if="hudong_timesindex !== hudong_timess.value.length - 1">
+                          <el-select v-model="hudong_times.relation" no-data-text="或者" class="is-gray">
+                            <el-option label="或者" value="and"></el-option>
+                          </el-select>
+                 </el-form-grid>
+                  <el-form-grid>
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(hudong_timesindex,hudong_timesindexs,hudong_timess,item,index)"><i class="bui-delete"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+           
+            
+           
+            
+            <!-- 首次互动时间 -->
+            <el-form-item    v-if="first_get_integral_times.key === 'first_get_integral_time' && first_get_integral_times.value.length >0" :key="first_get_integral_timeindexs" v-for="(first_get_integral_times,first_get_integral_timeindexs) in item.value">
+                <el-form-item label="首次互动时间："  label-width="130px" :key="first_get_integral_timeindex" v-for="(first_get_integral_time,first_get_integral_timeindex) in first_get_integral_times.value">
+                    <el-form ref="first_get_integral_time" placement="right" :model="first_get_integral_time">
+                     <el-form-grid size="xs">
+                      <el-select v-model="first_get_integral_time.condition"   placeholder="请选择" class="is-gray">
+                      <el-option label="等于" value="equal"></el-option>
+                      <el-option label="不等于" value="notEqual"></el-option>
+                      <el-option label="早于等于" value="smallerEqual"></el-option>
+                      <el-option label="晚于等于" value="largerEqual"></el-option>
+                      <el-option label="距离当前" value="earlierNow"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                    <el-form-grid v-if="first_get_integral_time.condition =='equal'||first_get_integral_time.condition=='notEqual'||first_get_integral_time.condition=='largerEqual'||first_get_integral_time.condition=='smallerEqual'">
+                     <el-form-item prop="date" :rules="  { type: 'date', required: true, message: '请选择日期时间', trigger: 'change' }">
+                     <el-date-picker v-model="first_get_integral_time.date" type="date" :editable="false"    placeholder="选择日期"></el-date-picker>
+                   </el-form-item>
+                   </el-form-grid>
+                    <el-form-grid v-if="first_get_integral_time.condition == 'earlierNow'">
+                    <el-form-grid size="sm">
+                        <el-row>
+                            <el-col :span="11">
+                             <el-form-item prop="oldday" :rules=" {validator:commonValueReg, trigger: 'blur,change' }">
+                              <el-input type="text" v-model="first_get_integral_time.oldday" placeholder="" :max="5" class="text-right"></el-input>
+                            </el-form-item>
+                            </el-col>
+                            <el-col :span="2" class="text-center">~</el-col>
+                            <el-col :span="11">
+                            <el-form-item prop="newday" :rules=" {validator:commonValueReg, trigger: 'blur,change' }">
+                            <el-input placeholder="" type="text" v-model="first_get_integral_time.newday"  :max="5" class="text-right"></el-input>
+                    </el-form-item>
+                    </el-col>
+                  </el-row>
+                    </el-form-grid>
+                     <el-form-grid>天内</el-form-grid>
+                  </el-form-grid>
+                  <el-form-grid size="xxs" v-if="first_get_integral_timeindex !== first_get_integral_times.value.length - 1">
+                          <el-select v-model="first_get_integral_time.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid>
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(first_get_integral_timeindex,first_get_integral_timeindexs,first_get_integral_times,item,index)"><i class="bui-delete"></i></a>
+                 <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'first_get_integral_time')"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+            
+            
+             <!-- 最后互动时间 -->
+            <el-form-item    v-if="last_get_integral_times.key === 'last_get_integral_time' && last_get_integral_times.value.length >0" :key="last_get_integral_timeindexs" v-for="(last_get_integral_times,last_get_integral_timeindexs) in item.value">
+                <el-form-item label="最后互动时间："  label-width="130px" :key="last_get_integral_timeindex" v-for="(last_get_integral_time,last_get_integral_timeindex) in last_get_integral_times.value">
+                    <el-form ref="last_get_integral_time" placement="right" :model="last_get_integral_time">    
+                     <el-form-grid size="xs">
+                      <el-select v-model="last_get_integral_time.condition"   placeholder="请选择" class="is-gray">
+                      <el-option label="等于" value="equal"></el-option>
+                      <el-option label="不等于" value="notEqual"></el-option>
+                      <el-option label="早于等于" value="smallerEqual"></el-option>
+                      <el-option label="晚于等于" value="largerEqual"></el-option>
+                      <el-option label="距离当前" value="earlierNow"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                    <el-form-grid v-if="last_get_integral_time.condition =='equal'||last_get_integral_time.condition=='notEqual'||last_get_integral_time.condition=='largerEqual'||last_get_integral_time.condition=='smallerEqual'">
+                     <el-form-item prop="date" :rules="  {type: 'date',required: true, message: '请选择日期时间', trigger: 'change' }">
+                     <el-date-picker v-model="last_get_integral_time.date" type="date"  :editable="false"   placeholder="选择日期"></el-date-picker>
+                   </el-form-item>
+                   </el-form-grid>
+                    <el-form-grid v-if="last_get_integral_time.condition == 'earlierNow'">
+                    <el-form-grid size="sm">
+                        <el-row>
+                            <el-col :span="11">
+                             <el-form-item prop="oldday" :rules=" {validator:commonValueReg, trigger: 'blur,change' }">
+                              <el-input type="text" v-model="last_get_integral_time.oldday" placeholder="" :max="5" class="text-right"></el-input>
+                            </el-form-item>
+                            </el-col>
+                            <el-col :span="2" class="text-center">~</el-col>
+                            <el-col :span="11">
+                            <el-form-item prop="newday" :rules=" {validator:commonValueReg, trigger: 'blur,change' }">
+                            <el-input placeholder="" type="text" v-model="last_get_integral_time.newday"  :max="5" class="text-right"></el-input>
+                    </el-form-item>
+                    </el-col>
+                  </el-row>
+                    </el-form-grid>
+                     <el-form-grid>天内</el-form-grid>
+                  </el-form-grid>
+                  <el-form-grid size="xxs" v-if="last_get_integral_timeindex !== last_get_integral_times.value.length - 1">
+                          <el-select v-model="last_get_integral_time.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid>
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(last_get_integral_timeindex,last_get_integral_timeindexs,last_get_integral_times,item,index)"><i class="bui-delete"></i></a>
+                  <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'last_get_integral_time')"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+             <!-- 互动渠道 -->
+              <el-form-item  v-if="hudong_channels.key == 'hudong_channel' && hudong_channels.value.length >0"  :key="hudong_channelsindexs" v-for="(hudong_channels,hudong_channelsindexs) in item.value">
+                <el-form-item label="互动渠道：" label-width="130px"  :key="hudong_channelindex" v-for="(hudong_channel,hudong_channelindex) in hudong_channels.value">
+               <el-form ref="hudong_channel" placement="right" :model="hudong_channel">
+                <el-form-grid size="xxs">
+                      <el-select v-model="hudong_channel.condition"   placeholder="请选择" class="is-gray">
+                      <el-option label="等于" value="equal"></el-option>
+                      <el-option label="不等于" value="notEqual"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                <el-form-grid >
+                 <el-form-item prop="CDATA" :rules="  { required: true, message: '请选择互动渠道', trigger:'change' }">
+                 <el-select v-model="hudong_channel.CDATA" placeholder="请选择" class="is-gray">
+                       <el-option label="多谋" value="1"></el-option>
+                       <el-option label="爱互动" value="2"></el-option>
+                  </el-select>
+               </el-form-item>
+                </el-form-grid>  
+                <el-form-grid size="xxs" v-if="hudong_channelindex !== hudong_channels.value.length - 1">
+                          <el-select v-model="hudong_channel.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid>   
+                  <el-form-grid>
+                    <a class="member-choose__delete" @click="deleteSubdivisionCondition(hudong_channelindex,hudong_channelsindexs,hudong_channels,item,index)"><i class="bui-delete"></i></a>
+                    <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'hudong_channel')"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                </el-form-item>
+            </el-form-item>
+           
+            </el-collapse-item>
+</th:block>

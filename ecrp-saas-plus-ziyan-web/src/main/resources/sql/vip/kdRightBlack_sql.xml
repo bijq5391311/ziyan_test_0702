@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="vip.KdRightBlack">
+		<sql id="queryList" value="select rb.id, rb.create_time as createTime,rb.sys_customer_id as sysCustomerId,rb.custome_name as customeName,rb.brand_id as brand_id, rb.operator,dept.name as deptName
+				from kd_right_block rb 
+				inner join sys_department dept on rb.department_code=dept.code where 1=1">
+			<bind name="sysCustomerId" value="#sysCustomerId == null ? null : ('%'+#sysCustomerId+'%')"></bind>
+			<bind name="customeName" value="#customeName == null ? null : ('%'+#customeName+'%')"></bind>
+			<bind name="operator" value="#operator == null ? null : ('%'+#operator+'%')"></bind>
+<!-- 			<bind name="deptName" value="'%'+#deptName+'%'"></bind> -->
+			<if value="and rb.sys_customer_id like #{sysCustomerId}"></if>
+			<if value="and rb.custome_name like #{customeName}"></if>
+			<if value="and rb.operator like #{operator}"></if>
+<!-- 			<if value="and dept.name like #{deptName}"></if> -->
+			<if value="and dept.id = #{departmentId} "></if>
+			<if value=" order by rb.create_time desc "></if>
+		</sql>
+		
+		<sql id="deleteRightBlack" value="delete from kd_right_block where sys_customer_id=#{sys_customer_id}">
+			<if test="#brand_id != null" value=" and brand_id = #{brand_id}"></if>
+		</sql>
+	
+		<sql id="batchDeleteRightBlack" value="delete from kd_right_block where id=?"></sql>
+		
+		<sql id="batchDeleteRightBlackByCustomerId" value="delete from kd_right_block where id=?"></sql>
+
+		<sql id="batchDeleteRightBlackByCustomerIdAndBrandId" value="delete from kd_right_block where sys_customer_id=? and brand_id = ? ">
+		</sql>
+
+	</sqlGroup>
+</sqlRoot>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="kdjl.Ordertag">
+		<sql id="queryOrdertagList"
+			value="	select k.id as id, tagName ,tagType,creater_name as createrName, k.create_time ,s.name  from kdjl_order_tag k inner join sys_department s  where k.department_code = s.code
+          and k.state = 1  ">
+          	<if value=" and tagType= #{tagType$EQ}"></if>
+            <bind name="tagName" value="#tagName$LK == null ? null : ('%'+#tagName$LK+'%')"></bind>
+			<if value="  and  tagName like  #{tagName$LK}"></if>
+			<if value=" order by  k.create_time desc"></if>
+          </sql>
+
+		<sql id="batchdelete" value="">
+			<if value="update  kdjl_order_tag set state = 0 where id = ?"></if>
+		</sql>
+		<sql id="delete" value="">
+			<if value="update  kdjl_order_tag set state =0 where id = #{id}"></if>
+		</sql>
+		
+		<sql id="queryOrdertag"
+			value="select count(1) from kdjl_order_tag where 1=1 ">
+			    	<if value=" and tagName = #{tagName}"></if>
+			    	<if value=" and tagType= #{tagType}"></if>
+			    	<if value=" and id  !=  #{id}"></if>
+			</sql>
+	</sqlGroup>
+
+</sqlRoot>

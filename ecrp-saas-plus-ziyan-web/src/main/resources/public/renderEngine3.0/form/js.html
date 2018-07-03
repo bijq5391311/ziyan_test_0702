@@ -1,0 +1,42 @@
+<th:block th:fragment="renderjs(dslJSON, context)">
+	<th:block th:inline="javascript", 
+		th:with="
+			compName = ${context.get('name')},
+		    deps = ${context.get('deps')},
+			methods = ${dslJSON.get('methods')},
+			state = ${#strings.isEmpty(dslJSON.get('state'))? '{}' : dslJSON.get('state')},
+			model = ${#strings.isEmpty(dslJSON.get('model'))? '{}' : dslJSON.get('model')},
+			rules = ${#strings.isEmpty(dslJSON.get('rules'))? '{}' : dslJSON.get('rules')},
+			computed = ${#strings.isEmpty(dslJSON.get('computed'))? '{}' : dslJSON.get('computed')},
+			watch = ${#strings.isEmpty(dslJSON.get('watch'))? '{}' : dslJSON.get('watch')}
+		"
+	>
+		[(${T(com.nascent.ecrpsaas.render.FormHelper).preprocessing(context, dslJSON)})]
+		define([[${compName}]], [ [(${#strings.isEmpty(deps) ? "" : "'"+deps.replace(",","','")+"',"})] "vue", "nui", "jquery","utilbuild/main", "/public/renderEngine3.0/helper.js"], 
+		function([(${#strings.isEmpty(deps) ? "" : deps+","})] Vue, Nui, $, _, {vueEvent,httpPost,tree_mixin,table_mixin,form_mixin}) {
+			
+			var $buttonMethods$ = {
+				[#th:block th:each="item,stat: ${dslJSON.get('buttons')}"]
+					[[${"$$$button"+stat.index}]]: [(${#strings.isEmpty(item.get('action')) ? "$.noop" : item.get('action')})],
+				[/th:block]
+			}
+		
+			Vue.component([[${compName}]], {
+				mixins: [form_mixin,vueEvent],
+				template: `[#th:block th:insert="../public/renderEngine3.0/form/template::renderTemplate(${dslJSON}, ${context})"][/th:block] `,
+				data: function() {
+					return {
+						model: Object.assign({}, <!--/* 输入组件中的name集合 */-->[(${context.get('model')})],<!--/* 自定义的name集合 */--> [(${model})]),
+						rules: Object.assign({}, [(${context.get('rules')})], [(${rules})]),
+						state: [(${state})],
+						url: "[(${dslJSON.get('url')})]",
+						nameMap: {}
+					}
+				},
+				watch: [(${watch})],
+				computed: [(${computed})],
+				methods: Object.assign($buttonMethods$, [#th:block th:insert="../public/renderEngine3.0/common/method::createMethods(${methods})"][/th:block] )
+			})
+		})
+	</th:block>
+</th:block>

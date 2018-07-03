@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="database.KdGoods">
+		<sql id="queryGoods" value="select sb.brand_name as brandName ,g.id,gc.name,g.state,g.create_time as createTime,g.update_time as updateTime,g.group_id as groupId,g.sys_goods_id as sysGoodsId,g.title,g.outer_id as outerId,g.picture_url as pictureUrl,g.sales_count as salesCount,g.thirty_sales_count as thirtySalesCount,g.remark,
+					substring_index(substring_index(goods_cids,';',1),',',-1) as goodsCids,
+					if((substring_index(g.goods_cids,';',1)!=substring_index(g.goods_cids,';',-1)),true,false) as categoryCount
+					from kd_goods g 
+					left join kd_goods_category gc on gc.cid=substring_index(substring_index(g.goods_cids,';',1),',',-1)
+					inner join sys_brand sb on sb.id=g.brand_id
+					where 1=1">
+					
+					<bind name="title" value="#title == null ? null : ('%'+#title+'%')"></bind>
+					<bind name="outerId" value="#outerId == null ? null : ('%'+#outerId+'%')"></bind>
+					<bind name="value" value="#value == null ? null : ('%'+#value+'%')"></bind>
+					
+					
+					<if test="#title!='%%' and #title!=null" value="and g.title like #{title}"></if>
+					<if test="#outerId!='%%' and #outerId!=null" value="and g.outer_id like #{outerId}"></if>
+					<if test="#value!='%%' and #value!=null" value="and g.goods_cids like #{value}"></if>
+					<if  value="and g.sales_count between ${'salesCountStart'} and ${'salesCountEnd'}"></if>
+					<if value="and g.brand_id=#{brand}"></if>
+<!-- 					<auth tenant="g.group_id"></auth> -->
+		</sql>
+		<sql id="loadEntireGoods" value="select id,title from kd_goods where 1=1">
+			<if value="and group_id = #{group_id}"></if>
+		</sql>
+		
+		<sql id="queryGoodsTitleBySysTradeId" value="select o.title as title from kd_order o 
+			inner join kd_trade t on t.sys_trade_id=o.sys_trade_id where 1=1">
+			<if value="and t.sys_trade_id=#{sys_trade_id}"></if>
+		</sql>
+		
+	</sqlGroup>
+</sqlRoot>
+
+

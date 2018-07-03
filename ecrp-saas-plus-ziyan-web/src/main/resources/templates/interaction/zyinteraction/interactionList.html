@@ -1,0 +1,21 @@
+<th:block th:include="../public/include/layout::layout(~{::content},~{::script})">
+    <div th:fragment="content" >
+                <div id="app">
+                        <iframe id="jin10" width="115%" height="576px" frameborder="0"
+                                style="position:relative; top:-60px; float:left; left:-175px;" scrolling="no"
+                                th:src="${url}+'?shopId='+${shopId}+'&loginToken='+${loginToken}+'&controllerKey='+${controllerKey}+'&userName='+${userName}+'&userType='+${userType}"
+                                name="jin10">
+                            <!DOCTYPE html>
+                            </html>
+                        </iframe>
+                </div>
+    </div>
+    <th:block th:fragment="script" th:inline="javascript">
+        <script type="text/javascript">
+            $(function(){
+                var iFrame = document.getElementById("jin10");
+                iFrame.height=document.documentElement.clientHeight;
+            });
+        </script>
+    </th:block>
+</th:block>

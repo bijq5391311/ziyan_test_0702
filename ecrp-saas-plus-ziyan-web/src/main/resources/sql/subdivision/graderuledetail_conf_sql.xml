@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="vip.GradeRuleDetail">
+	
+		<sql id="deleteByName" value="" >
+	    	<if  test="#grade_name!=null"  value="delete from grade_rule_detail where grade_name = #{grade_name}"></if>
+	    </sql>
+	    
+	    <sql id="selectConditionByIds" value="" >
+	    	<if value="select * from grade_rule_condition where id in( #{ids} ) "></if>
+	    </sql>
+	    <sql id="selectNearDataId">
+	    <if value="select * from grade_rule where id = (select max(id) from grade_rule where state = 1 )"></if>
+	    </sql>
+	    <sql id="updataGraderuledetailName" value="update grade_rule_detail set grade_name=#{grade_name} where id=#{id}">
+	    
+	    </sql>
+	     <sql id="updataGraderuledetailGrade" value="update grade_rule_detail set grade=#{grade} where id=#{id}">
+	     </sql>
+	    <sql  id="getGraderuledetailByGroupid" value="select grade_name as n, grade as v  from grade_rule_detail where state = 1 and 
+	     group_id = #{group_id} order by grade asc">
+	    </sql> 
+	     <sql  id="getMemberGradeRuleDetail" value="select * from grade_rule_detail where state = 1 and `status`=1 and group_id = #{group_id} and grade > 0 order by grade">
+	    </sql> 
+	     <sql  id="querySubdivisionconditionByGroupId" value="select subdivisioncondition.* from subdivisioncondition left join subdivision_brand_control on subdivision_brand_control.condition_id = subdivisioncondition.id where subdivisioncondition.state = 1 and subdivision_brand_control.state=1 and subdivisioncondition.group_id =  #{group_id}">
+	    </sql> 
+	   
+	   
+	</sqlGroup>
+	
+</sqlRoot>

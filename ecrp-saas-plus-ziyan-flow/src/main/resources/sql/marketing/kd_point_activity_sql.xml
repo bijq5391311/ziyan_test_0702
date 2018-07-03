@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="marketing.KdPointActivity">
+	     <sql id="kdPointactivityList" value ="select  id, activity_name as activityName ,create_user_name as createUserName , activity_type as activityType , activity_status as activityStatus
+       ,end_time as endTime, start_time as startTime from kd_point_activity where state = 1 ">
+       	<if  value=" and start_time    &gt;=  #{startTime}"></if>
+    	<if  value=" and    end_time  &lt;=    #{endTime}"></if>
+	    <bind name="activityName" value="@com.nascent.plugins.taobao.StringUtils@isEmpty(#activityName) ? null : '%'+#activityName+'%'"></bind>
+	    <if   value=" and activity_name like #{activityName}"></if>
+	     <if   value=" and activity_type  = #{activityType}"></if>
+	      <bind name="createUserName" value="@com.nascent.plugins.taobao.StringUtils@isEmpty(#createUserName) ? null : '%'+#createUserName+'%'"></bind>
+	    <if   value=" and create_user_name like #{createUserName}"></if>
+	     <if value=" and  department_code in  (${'departmentCode'})"></if>
+	     <if value="  order by create_time desc"></if>
+	     </sql>
+	     
+	     <sql id="updatePointActivityStatus" value = "update  kd_point_activity set activity_status = #{activityStatus} ">
+	       <if value="  where id = #{id} "></if>
+
+	     </sql>
+	       <sql id="getPointactivityBybrandId" value = "select  *  from kd_point_activity where state = 1 and  activity_status = 1  ">
+	       <if value="  and  FIND_IN_SET(#{brandId},brand_ids) "></if>
+
+	     </sql>
+	     
+	</sqlGroup>
+	</sqlRoot> 
+	

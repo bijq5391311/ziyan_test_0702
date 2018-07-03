@@ -1,0 +1,599 @@
+<% include ../../../include/layout/start.ejs %>
+<style>
+  .el-select__tags ~ .el-input .el-input__inner {
+    min-height: 30px !important;
+  }
+</style>
+<div id="example" v-cloak>
+  <div class="template-page">
+    <div class="template-page-location">
+      <el-breadcrumb separator=">">
+        <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+        <el-breadcrumb-item>会员洞察</el-breadcrumb-item>
+        <el-breadcrumb-item>会员分群</el-breadcrumb-item>
+        <el-breadcrumb-item>会员划分</el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>
+    <div class="template-page-tab">
+      <el-tabs v-model="activeName2" type="card">
+        <el-tab-pane label="栅格-垂直表单" name="first">
+          <div class="template-form">
+            <p>默认使用垂直表单时，需要将两个或者多个el-form-item （不同属性条件）显示在同一行，且可根据实际宽度做到响应式排版。当宽度过窄时，可不同行显示。如下示例：</p>
+            <p>对需要显示为同行的两个（只添加一个无法满足条件）el-form-item 添加类名'el-inline-block'。可改变浏览器宽度查看宽度过窄时的效果。</p>
+            <el-row>
+              <el-col :span="24">
+                <el-form label-width="90px" class="demo-ruleForm" :model="validateForm" placement="right"
+                         ref="ruleForm">
+                  <el-form-item label="关键词：" required>
+                    <el-form-grid>
+                      <el-form-item prop="keyword"
+                                    :rules="[{ required: true, message: '请输入关键词', trigger: 'blur' }]">
+                        <el-form-grid size="xmd">
+                          <el-input placeholder="请输入关键词" v-model="validateForm.keyword"></el-input>
+                        </el-form-grid>
+                      </el-form-item>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="交易来源：">
+                    <el-form-grid size="xmd">
+                      <el-select placeholder="请选择" clearable v-model="defaultMultipleSelect" multiple>
+                        <el-option label="多选一多选一多选一多选一多选一多选一多选一多选一多选一多选一多选一多选一多选一多选一多选一多选一多选一多选一多选一多选一多选一多选一多选一" value="1"></el-option>
+                        <el-option label="多选二" value="2"></el-option>
+                        <el-option label="多选三" value="3"></el-option>
+                        <el-option label="多选四" value="4"></el-option>
+                        <el-option label="多选五" value="5"></el-option>
+                        <el-option label="多选六" value="6"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="件数：" class="el-inline-block">
+                    <el-form-grid size="xmd">
+                      <el-row>
+                        <el-col :span="11">
+                          <el-input type="number" placeholder="" :max="5"></el-input>
+                        </el-col>
+                        <el-col :span="2" style="text-align:center">~</el-col>
+                        <el-col :span="11">
+                          <el-input placeholder=""></el-input>
+                        </el-col>
+                      </el-row>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="交易金额：" class="el-inline-block" required>
+                    <el-form-grid size="xmd">
+                      <el-row>
+                        <el-col :span="11">
+                          <el-form-item prop="trade.start"
+                                        :rules="[
+                                            { required: true, message: '金额不能为空'},
+                                            { type: 'number', message: '金额必须为数字值'}
+                                          ]">
+                            <el-input type="trade.start" placeholder="" v-model.number="validateForm.trade.start"
+                                      class="text-right"></el-input>
+                          </el-form-item>
+                        </el-col>
+                        <el-col :span="2" style="text-align:center">~</el-col>
+                        <el-col :span="11">
+                          <el-form-item prop="trade.end"
+                                        :rules="[
+                                            { required: true, message: '金额不能为空'},
+                                            { type: 'number', message: '金额必须为数字值'}
+                                          ]">
+                            <el-input type="trade.end" placeholder="" v-model.number="validateForm.trade.end"
+                                      class="text-right"></el-input>
+                          </el-form-item>
+                        </el-col>
+                      </el-row>
+                    </el-form-grid>
+                  </el-form-item>
+
+                  <el-form-item label="商品编码：" class="el-inline-block">
+                    <el-form-grid size="xmd">
+                      <el-input placeholder=""></el-input>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="原始编号：" class="el-inline-block">
+                    <el-form-grid size="xmd">
+                      <el-input placeholder=""></el-input>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="收货人：" class="el-inline-block">
+                    <el-form-grid size="xmd">
+                      <el-input placeholder=""></el-input>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="手机号码：" class="el-inline-block">
+                    <el-form-grid size="xmd">
+                      <el-input placeholder=""></el-input>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="下单时间：">
+                    <el-form-grid size="xmd">
+                      <el-date-picker v-model="dateValue" type="daterange" placeholder="请选择日期"></el-date-picker>
+                    </el-form-grid>
+                    <div class="tmp-tips text-warning"><i class="bui-warn"></i> 请输入下单起止时间</div>
+                  </el-form-item>
+                  <el-form-item label="付款时间：">
+                    <el-form-grid size="sm">
+                      <el-time-picker v-model="time" placeholder="请选择时间"></el-time-picker>
+                    </el-form-grid>
+                    <el-form-grid>-</el-form-grid>
+                    <el-form-grid size="sm">
+                      <el-time-picker v-model="timeSecond" format="HH:mm" placeholder="请选择时间"></el-time-picker>
+                    </el-form-grid>
+                    <el-form-grid class="text-warning"><i class="bui-warn"></i> 请输入付款起止时间</el-form-grid>
+                  </el-form-item>
+
+                  <el-form-item label="快递公司：" class="el-inline-block">
+                    <el-form-grid size="xmd">
+                      <el-select placeholder="请选择" v-model="validateForm.kuaidi">
+                        <el-option label="区域一" value="shanghai"></el-option>
+                        <el-option label="区域二" value="beijing"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                  </el-form-item>
+
+                  <el-form-item label="物流状态：" class="el-inline-block" label-width="80px">
+                    <el-form-grid size="xmd">
+                      <el-select placeholder="请选择" v-model="validateForm.wuliu">
+                        <el-option label="区域一" value="shanghai"></el-option>
+                        <el-option label="区域二" value="beijing"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="地址：">
+                    <el-form-grid size="xmd">
+                      <el-select placeholder="请选择" v-model="validateForm.address">
+                        <el-option label="区域一" value="shanghai"></el-option>
+                        <el-option label="区域二" value="beijing"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                  </el-form-item>
+
+                  <el-form-item label="订单状态：">
+                    <el-form-grid size="xlg" width="490">
+                      <el-select placeholder="请选择" v-model="validateForm.order">
+                        <el-option label="区域一" value="shanghai"></el-option>
+                        <el-option label="区域二" value="beijing"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="会员规则：">
+
+                    <el-form-grid size="xlg" width="490">
+                      <el-input placeholder="请输入本次会员规则"></el-input>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="会员优惠：">
+
+                    <el-form-grid>请输入</el-form-grid>
+                    <el-form-grid size="sm">
+                      <el-input placeholder="请输入天数" class="text-right"><span slot="append">天</span></el-input>
+                    </el-form-grid>
+                    <el-form-grid>内数据</el-form-grid>
+                    <el-button type="primary">行内按钮</el-button>
+
+                  </el-form-item>
+                  <el-form-item label="红包皮肤：">
+                    <el-form-grid class="el-block-box is-gray-bg">
+                      <div class="red-envelope">
+                        <div class="red-envelope__price">￥<b>1.58</b></div>
+                        <div class="red-envelope__date">00.00 -- 00.00</div>
+                      </div>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="优惠券：">
+                    <el-form-grid class="el-block-box">
+                      <div class="coupons">
+                        <div class="coupon-block">
+                          <span class="coupon-cor top"></span>
+                          <div class="coupon-content">
+                            <div class="coupon-price">50</div>
+                            <div class="coupon-word">
+                              <div class="coupon-word__rule">无门槛使用</div>
+                              <div class="coupon-word__tip">元优惠券</div>
+                            </div>
+                          </div>
+                          <span class="coupon-cor bottom"></span>
+                          <div class="coupon-shade">
+                            <span>已过期</span>
+                          </div>
+                        </div>
+                      </div>
+                    </el-form-grid>
+                    <el-form-grid class="el-block-box">
+                      <div class="coupons is-deadline">
+                        <div class="coupon-block">
+                          <span class="coupon-cor top"></span>
+                          <div class="coupon-content">
+                            <div class="coupon-price">50</div>
+                            <div class="coupon-word">
+                              <div class="coupon-word__rule">无门槛使用</div>
+                              <div class="coupon-word__tip">元优惠券</div>
+                            </div>
+                          </div>
+                          <span class="coupon-cor bottom"></span>
+                          <div class="coupon-shade">已过期</div>
+                        </div>
+                      </div>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="权益积分：">
+                    <el-form-grid>
+                      <el-switch on-text="开" off-text="关" v-model="delivery" :width="44"></el-switch>
+                    </el-form-grid>
+                    <el-form-grid class="text-warning"><i class="bui-warn"></i> 交易成功时根据实际成功金额赠送积分</el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="展示平台：">
+                    <el-form-grid size="lg">
+                      <el-upload
+                        class="upload-demo"
+                        action="https://jsonplaceholder.typicode.com/posts/"
+                        :on-preview="handlePreview"
+                        :on-remove="handleRemove"
+                        :file-list="fileList">
+                        <el-button type="primary">点击上传</el-button>
+                        <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+                      </el-upload>
+                    </el-form-grid>
+                  </el-form-item>
+                  <!--     <el-form-item label="标签类型：">
+                         <el-form-item>
+                           <el-form-grid size="md">
+                             <el-select placeholder="请选择"  v-model="appCate" @change="appCateChange">
+                               <el-option label="标签类型0" value="0"></el-option>
+                               <el-option label="标签类型1" value="1"></el-option>
+                             </el-select>
+                           </el-form-grid>
+                         </el-form-item>
+                       </el-form-item>-->
+                  <el-form-item label="赠品设置：" v-show="appGoods">
+
+                    <el-form-grid class="el-block mb-sm">
+                      <el-form-grid size="md">
+                        <el-input placeholder="赠品标题"></el-input>
+                      </el-form-grid>
+                      <el-form-grid size="sm">
+                        <el-input placeholder="赠品编码"></el-input>
+                      </el-form-grid>
+                      <el-form-grid size="sm">
+                        <el-input placeholder="件数"></el-input>
+                      </el-form-grid>
+                      <el-form-grid size="sm">
+                        <el-input placeholder="备注"></el-input>
+                      </el-form-grid>
+                      <el-form-grid size="xs">
+                        <el-select v-model="levelrule" placeholder="请选择" class="is-gray">
+                          <el-option label="等于" value="equal"></el-option>
+                          <el-option label="不等于" value="unequal"></el-option>
+                        </el-select>
+                      </el-form-grid>
+                      <el-form-grid>
+                        <el-button type="icon"><i class="bui-delete"></i></el-button>
+                      </el-form-grid>
+                    </el-form-grid>
+
+                    <el-form-grid class="el-block mb-sm">
+                      <el-form-grid size="md">
+                        <el-input placeholder="赠品标题"></el-input>
+                      </el-form-grid>
+                      <el-form-grid size="sm">
+                        <el-input placeholder="赠品编码"></el-input>
+                      </el-form-grid>
+                      <el-form-grid size="sm">
+                        <el-input placeholder="件数"></el-input>
+                      </el-form-grid>
+                      <el-form-grid size="sm">
+                        <el-input placeholder="备注"></el-input>
+                      </el-form-grid>
+                      <el-form-grid>
+                        <el-button><i class="bui-delete"></i></el-button>
+                      </el-form-grid>
+                    </el-form-grid>
+                    <el-form-grid class="el-block mb-sm" v-for="send in sendSeting" :key="send.name">
+                      <el-form-grid size="md">
+                        <el-input :placeholder="send.name"></el-input>
+                      </el-form-grid>
+                      <el-form-grid size="sm">
+                        <el-input :placeholder="send.code"></el-input>
+                      </el-form-grid>
+                      <el-form-grid size="sm">
+                        <el-input :placeholder="send.num"></el-input>
+                      </el-form-grid>
+                      <el-form-grid size="sm">
+                        <el-input :placeholder="send.content"></el-input>
+                      </el-form-grid>
+                      <el-form-grid>
+                        <el-button @click="addSendSeting" type="icon"><i class="bui-add"></i></el-button>
+                      </el-form-grid>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="客户标签：">
+                    <el-form-grid class="el-block-box">
+                      <el-tag>标签一</el-tag>
+                      <el-tag type="gray">标签二</el-tag>
+                      <el-tag type="primary" closable>标签三</el-tag>
+                      <el-tag type="success">标签四</el-tag>
+                      <el-tag type="warning">标签五</el-tag>
+                      <el-tag type="danger">标签六</el-tag>
+                      <br/>
+                      <el-tag type="gray" color="#fff">13548254524</el-tag>
+                      <el-tag type="warning" color="#fff">15024515823</el-tag>
+                      <el-tag type="danger" color="#fff">15024515823</el-tag>
+                    </el-form-grid>
+                  </el-form-item>
+                  <!-- <el-form-item label="催付店铺：">
+                     <el-form-grid size="xlg">
+                       <el-row>
+                         <el-col :span="8">
+                           <el-select placeholder="请选择"  v-model="defaultSelect">
+                             <el-option label="全店商品" value="shanghai"></el-option>
+                             <el-option label="部分商品参离开" value="beijing"></el-option>
+                           </el-select>
+                         </el-col>
+                         <el-col :span="8">
+                           <el-select placeholder="请选择"  v-model="defaultSelect">
+                             <el-option label="天猫" value="tm"></el-option>
+                             <el-option label="淘宝" value="tb"></el-option>
+                           </el-select>
+                         </el-col>
+                         <el-col :span="8">
+                           <el-input placeholder=""></el-input>
+                         </el-col>
+                       </el-row>
+                     </el-form-grid>
+                   </el-form-item>-->
+                  <el-form-item label="展示平台：">
+                    <el-form-grid width="490">
+                      <el-checkbox-group v-model="formCheck">
+                        <el-checkbox label="天猫" name="type" disabled></el-checkbox>
+                        <el-checkbox label="淘宝" name="type"></el-checkbox>
+                        <el-checkbox label="京东" name="type"></el-checkbox>
+                        <el-checkbox label="当当网" name="type"></el-checkbox>
+                        <el-checkbox label="唯品会" name="type"></el-checkbox>
+                        <el-checkbox label="亚马逊" name="type"></el-checkbox>
+                        <el-checkbox label="1号店" name="type"></el-checkbox>
+                        <el-checkbox label="国美电器" name="type"></el-checkbox>
+                        <el-checkbox label="苏宁易购" name="type"></el-checkbox>
+                        <el-checkbox label="聚美优品" name="type"></el-checkbox>
+                        <el-checkbox label="阿里巴巴" name="type"></el-checkbox>
+                      </el-checkbox-group>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="催付商品：">
+                    <el-form-grid>
+                      <el-radio-group v-model="formRadio">
+                        <el-radio label="不限"></el-radio>
+                        <el-radio label="排除" disabled></el-radio>
+                        <el-radio label="只限"></el-radio>
+                      </el-radio-group>
+                    </el-form-grid>
+                    <div>只催付包含以下商品的订单：
+                      <el-button type="primary"><i class="bui-select-goods"></i> 选择商品</el-button>
+                    </div>
+                    <div class="tmp-tips text-danger"><i class="bui-error"></i> 危险类型的提示信息</div>
+                  </el-form-item>
+                  <el-form-item label="基本规则：">
+                    <el-form-grid>每成功交易</el-form-grid>
+                    <el-form-grid size="sm">
+                      <el-input placeholder="请输入整数" class="text-right">
+                        <span slot="append">元</span>
+                      </el-input>
+                    </el-form-grid>
+                    <el-form-grid>赠送1积分</el-form-grid>
+                    <div class="tmp-tips text-info"><i class="bui-info"></i>若每成功交易10元赠送1积分，则成功交易9元时不送积分</div>
+
+                    <el-form-item>
+                      <el-checkbox label="会员特权：" name="level"></el-checkbox>
+                    </el-form-item>
+
+                    <el-form-item label="普通会员：" label-width="90px">
+                      <el-form-grid>单笔交易多送</el-form-grid>
+                      <el-form-grid size="xs">
+                        <el-select placeholder="请选择" v-model="defaultSelect">
+                          <el-option label="倍数" value="beishu"></el-option>
+                          <el-option label="定额" value="dinge"></el-option>
+                        </el-select>
+                      </el-form-grid>
+                      <el-form-grid size="sm">
+                        <el-input placeholder="请输入整数" class="text-right">
+                          <span slot="append">元</span>
+                        </el-input>
+                      </el-form-grid>
+                    </el-form-item>
+
+                    <el-form-item label="高级会员：" label-width="90px">
+                      <el-form-grid>单笔交易多送</el-form-grid>
+                      <el-form-grid size="xs">
+                        <el-select placeholder="请选择" v-model="defaultSelect2">
+                          <el-option label="倍数" value="beishu"></el-option>
+                          <el-option label="定额" value="dinge"></el-option>
+                        </el-select>
+                      </el-form-grid>
+                      <el-form-grid size="sm">
+                        <el-input placeholder="请输入整数" class="text-right">
+                          <span slot="append">倍</span>
+                        </el-input>
+                      </el-form-grid>
+                    </el-form-item>
+                  </el-form-item>
+                  <el-form-item label="提示语：">
+                    <el-form-grid>跟在其他表单元素提示语后：</el-form-grid>
+                    <el-form-grid class="text-info"><i class="bui-info"></i>消息提示语</el-form-grid>
+                    <el-form-grid class="text-success"><i class="bui-success"></i>成功提示语</el-form-grid>
+                    <el-form-grid block>另起一行提示语：</el-form-grid>
+                    <el-form-grid block class="text-info"><i class="bui-info"></i>消息提示语</el-form-grid>
+                    <el-form-grid block class="text-success"><i class="bui-success"></i>成功提示语</el-form-grid>
+                    <el-form-grid block class="text-warning"><i class="bui-warn"></i>消息提示语</el-form-grid>
+                    <el-form-grid block class="text-danger"><i class="bui-error"></i>消息提示语</el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="活动形式：">
+                    <el-form-grid size="xlg" width="490">
+                      <el-input type="textarea">自定义了表单栅格宽度，来适应与上面表单列的右对齐</el-input>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item>
+                    <el-button type="primary">立即创建</el-button>
+                    <el-button @click="resetForm('ruleForm')">重置</el-button>
+                  </el-form-item>
+                </el-form>
+              </el-col>
+            </el-row>
+          </div>
+        </el-tab-pane>
+        <el-tab-pane label="栅格-行内表单" name="second">
+          <div class="template-form">
+            <el-row>
+              <el-col :span="24">
+                <p>配置表单为行内表单:inline="true"，每个el-form-item（不同属性条件）会默认显示在同一行，当需要对当中一个条件独立一行显示时，可按如下示例配置：</p>
+                <p>对需要显示为独立一行的属性条件el-form-item 添加类名'el-block'。</p>
+                <el-form :inline="true" label-width="80px" class="demo-ruleForm">
+                  <el-form-item label="商品编码：">
+                    <el-form-grid size="xmd">
+                      <el-input placeholder=""></el-input>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="原始编号：">
+                    <el-form-grid size="xmd">
+                      <el-input placeholder=""></el-input>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="收货人：" class="el-block">
+                    <el-form-grid size="xmd">
+                      <el-input placeholder=""></el-input>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="收货人：" class="el-block">
+                    <el-form-grid>
+                      <el-input type="textarea" placeholder=""></el-input>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="手机号码：">
+                    <el-form-grid size="xmd">
+                      <el-input placeholder=""></el-input>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="下单时间：">
+                    <el-form-grid size="xmd">
+                      <el-date-picker type="date" placeholder="请选择日期"></el-date-picker>
+                    </el-form-grid>
+                  </el-form-item>
+                </el-form>
+              </el-col>
+            </el-row>
+          </div>
+        </el-tab-pane>
+        <el-tab-pane label="表单下拉树" name="four">
+          <el-row>
+            <el-col>
+              <el-form ref="droptree" :model="droptreeForm">
+                <el-form-item label="下拉树：" prop="dropTreeValue">
+                  <el-form-grid size="md">
+                    <el-popover ref="droptreepopover"
+                                v-model="droptreeForm.dropTreeVisible"
+                                :width="droptreeWidth"
+                                placement="bottom-start"
+                                trigger="click"
+                                popper-class="tmp-droptree-popover">
+                      <el-scrollbar wrap-class="tmp-droptree-scroll">
+                        <el-tree-extra :data="dropTreeList"
+                                       :expand-on-click-node="false"
+                                       @node-click="handleSelectValue"
+                                       class="tmp-droptree-tree"></el-tree-extra>
+                      </el-scrollbar>
+                    </el-popover>
+                    <el-input ref="droptreeinput" v-model="droptreeForm.dropTreeValue"
+                              @click.native="handleShowDropTree" placeholder="点击选择" class="tmp-droptree-input"
+                              v-popover:droptreepopover class="tmp-droptree-input"></el-input>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item>
+                  <el-button @click="resetForm('droptree')">重置</el-button>
+                </el-form-item>
+              </el-form>
+            </el-col>
+          </el-row>
+        </el-tab-pane>
+        <el-tab-pane label="表单规范或特殊结构固定用法">
+          <el-row>
+            <el-col :span="24">
+              <el-form label-width="120px">
+                <el-form-item label="开关大小：">
+                  <el-form-grid>
+                    <el-switch on-text="开" off-text="关" v-model="delivery" :width="44"></el-switch>
+                  </el-form-grid>
+                  <el-form-grid class="text-info"><i class="bui-info"></i> 开关统一配置成44。（:width="44"）</el-form-grid>
+                </el-form-item>
+                <el-form-item label="边框块状：">
+                  <el-form-grid size="xlg" class="el-block-box">
+                    <el-switch on-text="开" off-text="关" v-model="delivery2" :width="44"></el-switch>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="边框块状带底色：">
+                  <el-form-grid size="xxlg" class="el-block-box is-gray-bg">
+                    <el-form-item class="mb-sm">
+                      <el-form-grid>
+                        <el-checkbox label="">打折</el-checkbox>
+                      </el-form-grid>
+                      <!--        <el-form-grid size="xxs" style="margin-left:3px;">
+                                <el-select v-model="favorForm.radioCount" @change="changeCount">
+                                  <el-option label="打折" value="discount"></el-option>
+                                  <el-option label="满减" value="count"></el-option>
+                                </el-select>
+                              </el-form-grid>-->
+                      <el-form-grid>订单金额打</el-form-grid>
+                      <el-form-grid size="sm">
+                        <el-input placeholder="请输入数字" class="text-right">
+                          <template slot="append">折</template>
+                        </el-input>
+                      </el-form-grid>
+                    </el-form-item>
+                    <el-form-item class="mb-sm">
+                      <el-form-grid>
+                        <el-checkbox label="">满减</el-checkbox>
+                      </el-form-grid>
+                      <el-form-grid>订单金额减</el-form-grid>
+                      <el-form-grid size="sm">
+                        <el-input placeholder="请输入金额" class="text-right">
+                          <template slot="append">元</template>
+                        </el-input>
+                      </el-form-grid>
+                      <el-checkbox label="上不封顶"></el-checkbox>
+                      <el-form-grid class="text-info">
+                        <el-tooltip effect="light" placement="right" content="设置上不封顶,设置上不封顶设置上不封顶设置上不封顶设置上不封顶">
+                          <i class="bui-info"></i>
+                        </el-tooltip>
+                      </el-form-grid>
+                    </el-form-item>
+                    <el-form-item class="mb-sm">
+                      <el-form-grid>
+                        <el-checkbox label="">送礼物</el-checkbox>
+                      </el-form-grid>
+                      <el-form-grid>
+                        <el-button type="primary">添加礼物</el-button>
+                      </el-form-grid>
+                      <el-form-grid class="text-info"><i class="bui-info"></i>礼物必须发布在淘宝“其他>其他>赠品”类目下</el-form-grid>
+                    </el-form-item>
+                    <el-form-item>
+                      <el-form-grid>
+                        <el-checkbox label="">包邮</el-checkbox>
+                      </el-form-grid>
+                    </el-form-item>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="两行间纯文本：" class="form-text">
+                  <el-form-grid class="text-warning">当两行间放置纯文本时，上下间距过高，可添加类`form-text`,如：</el-form-grid>
+                </el-form-item>
+                <el-form-item label="添加类form-text：" class="form-text">
+                  <el-form-grid class="text-warning">&lt;el-form-item class="form-text"&gt;&lt;/el-form-item&gt;
+                  </el-form-grid>
+                </el-form-item>
+              </el-form>
+            </el-col>
+          </el-row>
+        </el-tab-pane>
+      </el-tabs>
+    </div>
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

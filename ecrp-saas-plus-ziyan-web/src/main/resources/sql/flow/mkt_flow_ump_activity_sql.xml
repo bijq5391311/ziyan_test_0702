@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot source="">
+  <sqlGroup name="flow.ump">
+    <!-- SMS START-->
+    <sql id="createSendMemberTable" value="CREATE TEMPORARY TABLE `temp_marketing_send_member` (
+				`id` INT(10) NOT NULL AUTO_INCREMENT,
+				`sys_customer_id` BIGINT(20) NULL DEFAULT NULL COMMENT '客户ID',
+				PRIMARY KEY (`id`),
+				INDEX `Target` (`target`)
+			)">
+    </sql>
+    <sql id="insertSendCidTable" value="
+				insert into temp_marketing_send_member(sys_customer_id)
+				values(#{sysCustomerId})
+			">
+    </sql>
+    <sql id="insertUmpMkRecord" value="
+				insert into ump_mk_record(state,data_from,activity_id,marketing_id,ump_id,ump_tag_id,nick,is_success)
+				SELECT 0,0,#{activityId},#{marketingId},#{umpId},#{umpTagId},b.out_nick,-1
+				FROM temp_marketing_send_member a,kd_customer_shop b
+				WHERE a.sys_customer_id = b.sys_customer_id
+			">
+    </sql>
+    <sql id="updateUmpReocrd" value="
+				update ump_mk_record set update_time=now(),is_success = ?,`usage` = ?,remark= ?
+				where id = ?
+			">
+    </sql>
+    <sql id="insertMarketingTagrelcus" value="
+				INSERT INTO ump_marketing_tagrelcus(state,top_tag_id,buyer_nick,activity_id,sys_customer_id,create_time)
+				values( 0,?,?,?,?,now())
+			">
+    </sql>
+    <sql id="selectUmpMkRecord" value="
+				SELECT a.id,a.nick,a.sys_customer_id
+				FROM ump_mk_record a
+				WHERE a.ump_activities_id = #{umpActivitiesId}
+				group by a.nick
+			">
+      <if value=" and a.sys_customer_id in (${'ids'})"/>
+    </sql>
+    <sql id="getUmpRecordCount" value="
+				SELECT count(1)
+				from ump_mk_record a
+				WHERE a.ump_activities_id = #{umpActivityId} and a.is_success = #{isSuccess}
+			">
+    </sql>
+    <sql id="getUmpRecordTotal" value="
+				SELECT count(1)
+				from ump_mk_record a
+				WHERE a.ump_activities_id = #{umpActivityId}
+			">
+    </sql>
+    <sql id="updateUmpActivities" value="
+				UPDATE ump_activities set submit_customer_count = #{submitCustomerCount},sub_division_cutomer_count=#{subDivisionCutomerCount}
+				WHERE activity_top_id = #{umpActivityId}
+			">
+    </sql>
+    <sql id="getMarketingTagrelcusCount" value="
+				SELECT count(1)
+				from ump_marketing_tagrelcus a
+				WHERE a.top_tag_id = #{umpActivityId}
+				 AND state=0
+			">
+    </sql>
+    <sql id="updateUmpMarketingTag" value="
+				UPDATE ump_marketing_tag set customer_count = #{customerCount}
+				WHERE top_tag_id = #{umpActivityId}
+			">
+    </sql>
+
+    <sql id="insertUmpMkRecords" value="
+				insert into ump_mk_record(state,data_from,activity_id,marketing_id,ump_activities_id,ump_id,ump_tag_id,group_id,nick,sys_customer_id,is_success,create_time,update_time)
+				SELECT 0,0,#{activityId},#{marketingId},#{umpActivityId},#{umpId},#{umpTagId},#{groupId},b.out_nick,b.sys_customer_id,-1,now(),now()
+				FROM kd_customer_shop b
+				WHERE 1=1 AND b.plat_from_type = 1 and b.shop_code = #{shopCode}
+			">
+      <if value=" and b.sys_customer_id in (${'ids'})  group by b.out_nick"/>
+    </sql>
+    <sql id="updateReport" value="
+				update marketing_detail${table} a
+				set a.state = ?, out_nick = ?,target = ?,is_successed = ?,failure_reason= ?,
+				a.update_time = now()
+				where a.sys_customer_id = ?
+			">
+    </sql>
+      <sql id="updateSendCidNick" value="
+                update marketing_detail${table} a,kd_customer_shop b set a.target = b.out_nick,a.state = 1,a.failure_reason = '',a.is_successed =1
+                where b.plat_from_type = 1 and a.sys_customer_id = b.sys_customer_id and shop_code = #{shopCode}
+            ">
+      </sql>
+
+
+  </sqlGroup>
+
+</sqlRoot>

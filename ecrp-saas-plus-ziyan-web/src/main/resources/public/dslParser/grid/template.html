@@ -1,0 +1,179 @@
+<th:block th:fragment="render(dsl2)">
+	((function() {
+		/* 表格顶部按钮项 */
+		var operateButtonTemplate = `
+			<nns-table-operate-button :buttons="table.operateButtons" :context="vm"></nns-table-operate-button>
+		`;
+		
+		/* 表格搜索条件表单 */
+		var conditionForm = `
+			<el-form ref="table_filter_form" placement="right" label-width="90px" :model="model" :rules="rules" :inline="true">
+				<th:block th:each="input, stat : ${dsl2.allInput}">
+					<th:block th:insert="../public/dslParser/grid/input/inputFactory::createInput(${input}, 'model.')"></th:block>
+				</th:block>
+			</el-form>
+		`;
+		
+		/* 表格 */
+		var gridTemplate = `
+			<th:block th:insert="../public/dslParser/grid/grid::renderGrid(${dsl2.columns}, ${dsl2.pagination})"></th:block>
+		`;
+		
+		var treeTemplate = `
+			<el-scrollbar ref="layoutLeftScroll"
+                          wrap-class="template-layout__scroll">
+				<ns-tree ref="tree" 
+					node-key="id" 
+					class="template-tree-organize"
+					:expand-on-click-node = "false"
+					:highlight-current = "true"
+					:url="tree.url" 
+					:defaultExpandAll = "tree.expandAll"
+					:showCheckbox = "tree.showCheckbox"
+					:load = "load"
+					:filterNodeMethod = "filterNodeMethod"
+					:beforeAddNode = "beforeAddNode"
+					:saveNewData = "saveNewData"
+					:saveEditData = "saveEditData"
+					:beforeDeleteNode = "beforeDeleteNode"
+					:afterDeleteNode = "afterDeleteNode"
+					:setCustomIcon = "setCustomIcon"
+					@node-click = "nodeClick"
+					@check-change = "checkChange"
+					@node-expand = "nodeExpand"
+					@node-collapse = "nodeCollapse"
+					@current-change = "currentChange"
+				>
+				</ns-tree>
+			</el-scrollbar>
+		`;
+		
+		<!--/* 表格顶部区域 = 按钮 + 其他 */-->
+		function createDefaultTopBar(operateButtonTemplate, conditionForm) {
+			var topBar = `
+				<div>
+					<!--/* 表格顶部表单和按钮区域 */-->
+					<div class="template-table-bar">
+						<el-row type="flex">
+							<!--/* 按钮区域 */-->
+							<el-col :span="buttonRatio">
+								${operateButtonTemplate}
+							</el-col>
+							
+							<el-col v-if="charts" :span="chartTabRatio">
+					              <div class="tmp-analysistab-select text-center">
+						              <el-radio-group v-model="status.pivotType" @change="$pivotChange">
+						                <el-radio-button label="table"><i class="bui-biaoge"></i>表格</el-radio-button>
+						                <template v-for="(item, index) in charts">
+						                	<el-radio-button :label="item.type"><i :class="chartMap[item.type].class"></i>{{chartMap[item.type].name}}</el-radio-button>
+						                </template>
+						              </el-radio-group>
+						          </div>
+					        </el-col>
+							
+							<!--/* 查询区域  单条件*/-->
+							<el-col :span="inputRatio">
+								<el-form :model="quickSearchModel" :inline="true" class="pull-right">
+									<th:block  th:if="${dsl2.allInput.size() > 0 && dsl2.allInput[0].type == 'text'}">
+										<th:block th:with="input = ${dsl2.allInput[0]}">
+											<el-form-item v-show="status.expand === false">
+												<el-input ref="quickText" th:v-model="${'model.'+input.name}" th:placeholder="${input.placeholder}"  
+													th:name=${input.name}
+													icon="search"
+													:on-icon-click="$quichSearchAction"
+												></el-input>
+											</el-form-item>
+										</th:block>
+									</th:block>
+								
+									<th:block  th:if="${dsl2.allInput.size() > 1 || (dsl2.allInput.size() == 1 && dsl2.allInput[0].type != 'text')}">
+										<el-form-item>
+											<el-button type="text" @click="$handleTabClick">
+												{{tabText}}<i :class="{'el-icon--right': true, 'el-icon-arrow-down': !status.expand, 'el-icon-arrow-up': status.expand}"></i>
+											</el-button>
+										</el-form-item>
+									</th:block>
+								</el-form>
+							</el-col>	
+						</el-row>
+					</div>
+						
+					<div class="template-table-search">
+						<div class="template-table-filter" v-show="status.expand === true && status.showCondition === false">
+							<el-row>
+								<!--/* 表单区域 */-->
+								<el-col :span="20" class="template-table-plat">
+									${conditionForm}								
+									<!--/* 操作按钮区域 */-->
+									<div class="template-table-control">
+										<el-button type="primary" @click="$searchAction(vm)">搜索</el-button>
+										<el-button @click="$resetAction(vm)">重置</el-button>
+									</div>
+								</el-col>	
+							</el-row>
+						</div>
+						
+						<div class="template-table-result" v-show="status.expand === true && status.showCondition === true && status.searched === true">
+							<div class="rule">
+								 <span class="rule-label">滤选条件：</span>
+						       	 <template v-for="(item, index) in labels">
+						            <el-tag type="primary" :closable="true" @close="$removeFilter(item.name)"> {{ item.label }} : {{ item.text }} </el-tag>
+					           	 </template>
+								<div class="control">
+									<el-button type="primary" @click="$editAction(vm)">修改</el-button>
+									<el-button @click="$clearAction(vm)">清空</el-button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			`;
+			return topBar;
+		}
+				
+			
+		<!--/* tree + topBar + grid = table ， 开发人员可以根据需求改动相关的片段 */-->
+		function createDefaultTemplate(treeTemplate, topBar, gridTemplate) {
+			var template = `
+				<div class="template-layout">
+					<!--/* 树区域 */-->
+					<div v-if="tree.enable" class="template-layout-left">
+						${treeTemplate}
+					</div>
+					<!-- 表格区域 -->
+					<div class="template-layout-right">
+						<el-row>
+						 <el-col :span="24">
+							${topBar}
+							<!-- 透视表 -->
+							<div>
+								<div v-show="status.pivotType === 'table'">${gridTemplate}</div>
+								<div class="pivot_chart" v-show="status.pivotType !== 'table'">
+									<el-row>
+										<el-col>
+											<div class="pivot_chart_zone" style="height:460px;"></div>
+										</el-col>
+									</el-row>
+								</div>
+							</div>
+						 </el-col>
+					  </el-row>
+					</div>
+				</div>
+			`;
+			return template;
+		}
+	
+		return {
+			fragments: {
+				operateButtonTemplate: operateButtonTemplate,
+				conditionForm: conditionForm,
+				gridTemplate: gridTemplate,
+				treeTemplate: treeTemplate
+			},
+			createDefaultTopBar: createDefaultTopBar,
+			createDefaultTemplate: createDefaultTemplate,
+			template: createDefaultTemplate(treeTemplate, createDefaultTopBar(operateButtonTemplate, conditionForm), gridTemplate)
+		};
+	})())
+</th:block>

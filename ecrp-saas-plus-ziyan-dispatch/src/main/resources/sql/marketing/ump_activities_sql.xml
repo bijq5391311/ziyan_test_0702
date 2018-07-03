@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="marketing.UmpActivities">
+	     <!-- 查询定向活动列表 -->
+	    <sql id="queryList"
+           value="select a.*,s.name as shopName from ump_activities a
+               inner join sys_shop s on a.shop_code = s.code
+            where 1 = 1 ">
+            <bind name="activityName" value="#activityName == null ? null : ('%'+#activityName+'%')"></bind>
+            <if test="#activityName != null and #activityName != '%%'" value=" and activity_name like #{activityName}"></if>
+            <if test="shopCode != '' and shopCode != null" value="and a.shop_code in (${'shopCodes'})"></if>
+            <if  value="and a.shop_code= #{shopCode}"></if>
+            <if value="and a.begin_time &gt;= #{startTime}"></if>
+            <if value="and a.end_time &lt;= #{endTime}"></if>
+            <if value="and a.privilege_type = #{privilegeType}"></if>
+            <if test= "#status == 1" value="and a.begin_time &gt; now() and  a.status  != 3"></if>
+            <if test= "#status == 2" value="and a.begin_time &lt; now() and a.end_time &gt; now() and  a.status != 3"></if>
+            <if test= "#status == 3 " value="and a.status = #{status}"></if>
+            <if test= "#status == 4" value="and a.end_time &lt; now() and  a.status != 3"></if>
+            <if value="order by a.create_time desc"></if>
+        </sql>
+        <!-- 查询活动分组列表 -->
+        <sql id="queryActivitiesGroups"  
+               value="select g.*, s.subdivision_name as subdivisionName from ump_activities_groups g 
+                   inner join subdivision s on s.id= g.sub_division_id
+                   where 1=1">
+               <if value="and g.activity_id=#{activity_id}"></if>
+               <if value="order by g.create_time"></if>
+        </sql>
+        <!-- 查询活动详情 -->
+        <sql id="queryActivityDetail" value="select a.*,ae.*,se.name as shopName from ump_activities a
+               inner join ump_activities_ext ae on a.id = ae.activity_id
+               inner join sys_shop_ext se on se.code = a.shop_code
+               where 1=1 and a.id=#{id}">
+        </sql>
+      <!--定向客户详情-->
+        <sql id="queryPromotionCustomerDetail" value="select t.out_nick as outNick, t.created,kc.customer_name as receiverName, t.sys_customer_id as customerId
+                      from kd_promotion_detail pd
+                    inner join kd_trade t on t.sys_trade_id = pd.sys_trade_id
+                     inner join kd_customer kc on kc.sys_customer_id = t.sys_customer_id
+                    where pd.promotion_activity_id = #{activityTopId}">
+          <bind name="nameOrId" value="#nameOrId == null ? null : ('%'+#nameOrId+'%')"></bind>
+          <if value="and (t.out_nick like #{nameOrId} or t.sys_customer_id like #{nameOrId})"></if>
+          <if value="order by pd.create_time"></if>
+        </sql>
+        <!-- 更新标签人数 -->
+        <sql id="updateCustomerCountByTagId" value="ump_marketing_tag set update_time=now(),customer_count=#{customerCount} where top_tag_id=#{topTagId}"></sql>
+	      <!--ump活动分析-->
+        <sql id="analyseUmpActivity" value = "select o.out_item_id,o.title, ua.activity_top_id,  ua.activity_type,
+                count(distinct o.sys_customer_id) joinNum,
+            count( distinct case when t.pay_time is not null then o.sys_customer_id else null end)
+             buyNum,	sum( case when t.pay_time is not null then t.num else 0 end) as productNum,
+             sum(case when t.pay_time is not null then t.payment else 0 end) as paymentTotal
+  	        from kd_promotion_detail pd  join ump_activities ua on ua.activity_top_id = pd.promotion_activity_id join
+	            kd_order o on pd.sys_trade_id = o.sys_trade_id inner join kd_trade t on t.sys_trade_id = o.sys_trade_id
+              where ua.activity_top_id = #{actTopId} group by o.sys_item_id">
+        </sql>
+  </sqlGroup>
+</sqlRoot>

@@ -1,0 +1,112 @@
+<th:block th:fragment="form">
+<el-dialog title="优惠券详情" v-model="detailVisible" size="small" :vetically=true 
+                 :modal-append-to-body="false" :close-on-click-modal="false" 
+                  :close-on-press-escape="false" >
+           <el-form placement="right"  :model="favorDetail" :rules="rules" label-width="110px">
+             <el-form-item label="优惠券类型：" class=" form-text" >
+             
+                <template v-if="favorDetail.coupon_type == 1">
+                                                    现金券
+                </template>
+                <template v-if="favorDetail.coupon_type == 2">
+                                                     折扣券                  	
+                </template>
+                <template v-if="favorDetail.coupon_type == 3">
+                                                     礼品券
+                </template>
+             </el-form-item>
+             <el-form-item label="优惠券名称：" class=" form-text" >
+            
+                {{favorDetail.coupon_name}}
+
+             </el-form-item>
+             <el-form-item label="权益："  class=" form-text" >
+               <el-form-grid size="xmd">
+                {{favorDetail.rights_and_interests}}
+             </el-form-item> 
+             <el-form-item label="创建时间：" class=" form-text" >
+                   {{favorDetail.create_time}}
+             </el-form-item>
+             <el-form-item label="有效时间：" class=" form-text" >
+                   <div v-if='favorDetail.valid_time_type == 0'>{{favorDetail.valid_time_begin}}~ {{favorDetail.valid_time_end}}</div>
+                   <div v-if='favorDetail.valid_time_type == 1'>{{favorDetail.number_days}}天</div>
+             </el-form-item>
+             <el-form-item v-if='favorDetail.conditions_of_use == 0' label="满足条件：" class=" form-text" >
+               <el-form-grid  >
+                 	不限制
+               </el-form-grid>
+             </el-form-item>
+             <el-form-item v-if='favorDetail.conditions_of_use == 1' label="订单满：" class=" form-text" >
+               <el-form-grid >
+                 	{{favorDetail.full_or_plus_money}}元
+               </el-form-grid>
+             </el-form-item>
+             <el-form-item label="满足商品："  v-if="favorDetail.appoint_goods_ids != ' '" class=" form-text" >
+               <template >
+                      <div class="el-block-box">
+                        <template  v-for="item in favorDetail.itemList">
+                           <a :href="item.pictureUrl ? item.pictureUrl : '#'">{{item.title}}</a>&nbsp;&nbsp;,&nbsp;&nbsp;<!-- <br> -->
+                        </template>
+                      </div>                         
+               </template>
+             </el-form-item>
+             <!-- <el-form-item v-if=" favorDetail.shopNames != ''" label="指定店铺：" class=" form-text" >
+                         <div class="el-block-box">
+                            {{favorDetail.shopNames}}
+                         </div>
+                         <br>
+             </el-form-item> -->
+             <el-form-item label="指定店铺：" v-if=" favorDetail.shopNames != ''">
+             	<el-form-grid size="xlg">
+                 	<el-input v-model="favorDetail.shopNames" readonly="readonly"  type="textarea" >
+                 	</el-input>
+                 </el-form-grid>
+             </el-form-item>
+             <el-form-item label="生成数量：" class=" form-text">
+                 <template v-if="favorDetail.coupon_amouet == -1">
+                 	无限张
+                </template>
+                <template v-else>
+                    {{favorDetail.coupon_amouet}}张
+                </template>
+             </el-form-item>
+             <el-form-item label="已发放数量：" class=" form-text">
+                <template>
+                    {{favorDetail.sent_amount}}张
+                </template>
+             </el-form-item>
+             <el-form-item label="已核销数量：" class=" form-text">
+                <template>
+                    {{favorDetail.cancel_after_verification}}张
+                </template>
+             </el-form-item>
+             <el-form-item label="紫燕承担系数：" class=" form-text">
+                <template>
+                    {{favorDetail.coefficient}}
+                </template>
+             </el-form-item>
+             <el-form-item label="创建人：" class=" form-text">
+                <template>
+                    {{favorDetail.user}}
+                </template>
+             </el-form-item>
+             <el-form-item label="使用说明：" v-if="favorDetail.description != ''">
+             	<el-form-grid size="xlg">
+                 	<el-input v-model="favorDetail.description" readonly="readonly"  type="textarea" >
+                 	</el-input>
+                 </el-form-grid>
+             </el-form-item>
+             <el-form-item label="备注：" v-if="favorDetail.title !=''">
+             	<el-form-grid size="xlg">
+                 	<el-input v-model="favorDetail.title" readonly="readonly"  type="textarea" >
+                 	</el-input>
+                 </el-form-grid>
+             </el-form-item>
+            
+           </el-form>
+                   
+           <div slot="footer" class="dialog-footer">
+             <el-button @click="detailVisible = false">关闭</el-button>
+           </div>
+       </el-dialog>
+</th:block>

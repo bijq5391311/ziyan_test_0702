@@ -1,0 +1,93 @@
+<th:block th:fragment="render(columns)">
+	<th:block th:each="item,stat : ${columns}">
+		<th:block th:insert="::renderColumn(${item})"></th:block>
+	</th:block>
+</th:block>
+
+<th:block th:fragment="renderColumn(column)">
+    <th:block th:switch = "${column.type}">
+        <th:block th:case="'action'" th:insert = "::renderAction(${column})"></th:block>
+        <th:block th:case="'selection'" th:insert = "::renderSelection(${column})"></th:block>
+        <th:block th:case="*" th:insert = "::renderDefault(${column})"></th:block>
+    </th:block>
+</th:block>
+
+<th:block th:fragment="renderSelection(column)">
+    <th:block>
+        <el-table-column
+        	type = "selection"
+            th:align = "center"
+            :width = "30"
+         >
+         </el-table-column>
+    </th:block>
+</th:block>
+
+<th:block th:fragment="renderDefault(column)">
+    <th:block>
+        <el-table-column :show-overflow-tooltip="true"
+        	th:type = "${column.get('type')} ? ${column.get('type')} : 'default'"
+            th:prop = "${column.get('field')}"
+            th:label = "${column.get('title')}"
+            th:dbcolumn = "${column.get('column')}"
+            th:column = "${column.get('column')}"
+            th:align = "${column.get('align')}"
+            th:width = "${column.get('width')}"
+            th::sortable = "${column.get('sortable') !=null && column.get('sortable') ?'_data._table._CUSTOM_':'false'}"
+         >
+            <!--/* 如果存在模版，则使用模版内容 */-->
+	         <th:block th:if="${!#strings.isEmpty(column.get('template'))}">
+	             <template scope="scope">
+	                 [(${column.get('template')})]
+	             </template>
+	         </th:block>
+         </el-table-column>
+    </th:block>
+</th:block>
+
+<th:block th:fragment="renderAction(column)">
+	
+   	<th:block>
+        <el-table-column :show-overflow-tooltip="true"
+            th:prop="${column.get('field')}"
+            th:label="${column.get('title')}"
+            th:column="${column.get('column')}"
+            th:align="${column.get('align')}"
+            th:width="${column.get('width')}"
+         >
+             <th:block th:if="${!#strings.isEmpty(column.get('template'))}">
+                 <template scope="scope">
+                 	<ns-table-column-operate-button :buttons="_data._table.table_buttons" :prop="scope"></ns-table-column-operate-button>
+                 	<!--/* <th:block th:insert="::renderButton(${column.get('template')})"></th:block> */-->
+                 </template>
+             </th:block>
+         </el-table-column>
+    </th:block>
+  
+    
+</th:block>
+
+<th:block th:fragment="renderButton(buttons)">
+    <div class="tmp-cell__buttons">
+	<th:block th:if="${buttons.size() <= 2}">
+		<th:block th:each="item,state : ${buttons}">
+			<el-button type="text" th:@click="${'$$$tableButton'+(state.index)+'(scope)'}">[(${item.name})]</el-button>
+			<th:block th:if="!${state.last}">|</th:block>
+		</th:block>
+	</th:block>
+	
+	<th:block th:if="${buttons.size() > 2}">
+		<el-button type="text" th:@click="${'$$$tableButton0'+'(scope)'}">[(${buttons[0].name})]</el-button> |
+		<el-dropdown trigger="click" menu-align="end">
+			<span class="el-dropdown-link">
+				更多<i class="el-icon-caret-bottom el-icon--right"></i>
+			</span>
+			<el-dropdown-menu slot="dropdown">
+				<th:block th:each="item,state : ${buttons.subList(1,buttons.size())}">
+					<el-dropdown-item th:@click.native="${'$$$tableButton'+(state.index+1)+'(scope)'}">[(${item.name})]</el-dropdown-item>
+				</th:block>
+			</el-dropdown-menu>
+		</el-dropdown>
+	</th:block>
+	</div>
+</th:block>

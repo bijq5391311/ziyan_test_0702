@@ -1,0 +1,283 @@
+<% include ../../../include/layout/start.ejs %>
+<div id="example" v-cloak>
+  <div class="template-page">
+    <div class="tmp-page__content">
+      <el-form inline class="text-right">
+        <el-form-item class="no-margin">
+          <el-button type="text" @click="isOpen = !isOpen">
+            <span v-if="!isOpen">收起搜索<i class="el-icon-arrow-up el-icon--right"></i></span>
+            <span v-else>展开搜索<i class="el-icon-arrow-down el-icon--right"></i></span>
+          </el-button>
+          <el-button type="text" @click="getState"><i class="bui-note"></i>帮助说明</el-button>
+        </el-form-item>
+      </el-form>
+
+      <div class="portrait-instructions" :class="{ show: cookieState }">
+        <p>1.客户画像用于对所选的用户群体进行画像分析；</p>
+        <p>2.包含会员和非会员的所有客户数据，支持只针对会员进行分析。</p>
+      </div>
+
+      <el-form inline :class="{ hide: isOpen }" class="portrait-form" label-width="80px">
+        <el-form-item label="品牌：" class="no-margin">
+          <el-form-grid>
+            <el-select placeholder="选择品牌" clearable v-model="defaultSelect">
+              <el-option label="品牌1" value="1"></el-option>
+              <el-option label="品牌2" value="2"></el-option>
+              <el-option label="品牌3" value="3"></el-option>
+              <el-option label="品牌4" value="4"></el-option>
+              <el-option label="品牌5" value="5"></el-option>
+              <el-option label="品牌6" value="6"></el-option>
+            </el-select>
+          </el-form-grid>
+        </el-form-item>
+        <el-form-item label="客户类型：" class="no-margin">
+          <el-form-grid>
+            <el-select placeholder="选择类型" clearable v-model="defaultSelect1">
+              <el-option label="客户类型1" value="1"></el-option>
+              <el-option label="客户类型2" value="2"></el-option>
+              <el-option label="客户类型3" value="3"></el-option>
+              <el-option label="客户类型4" value="4"></el-option>
+              <el-option label="客户类型5" value="5"></el-option>
+              <el-option label="客户类型6" value="6"></el-option>
+            </el-select>
+          </el-form-grid>
+        </el-form-item>
+        <el-form-item label="会员等级：" class="no-margin">
+          <el-form-grid>
+            <el-select placeholder="选择类型" clearable v-model="defaultSelect1">
+              <el-option label="会员等级1" value="1"></el-option>
+              <el-option label="会员等级2" value="2"></el-option>
+              <el-option label="会员等级3" value="3"></el-option>
+              <el-option label="会员等级4" value="4"></el-option>
+              <el-option label="会员等级5" value="5"></el-option>
+              <el-option label="会员等级6" value="6"></el-option>
+            </el-select>
+          </el-form-grid>
+        </el-form-item>
+        <el-form-item label="客户分组：" class="no-margin">
+          <el-form-grid>
+            <el-select placeholder="选择类型" clearable v-model="defaultSelect1">
+              <el-option label="客户分组1" value="1"></el-option>
+              <el-option label="客户分组2" value="2"></el-option>
+              <el-option label="客户分组3" value="3"></el-option>
+              <el-option label="客户分组4" value="4"></el-option>
+              <el-option label="客户分组5" value="5"></el-option>
+              <el-option label="客户分组6" value="6"></el-option>
+            </el-select>
+          </el-form-grid>
+        </el-form-item>
+        <el-form-item>
+          <el-form-grid>
+            <el-button type="primary">搜索</el-button>
+            <el-button @click="resetFun">重置</el-button>
+          </el-form-grid>
+        </el-form-item>
+      </el-form>
+
+      <el-row :gutter="10" class="tmp-screening">
+        <el-col :span="12">
+          <div class="portrait-panel">
+            <div class="portrait-panel__title">
+              <span>性别分布</span>
+              <div class="tmp-panel__options pull-right">
+                <el-popover
+                  popper-class="tmp-popover-add"
+                  trigger="click"
+                  title=""
+                  placement="bottom-end"
+                  width="80"
+                  v-model="visible1">
+                  <ul class="tmp-list text-center">
+                    <li>
+                      <el-button type="text" @click="visible1 = false">导出图片</el-button>
+                    </li>
+                    <li>
+                      <el-button type="text" @click="visible1 = false">其他操作</el-button>
+                    </li>
+                  </ul>
+                  <a class="item" title="设置" slot="reference"><i class="bui-setting"></i></a>
+                </el-popover>
+              </div>
+            </div>
+            <div class="portrait-panel__body">
+              <business-echarts :options="sexDistribution" auto-resize></business-echarts>
+            </div>
+          </div>
+        </el-col>
+        <el-col :span="12">
+          <div class="portrait-panel">
+            <div class="portrait-panel__title">
+              <span>年龄分布</span>
+              <div class="tmp-panel__options pull-right">
+                <div class="tmp-panel__options pull-right">
+                  <el-popover
+                    popper-class="tmp-popover-add"
+                    trigger="click"
+                    title=""
+                    placement="bottom-end"
+                    width="80"
+                    v-model="visible2">
+                    <ul class="tmp-list text-center">
+                      <li>
+                        <el-button type="text" @click="visible2 = false">导出图片</el-button>
+                      </li>
+                      <li>
+                        <el-button type="text" @click="visible2 = false">其他操作</el-button>
+                      </li>
+                    </ul>
+                    <a class="item" title="设置" slot="reference"><i class="bui-setting"></i></a>
+                  </el-popover>
+                </div>
+              </div>
+            </div>
+            <div class="portrait-panel__body">
+              <business-echarts :options="ageDistribution" auto-resize></business-echarts>
+            </div>
+          </div>
+        </el-col>
+        <el-col :span="12">
+          <div class="portrait-panel">
+            <div class="portrait-panel__title">
+              <span>地域分布</span>
+              <div class="tmp-panel__options pull-right">
+                <div class="tmp-panel__options pull-right">
+                  <el-popover
+                    popper-class="tmp-popover-add"
+                    trigger="click"
+                    title=""
+                    placement="bottom-end"
+                    width="80"
+                    v-model="visible3">
+                    <ul class="tmp-list text-center">
+                      <li>
+                        <el-button type="text" @click="visible3 = false">导出图片</el-button>
+                      </li>
+                      <li>
+                        <el-button type="text" @click="visible3 = false">其他操作</el-button>
+                      </li>
+                    </ul>
+                    <a class="item" title="设置" slot="reference"><i class="bui-setting"></i></a>
+                  </el-popover>
+                </div>
+              </div>
+            </div>
+            <div class="portrait-panel__body special-echarts">
+              <business-echarts :options="geographicalDistribution" auto-resize></business-echarts>
+            </div>
+          </div>
+        </el-col>
+        <el-col :span="12">
+          <div class="portrait-panel">
+            <div class="portrait-panel__title">
+              <span>标签属性</span>
+              <div class="tmp-panel__options pull-right">
+                <div class="tmp-panel__options pull-right">
+                  <el-popover
+                    popper-class="tmp-popover-add"
+                    trigger="click"
+                    title=""
+                    placement="bottom-end"
+                    width="80"
+                    v-model="visible4">
+                    <ul class="tmp-list text-center">
+                      <li>
+                        <el-button type="text" @click="visible4 = false">导出图片</el-button>
+                      </li>
+                      <li>
+                        <el-button type="text" @click="visible4 = false">其他操作</el-button>
+                      </li>
+                    </ul>
+                    <a class="item" title="设置" slot="reference"><i class="bui-setting"></i></a>
+                  </el-popover>
+                </div>
+              </div>
+            </div>
+            <div class="portrait-panel__body">
+              <div id="main" class="echarts"></div>
+            </div>
+          </div>
+        </el-col>
+        <el-col :span="12">
+          <div class="portrait-panel no-margin">
+            <div class="portrait-panel__title">
+              <span>来源分布</span>
+              <div class="tmp-panel__options pull-right">
+                <div class="tmp-panel__options pull-right">
+                  <el-popover
+                    popper-class="tmp-popover-add"
+                    trigger="click"
+                    title=""
+                    placement="bottom-end"
+                    width="80"
+                    v-model="visible5">
+                    <ul class="tmp-list text-center">
+                      <li>
+                        <el-button type="text" @click="visible5 = false">导出图片</el-button>
+                      </li>
+                      <li>
+                        <el-button type="text" @click="visible5 = false">其他操作</el-button>
+                      </li>
+                    </ul>
+                    <a class="item" title="设置" slot="reference"><i class="bui-setting"></i></a>
+                  </el-popover>
+                </div>
+              </div>
+            </div>
+            <div class="portrait-panel__body small-echarts">
+              <business-echarts :options="sourceDistribution" auto-resize></business-echarts>
+            </div>
+          </div>
+        </el-col>
+        <el-col :span="12">
+          <div class="portrait-panel no-margin">
+            <div class="portrait-panel__title">
+              <span>触达方式</span>
+              <div class="tmp-panel__options pull-right">
+                <div class="tmp-panel__options pull-right">
+                  <el-popover
+                    popper-class="tmp-popover-add"
+                    trigger="click"
+                    title=""
+                    placement="bottom-end"
+                    width="80"
+                    v-model="visible6">
+                    <ul class="tmp-list text-center">
+                      <li>
+                        <el-button type="text" @click="visible6 = false">导出图片</el-button>
+                      </li>
+                      <li>
+                        <el-button type="text" @click="visible6 = false">其他操作</el-button>
+                      </li>
+                    </ul>
+                    <a class="item" title="设置" slot="reference"><i class="bui-setting"></i></a>
+                  </el-popover>
+                </div>
+              </div>
+            </div>
+            <div class="portrait-panel__body">
+              <business-echarts class="touchmode-lg" :options="touchMode1" ref="touchMode1"
+                                auto-resize></business-echarts>
+              <business-echarts class="touchmode-sm" :options="touchMode2" ref="touchMode2"
+                                auto-resize></business-echarts>
+              <el-row class="touchmode-list text-center">
+                <el-col :span="6">
+                  <div class="touchmode-item"><i class="bui-mobile-fill"></i><span>有QQ会员<br>10000人</span></div>
+                </el-col>
+                <el-col :span="6">
+                  <div class="touchmode-item"><i class="bui-mail-fill"></i><span>有手机号<br>10000人</span></div>
+                </el-col>
+                <el-col :span="6">
+                  <div class="touchmode-item"><i class="bui-qq-fill"></i><span>有QQ&微信<br>10000人</span></div>
+                </el-col>
+                <el-col :span="6">
+                  <div class="touchmode-item"><i class="bui-wechat-fill"></i><span>有邮箱&手机号<br>10000人</span></div>
+                </el-col>
+              </el-row>
+            </div>
+          </div>
+        </el-col>
+      </el-row>
+    </div>
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

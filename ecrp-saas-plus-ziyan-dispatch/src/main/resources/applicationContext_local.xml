@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:p="http://www.springframework.org/schema/p"
+	   xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	   xmlns:cache="http://www.springframework.org/schema/cache"
+	   xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+	   xsi:schemaLocation="http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd  
+
+    http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache-3.2.xsd
+
+    http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+	<!-- 调度配置文件命名 *_task.xml  -->
+    <import resource="classpath:/task/*_task.xml"/>
+
+	<context:property-placeholder location="classpath:redis.properties, classpath:spring.properties, classpath:bas.properties"/>
+
+	<!-- 自动扫描web包 ,将带有注解的类 纳入spring容器 -->
+	<context:component-scan base-package="com.nascent">
+		<context:exclude-filter type="regex" expression="com.nascent.ecrpsaas.WebMvcConfiguration"/>
+		<context:exclude-filter type="regex" expression="com.nascent.ecrpsaas.HttpErrorController"/>
+	</context:component-scan>
+
+
+<!-- 	<resources mapping="/images/**" location="/images/" /> -->
+	<bean id="sqlAuth" class="com.nascent.plugins.sqlauth.XmlSqlAuthHandler"></bean>
+
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+		<property name="driverClass" value="${jdbc.driver}"/>
+		<property name="jdbcUrl" value="${jdbc.url}"/>
+		<property name="user" value="${jdbc.username}"/>
+		<property name="password" value="${jdbc.password}"/>
+		<property name="initialPoolSize" value="1"/>
+	</bean>
+
+    <bean id="RepositoryService" class="com.nascent.plugins.spring.support.RepositoryServiceImpl">
+    	<constructor-arg>
+	    	<map>
+	    		<entry key="" value-ref="dataSource"></entry>
+	    	</map>
+    	</constructor-arg>
+    </bean>
+   
+   <bean id="sqlContext" class="com.nascent.plugins.spring.SqlContext">
+   		<constructor-arg name="scanner">
+   			<bean id="pluginLoader" class="com.nascent.plugins.spring.support.ClassScanner">
+		   		<property name="includeJars">
+		   			<list><value>*ecrp-saas*</value></list>
+		   		</property>
+		   		<property name="classPatterns">
+		   			<list>
+		   				<value>com/nascent/ecrpsaas/*</value>
+		   				<value>com\nascent\ecrpsaas\*</value>
+						<value>com.nascent.ecrpsaas*</value>
+		   			</list>
+		   		</property>
+		   		<property name="parsers">
+		   			<list>
+		   				<bean class="com.nascent.plugins.spring.support.TableBindParser" />
+		   			</list>
+		   		</property>
+		   </bean>
+   		</constructor-arg>
+   		<constructor-arg name="lazyProxy" value="true"/>
+   </bean>
+  
+	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	<tx:annotation-driven proxy-target-class="true"
+		transaction-manager="txManager"></tx:annotation-driven>
+
+	<!-- AopContext.currentProxy()获取代理类调用内部方法事务生效 -->
+	<aop:aspectj-autoproxy expose-proxy="true"/>
+   
+   <cache:annotation-driven/>
+   <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager" p:cache-manager-ref="ehcacheManager"/>
+   <bean id="ehcacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean" p:config-location="classpath:cache.xml" p:shared="true"/>
+	<bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<property name="maxIdle" value="${redis.maxIdle}"/>
+		<property name="maxTotal" value="${redis.maxActive}"/>
+		<property name="maxWaitMillis" value="${redis.maxWait}"/>
+		<!--<property name="testOnBorrow" value="${redis.testOnBorrow}"/>-->
+	</bean>
+
+	<bean id="connectionFactory"
+		  class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+		  p:host-name="${redis.host}" p:port="${redis.port}" p:password="${redis.pass}"
+		  p:pool-config-ref="poolConfig"
+	/>
+	<bean id="redisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate">
+		<property name="connectionFactory" ref="connectionFactory"/>
+	</bean>
+
+
+</beans>

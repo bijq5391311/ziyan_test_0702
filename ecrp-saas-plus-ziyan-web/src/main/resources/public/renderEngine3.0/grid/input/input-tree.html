@@ -1,0 +1,14 @@
+<th:block th:fragment="render(item)">
+	<th:block th:include="../public/renderEngine3.0/form/inputFactory::formItem(${item}, ~{::inputFragment})">
+		<th:block th:fragment="inputFragment">
+			<ns-droptree v-showRequired th:v-model="${'model.'+item.get('name')}"
+	     		th:url = "${item.get('control').get('url')}"
+	     		placeholder = ""
+	     		th:attr="
+	     			':show-checkbox' = ${item.get('control').get('isMulti')}
+	     		"
+	        	>
+	        </ns-droptree>
+		</th:block>
+	</th:block>
+</th:block>

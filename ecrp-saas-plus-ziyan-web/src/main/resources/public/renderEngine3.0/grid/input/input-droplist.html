@@ -1,0 +1,39 @@
+<th:block th:fragment="render(item)">
+	<th:block th:include="../public/renderEngine3.0/form/inputFactory::formItem(${item}, ~{::inputFragment})">
+		<th:block th:fragment="inputFragment">
+			<th:block th:with="
+		    	control = ${item.get('control')},
+		    	url = ${control.get('url')},
+		    	useUrl = ${!#strings.isEmpty(url)},
+		    	useSPEL = ${useUrl && #strings.startsWith(url, '$')},
+		    	useAjax = ${useUrl && useSPEL == false},
+		    	options = ${useSPEL ? T(com.nascent.plugins.spring.boot.SpEL).getValue(#ctx, url) : control.options}
+		    ">
+				<el-select v-showRequired
+		    		th:if="${useAjax == false}"
+		    		th:v-model="${'model.'+item.get('name')}" 
+		    		filterable  clearable
+		    		placeholder=""
+		    		th:attrappend="
+		    			':multiple' = ${control.get('isMulti') ? 'true' : 'false'}
+		    		">
+		    		<th:block th:each="option,stat : ${options}">
+		    			<el-option th:if="${#strings.startsWith(option.v,'#')}" th:label="${option.k}"  th::value="${#strings.substringAfter(option.v,'#')}"></el-option>
+		    			<el-option th:unless="${#strings.startsWith(option.v,'#')}" th:label="${option.k}"  th:value="${option.v}"></el-option>
+		    		</th:block>
+				</el-select>
+				
+				<ns-select v-showRequired
+		    		th:if="${useAjax == true}"
+		    		th:v-model="${'model.'+item.get('name')}" 
+		    		th:url = "${url}"
+		    		filterable  clearable
+		    		placeholder=""
+		    		th:attrappend="
+		    			':multiple' = ${control.get('isMulti') ? 'true' : 'false'}
+		    		">
+				</ns-select>
+			</th:block>
+		</th:block>
+	</th:block>
+</th:block>

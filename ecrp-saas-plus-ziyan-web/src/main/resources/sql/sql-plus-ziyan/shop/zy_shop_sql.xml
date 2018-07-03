@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="zyShop.sysShop">
+	   
+	    <sql id="getShopCodeStr" value =
+				"select group_concat(ss.code separator &apos;,&apos;) as code    
+				from  sys_shop ss inner join out_shop os on ss.out_sid = os.id 
+				 where 1=1 ">
+			<if value=" and  os.out_code in (${shopCode})"></if>
+		</sql>
+		
+	</sqlGroup>
+</sqlRoot> 

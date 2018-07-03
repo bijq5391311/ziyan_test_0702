@@ -1,0 +1,69 @@
+<!-- 轨迹模板 -->
+
+<th:block >
+	
+    <ul class="cbp_tmtimeline">
+    	<li >
+	    	<time class="cbp_tmtime">
+	          <span>现在</span>
+	        </time>
+    		<div class="cbp_tmicon timeline-bg-primary" >
+	          <i class="bui-clock"></i>
+	        </div>
+	        <div class="cbp_tmlabel is-empty" >
+	          <p class="contrail-content">暂无动态</p>
+	        </div>
+    	</li>	
+      <li v-if="shoopPatch.length>0" v-for="(line,index) in shoopPatch" >
+        <time class="cbp_tmtime" v-if="index !== 0">
+          <span>{{line.created}}</span><span>{{line.created}}</span>
+        </time>
+        <!-- 下单 图标-->
+        <div class="cbp_tmicon" >
+          <i class="bui-order-replace"></i>
+        </div>
+        <div class="cbp_tmlabel" >
+          <div class="contrail-card">
+            <div class="contrail-card__photo">
+              <img
+                :src="line.pic_path"
+                width="60" height="60"/>
+            </div>
+            <div class="contrail-card__property">
+              <p class="contrail-content">
+                <!-- <span class="contrail-inline"><label>渠道：</label>线上渠道-官网-D2C官网</span> -->
+                <span class="contrail-inline"><label>账号：</label>{{line.outNick}}</span>
+                <span class="contrail-inline"><label>交易号：</label>{{line.outTradeId}}</span>
+              </p>
+              <p class="contrail-content">
+                <span class="contrail-inline"><label>付款总金额：</label>{{line.payment}}</span>
+                <span class="contrail-inline"><label>总件数：</label>{{line.num}}</span>
+              </p>
+              <p class="contrail-content">
+                <label>下单时间：</label>
+                <span>{{line.created}}</span>
+              </p>
+              <p class="contrail-content">
+                <label>评价时间：</label>
+                <span>{{line.time}}</span>
+              </p>
+              <p class="contrail-content">
+                <label>评价商品：</label>
+                <span>{{line.title}}</span>
+              </p>
+              <p class="contrail-content">
+                <label>评价内容：</label>
+                <span>{{line.content}}</span>
+              </p>
+              <p class="contrail-content">
+                <label>解释内容：</label>
+                <span>{{line.reply}}</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </li>
+    </ul>
+    <div v-text="loadingTip" class="text-center is-empty"></div>
+</th:block>

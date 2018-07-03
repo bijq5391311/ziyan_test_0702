@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="organization.SysUser">
+	
+		<sql id="queryList" value=" select distinct u.*,d.name as deptName, p.name as postName from sys_user u inner join sys_user_department ud on ud.user_id = u.id 
+                inner join sys_department d  on ud.department_code = d.code inner join sys_position p on ud.position_code = p.code where 1 = 1 ">
+			<bind name="accountOrName" value="#accountOrName == null ? null : ('%'+#accountOrName+'%')"></bind>
+			<if  value="and (u.login_account like #{accountOrName} or u.user_name like #{accountOrName})" ></if>
+			<if  value="and u.state=#{state}"></if>
+			<if  value="and p.state=1"></if>
+			<if  value="and d.state=1"></if>
+			<if value= " order by u.create_time desc"></if>
+		</sql>
+		
+		<sql id="queryUserInfoById" value="select u.*,d.id as deptId, d.name as deptName ,ud.position_code as positionCode from sys_user u left join sys_user_department ud on ud.user_id = u.id 
+                left join sys_department d  on ud.department_code = d.code  where 1 = 1  and u.id = #{id}">
+		</sql>
+				
+		<sql id="queryUserSession" value="select po.code as Position,  udept.department_code as DeptCode,dept.name as DeptName from sys_user_department udept    
+											inner join sys_department dept on udept.department_code=dept.code
+											inner join  sys_position po on po.code=udept.position_code 
+											where 1=1 and  dept.state=1 and po.state=1">
+			<if value="and udept.user_id=#{user_id}"></if>
+			<if value="group by  udept.department_code"></if>
+		</sql>
+		
+		<sql id="queryUserInfoByUserId" value="select dept.id as departmentId,user.user_name as userName,user.login_account as loginAccount,user.password,  user.state, po.code as positionCode, po.name as positionName, udept.department_code as deptCode,dept.name as deptName 
+											from sys_user_department udept      
+											inner join sys_department dept on udept.department_code=dept.code
+											inner join  sys_position po on po.code=udept.position_code 
+											inner join sys_user user on udept.user_id=user.id
+											where 1=1 and  dept.state=1 and po.state=1">
+			<if value="and udept.user_id=#{user_id}"></if>
+			<if value="group by  udept.department_code"></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>

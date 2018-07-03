@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="organization.ZyPlatfrom">
+	   <sql id= "loadPlatfromTree" value="select id as id,parent_id as parentid, name as label ,'bui-menu' as icon 
+	   				from  zy_platfrom      
+	   				where state = #{state}"> 
+       </sql>
+       <sql id= "loadPlatfromValueStr" value="select group_concat(concat(&quot;'&quot;,value,&quot;'&quot;) separator ',') as platfromValue
+        			from zy_platfrom p where 1=1 "> 
+       		<if value=" and id in (${idStr}) "></if>
+       </sql>
+       <sql id= "findPlatfromListByValue" value="select * 
+        			from zy_platfrom p where 1=1 "> 
+       		<if value=" and value in (#{platfromValue}) "></if>
+       </sql>
+	</sqlGroup>
+</sqlRoot>

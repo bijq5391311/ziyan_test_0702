@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="care.CareAutoShop">
+		<!-- 根据店铺ID和类型删除数据 -->
+		<sql id="deleteByTargetAndType" value="delete from care_auto_shop where ">
+			<if value="target_id=#{targetId} "></if>
+			<if value="and type=${'type'} "></if>
+		</sql>
+		<sql id="deleteByTargetId" value="delete from care_auto_shop where target_id = #{targetId}">
+        
+        </sql>
+
+		<!-- 批量新增 -->
+		<sql id="batchInsert" value="insert into care_auto_shop(target_id,shop_code,state,create_time,update_time,type,group_id) values(?,?,1,now(),now(),?,?)"></sql>
+		<sql id="deleteByTargetIDList" value="delete from care_auto_pattern where  target_id = ? and type = #{type}"></sql>
+	</sqlGroup>
+</sqlRoot>

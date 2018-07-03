@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="database.SellerCat">
+		<sql id="querySellerCatTree" value="select cid as id,parent_cid as parentId,`name` as label 
+		     
+		       from  seller_cat where state = 1"></sql>
+	</sqlGroup>
+</sqlRoot>

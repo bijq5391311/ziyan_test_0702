@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="organization.SysUserDepartment">
+        <sql id= "deleteByUserId" value = " delete from sys_user_department where user_id = #{userId}"></sql>
+	</sqlGroup>
+</sqlRoot>

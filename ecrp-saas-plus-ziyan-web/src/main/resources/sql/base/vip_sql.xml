@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="base.vip">
+		<!-- 根据用户id获取对应的品牌 -->
+		<sql id="getSysBrandByUserId" value="select sb.* from sys_brand sb left join sys_shop ss on sb.id=ss.brand_id
+				 left join sys_position_shop sps on sps.shop_code=ss.code 
+				 left join sys_user_department sud on sud.position_code=sps.position_code 
+				 left join sys_user su on su.id=sud.user_id 
+			 where sb.state=sps.state=sud.state=su.state=1 and su.id=#{id} group by sb.id 
+				   ">
+		</sql>
+		
+		<sql id="queryGradeRuleList" value= "select rd.id as gradeid,rd.grade_name as gradename,rd.grade as grade,r.brand_id
+		                 from grade_rule r 
+		          inner join grade_rule_detail rd on r.id = rd.grade_rule_id
+		                 where r.status = 1">
+		  <if value=" AND r.brand_id in (${brandIds})"></if>
+		   <if test="#brandIds == ''" value=" AND r.brand_id = #{brandIds}"></if>
+		</sql>
+		<sql id="queryGradeRuleDetails" 
+			 value=" select id as gradeId, grade_name as gradeName from grade_rule_detail
+			         where 1=1">
+			<if value = "and id =#{id}"></if>
+		</sql>
+		<sql id="queryGradeRuleDetailsByIds" 
+			 value=" select grade_rule_detail.id as gradeId,grade_rule_detail.grade ,grade_rule.brand_id,grade_rule_detail.grade_name  from  grade_rule_detail left join grade_rule on grade_rule_detail.grade_rule_id = grade_rule.id
+where 1=1 ">
+			<if value = " and grade_rule_detail.id in (${ids})"></if>
+		</sql>
+		
+		<sql id="queryGradeRuleAndDetail" value="select grd.id as gradeId,grd.grade_name as gradeName 
+              from grade_rule gr join grade_rule_detail grd on gr.id = grd.grade_rule_id where 1=1">
+          <if value="and gr.brand_id = #{brandId}"></if>
+          <if value="and grd.grade = #{grade}"></if>
+        </sql>
+        
+		 <sql id= "queryKdCustomerWeixin"  value="select open_id as openId,app_key as appKey from kd_customer_weixin
+                   where 1 = 1">
+           <if value=" and sys_customer_id = #{sysCustomerId}"></if>
+            <if value=" and app_key = #{appKey}"></if>
+        </sql>
+        <sql id="queryCustomerPropertyList" value="select id,name,type,value,source,target,is_jingling from kd_customer_property where state = 1 and is_jingling=0">
+   <!--      <if value=" and source = #{source} and target in (${target})"></if>
+        <if value=" and source = #{source} and target in (${target})"></if> -->
+        
+        </sql>
+        
+        <sql id="queryKdCustomerList" value="select distinct c.customer_name as customerName, cs.out_nick as outNick, cs.plat_from_type as platFromType,
+                c.sys_customer_id as sysCustomerId,cb.member_grade as memberGrade,c.mobile, cb.brand_id as brandId,c.group_id as groupId
+            from kd_customer c left join kd_customer_shop cs on c.sys_customer_id = cs.sys_customer_id
+                left join kd_customer_brand cb on cb.sys_customer_id = c.sys_customer_id
+            where 1=1">
+            <if value="and right(c.birthday,5) = #{birthday}"></if>
+            <if value="and c.sys_customer_id in (${sysCustomerIds})"></if>
+            <if value="and c.sys_customer_id = #{sysCustomerId}"></if>
+            <if value="limit #{start},#{pageSize}"></if>
+        </sql>
+      <!--根据参数查询会员-->
+      <sql id="queryCustomerListByParams" value="select c.customer_name as customerName,
+                c.sys_customer_id as sysCustomerId,cb.member_grade as memberGrade,c.mobile, cb.brand_id as brandId,c.group_id as groupId
+              from kd_customer c left join kd_customer_brand cb on cb.sys_customer_id = c.sys_customer_id where 1=1  ">
+        <if value="and right(c.birthday,5) = #{birthday}"></if>
+        <if value="and c.sys_customer_id in (${sysCustomerIds})"></if>
+        <if value="and c.sys_customer_id = #{sysCustomerId}"></if>
+        <if value="limit #{start},#{pageSize}"></if>
+      </sql>
+        <sql id="queryKdCustomerList4Task" value="select distinct c.customer_name as customerName,
+                c.sys_customer_id as sysCustomerId,c.mobile, c.group_id as groupId
+            from kd_customer c
+            where 1=1">
+            <if value="and c.sys_customer_id in (${sysCustomerIds})"></if>
+        </sql>
+        
+
+        <sql id="queryKdCustomerShopCount" value="select count(1) from kd_customer_shop where 1 = 1">
+            <if value="and sys_customer_id = #{sysCustomerId}"></if>
+            <if value="and shop_code in (${'shopCodes'})"></if>
+        </sql>
+        
+        <sql id="queryKdCustomerSyn" value="select sys_customer_id as sysCustomerId from kd_customer_syn where 1=1">
+            <if value="and out_customer_id = #{outCustomerId}"></if>
+        </sql>
+
+
+        <sql id="queryCustomerShopByParams"
+             value="select sys_customer_id as sysCustomerId, out_nick as outNick from kd_customer_shop where 1=1">
+            <if value="and sys_customer_id in (${'customerIds'})"></if>
+            <if value="and shop_code = #{shopCode}"></if>
+        </sql>
+        <sql id="loadgradedetialbygrade" value="select * from grade_rule_detail where 1=1 ">
+            <if value=" and grade = #{grade}"></if>
+        </sql>
+	</sqlGroup>
+</sqlRoot>

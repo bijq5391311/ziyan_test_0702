@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="dispatch.gradeRuleDetail">
+		<sql id="getRuleGradeName"
+			value="select grade_name as gradeName  from grade_rule_detail where  grade_rule_id = (select id  FROM grade_rule where brand_id = #{brandId} ) and state = 1  ">
+			<if value="  and grade=#{grade} "></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>
+

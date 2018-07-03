@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="voice.archivedEvaluate">
+	<sql  id = "queryRrchivedEvaluatetree" value = "select id as id,parent_id as parentId,`name` as label,'false' as checked,'true' as showEdit,
+		     if(parent_id=0,'false','true') as showDelete,if(level=0,'false','true') as showAdd
+		       from  evaluate_category where state=1 ">
+		      
+	
+	</sql>
+	
+	<sql  id = "queryRrchivedEvaluate" value = "SELECT  e.id,  e.rated_nick as ratedNick, e.mark,e.item_title as itemTitle,e.outer_id as outerId , e.item_url as itemUrl, e.goods_image  AS  goodsImage,  s.plat_from_type AS platFromType,e.content,e.result,er.create_time as createTime, er.sorter_nick as 
+                sorterNick ,  eer.explainer_nick  as explainerNick , eer.explain_content as explainContent , e.sys_customer_id  AS sysCustomerId, s.name ,e.out_trade_id AS  outTradeId  from evaluate_info e left JOIN sys_shop_ext  s ON  e.shop_code = s.code 
+           left join evaluate_sort_record  er  on e.id = er.evaluate_id   left JOIN kd_affair_list   ka ON e.id = ka.target  and ka.type_large =  (select id from  kd_affair_type  where code = 'PJ')   left join  evaluate_explain_record  eer on   e.id = eer.evaluate_id    WHERE e.state = 1  and  e.category_status = 1">
+	  <if value=" and  find_in_set(#{categoryId},er.category_ids) "></if>
+	  			<if  value=" and e.time    &gt;=  #{startTime}"></if>
+			<if value=" and    e.time &lt;=    #{endTime}"></if>
+		   <bind name="itemTitle" value="@com.nascent.plugins.taobao.StringUtils@isEmpty(#itemTitle) ? null : '%'+#itemTitle+'%'"></bind>
+			<if value=" and e.item_title like #{itemTitle}"></if>
+			 <bind name="content" value="@com.nascent.plugins.taobao.StringUtils@isEmpty(#content) ? null : '%'+#content+'%'"></bind>
+			<if value=" and  e.content like  #{content}"></if>
+			 <bind name="explainerNick" value="@com.nascent.plugins.taobao.StringUtils@isEmpty(#explainerNick) ? null : '%'+#explainerNick+'%'"></bind>
+			<if  test="#explainerNick !=null"   value=" and  eer.explainer_nick like  #{explainerNick}"></if>
+			<if value=" and  e.sys_order_id  = #{orderID}"></if>
+			<if value=" and  ka.affair_no  = #{affairId}"></if>
+			<if value=" and  e.outer_id =  #{goodCode}"></if>
+		    <bind name="explainContent" value="@com.nascent.plugins.taobao.StringUtils@isEmpty(#explainContent) ? null : '%'+#explainContent+'%'"></bind>
+			<if   test="#explainContent != null"  value=" and  eer.explain_content like  #{explainContent}"></if>
+			<if value=" and  e.shop_code in  (${'shopCode'})"></if>
+			<if value=" and  e.shop_code in  (${'shopCodes'})"></if>
+			<if value=" and char_length(e.content)  &gt;=   #{minWordcount}"></if>
+			<if value=" and char_length(e.content) &lt;=   #{maxWordcount}"></if>
+		    <bind name="excludeKeywords" value="@com.nascent.plugins.taobao.StringUtils@isEmpty(#excludeKeywords) ? null : '%'+#excludeKeywords+'%'"></bind>
+			<if value=" and e.content not like  #{excludeKeywords}"></if>
+           <bind name="goodsKeywords" value="@com.nascent.plugins.taobao.StringUtils@isEmpty(#goodsKeywords) ? null : '%'+#goodsKeywords+'%'"></bind>
+			<if value=" and e.content  like  #{goodsKeywords}"></if>
+			  <bind name="filterKeywords" value="@com.nascent.plugins.taobao.StringUtils@isEmpty(#filterKeywords) ? null : '%'+#filterKeywords+'%'"></bind>
+			<if value=" and e.content  like  #{'filterKeywords'}"></if>
+			<bind name="sorterNick" value="@com.nascent.plugins.taobao.StringUtils@isEmpty(#sorterNick) ? null : '%'+#sorterNick+'%'"></bind>
+			<if  value=" and  er.sorter_nick like  #{sorterNick}"></if>
+			<if  value=" and er.create_time    &gt;=  #{createTime$GT}"></if>
+			<if value=" and    er.create_time &lt;=    #{createTime$LT}"></if>
+
+
+	</sql>
+	
+	
+
+	  
+	
+	</sqlGroup>
+	</sqlRoot>

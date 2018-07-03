@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="vip.KdCustomerBrand">
+		<sql id="batchUpdateCustomerBrandProperty" value="update kd_customer_brand set is_right_black = #{is_right_black} ,update_time=current_timestamp() where 1=1 ">
+			<if value="and sys_customer_id in (${sys_customer_id})"></if>
+		</sql>
+		<sql id="batchUpdateCustomerBrandByBrandId" value="update kd_customer_brand set is_right_black =?,update_time=current_timestamp() where 1=1 ">
+			<if value="and sys_customer_id =? and brand_id =?"></if>
+		</sql>
+		<sql id="batchUpdateTouchByBrandId" value="update kd_customer_brand set is_touch_black =?,update_time=current_timestamp() where 1=1 ">
+			<if value="and sys_customer_id =? and brand_id =?"></if>
+		</sql>
+		<sql id="batchUpdateCustomerBrand" value="update kd_customer_brand set is_right_black =?,update_time=current_timestamp() where 1=1 ">
+			<if value="and sys_customer_id =?"></if>
+		</sql>
+		<sql id="batchUpdateCustomerBrandPropertyEx4Right" value="update kd_customer_brand set is_right_black = #{is_right_black} ,update_time=now() where 1=1 ">
+			<if value="and sys_customer_id in (${sys_customer_id})"></if>
+			<if test="#brandid == 0" value=" and 1=1"></if>
+			<if test="#brandid != 0" value="and brand_id = #{brandid}"></if>
+		</sql>
+			<sql id="batchUpdateCustomerBrandPropertyEx4Touch" value="update kd_customer_brand set is_touch_black = #{is_touch_black} ,update_time=now() where 1=1 ">
+			<if value="and sys_customer_id in (${sys_customer_id})"></if>
+			<if test="#brandid == 0" value=" and 1=1"></if>
+			<if test="#brandid != 0" value="and brand_id = #{brandid}"></if>
+		</sql>
+		
+		<sql id="updateCustomerBrand" value="update kd_customer_brand set is_right_black = #{is_right_black}, update_time=#{update_time} where sys_customer_id=#{sys_customer_id}">
+	  
+	  		<if test="#brand_id != null" value=" and brand_id = #{brand_id}"></if>
+	   </sql>
+	   
+	   <sql id="updateCustomerBrandTouchBlack" value="update kd_customer_brand 
+	   		set is_touch_black= #{is_touch_black} where sys_customer_id=#{sys_customer_id} ">
+	   		<if test="#brand_id != null " value=" and brand_id = #{brand_id}"> </if>
+	   </sql>
+
+		<!--查询需要计算价值分数的客户-->
+		<sql id="queryByUpdateTimeAndBrand" value="select * from kd_customer_brand
+		 		where brand_id=#{brandId} and update_time >= #{startTime} and update_time &lt; #{endTime}
+				or exists (select 1 from evaluate_info
+				where update_time >= #{startTime} and update_time &lt; #{endTime}
+				and evaluate_info.sys_customer_id = kd_customer_brand.sys_customer_id)">
+			<if value="limit #{currSize},#{pageSize}"></if>
+		</sql>
+
+		<sql id="queryByBrand" value="select * from kd_customer_brand where 1=1">
+			<if value="and brand_id =#{brandId}"></if>
+			<if value="limit #{currSize},#{pageSize}"></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>

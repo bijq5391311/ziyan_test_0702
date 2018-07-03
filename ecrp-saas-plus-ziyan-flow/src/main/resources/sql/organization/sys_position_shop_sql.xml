@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="organization.SysPositionShop">
+	 <sql id="deleteByPositionCode" value="delete from sys_position_shop where 1=1" >
+	 	<if value = " and position_code = #{positionCode}"></if>
+	 </sql>
+	 <sql id="queryShopByNoAssignList" count="select count(1)"
+	   value="select distinct s.*,
+	          if(ps.position_code = #{positionCode} or ps.shop_code is null,false ,true) disabled 
+	           from sys_shop s
+            left join sys_position_shop ps on ps.`shop_code` = s.`code` where s.`is_shop`=1 and s.state = 1">
+          <if value="and s.code like ${'code%'}"></if> 
+	      <bind name="name" value="#name == null ? null : '%'+#name+'%'"></bind>
+	      <if test="#name != null and #name != '%%'" value="and s.name like #{name}"></if>
+	      <if value="group by s.code"></if>
+	 </sql>
+	</sqlGroup>
+</sqlRoot>

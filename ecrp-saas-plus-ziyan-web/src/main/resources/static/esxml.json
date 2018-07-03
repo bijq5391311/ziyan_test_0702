@@ -1,0 +1,3 @@
+{"customer":"customer_name|like,mobile|like,member_card|like,user_type|equal,is_activate|equal,province|equal,city|equal,district|equal,devStartTime|between|devEndTime|develop_time",
+"customer_brand":"brand_id|in,is_right_black|equal,member_grade|equal,scoreStart|between|scoreEnd|score",
+"customer_shop":"shop_code|in"}

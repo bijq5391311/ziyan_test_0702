@@ -1,0 +1,766 @@
+<th:block th:fragment="attributes">
+    <el-collapse-item :title="item.key" style="margin-left: 10px" name= "base" :key="index"  id="base" v-if="item.value.length>0 && item.key =='会员基本属性'"  v-for="(item, index) in A1" >
+        <!-- 地区 -->
+        <el-form-item  v-if="citys.key == 'city' && citys.value.length >0"  :key="citysindexs" v-for="(citys,citysindexs) in item.value">
+            <el-form-item  label="地区：" :label-width="labelWidth2"  :key="cityindex" v-for="(city,cityindex) in citys.value">
+                <el-form  ref="city" placement="right" :model="city">
+                    <el-form-grid size="xxs" >
+                        <el-select v-model="city.condition" value-key="city.valueAndKey"   placeholder="请选择" class="is-gray">
+                            <el-option label="等于" value="equal"></el-option>
+                            <el-option label="不等于" value="notEqual"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid size="xs" >
+                        <el-form-item prop="province" :rules="{required: true, validator:ChinaShenVali, trigger: 'change' }">
+                            <el-select v-model="city.province" ref="province" :value="city.province" @change = "changeCity(cityindex,'province')"  class="el-gray" placeholder="请选择">
+                                <el-option v-for="provinces in city.result" :key="provinces.id" :label="provinces.tb_name" :value="provinces.tb_id" v-if="provinces.parent_id <2">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-form-grid>
+                    <el-form-grid  size="xs" v-if="city.province!=1 && city.province != ''">
+                        <el-select v-model="city.shi" ref="shi" :value="city.shi"  @change = "changeCity(cityindex,'shi')"  class="el-gray"  placeholder="请选择">
+                            <el-option :label="shi.tb_name" :value="shi.tb_id" :key="shiIndex" v-for="(shi,shiIndex) in city.result" v-if="city.province == shi.parent_id  "></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid  size="xs" v-if="city.province!=1 && city.province != '' && city.shi != ''">
+                        <el-select v-model="city.district" ref="district" :value="city.district" @change ="changeCity(cityindex,'district')" class="el-gray"  placeholder="请选择" >
+                            <el-option :label="district.tb_name" :value="district.tb_id" :key="districtIndex" v-for="(district,districtIndex) in city.result" v-if="city.shi == district.parent_id "></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid  size="xxs" v-if="cityindex !== citys.value.length - 1">
+                        <el-select v-model="city.relation" placeholder="请选择" class="el-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                        <a class="member-choose__delete" @click="deleteSubdivisionCondition(cityindex,citysindexs,citys,item,index)"><i class="bui-delete"></i></a>
+                        <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'city')"><i class="bui-add"></i></a>
+                    </el-form-grid>
+                </el-form>
+            </el-form-item>
+        </el-form-item>
+
+
+        <!-- Email -->
+        <el-form-item    v-if="emails.key === 'email' && emails.value.length >0" :key="emailindexs" v-for="(emails,emailindexs) in item.value">
+            <el-form-item label="Email："  :label-width="labelWidth2" :key="emailindex" v-for="(email,emailindex) in emails.value">
+                <el-form ref="email" placement="right" :model="email">
+                    <el-form-grid  size="s">
+                        <el-select v-model="email.condition"   placeholder="请选择" class="is-gray">
+                            <el-option label="等于" value="equal"></el-option>
+                            <el-option label="不等于" value="notEqual"></el-option>
+                            <el-option label="后缀匹配" value="postLike"></el-option>
+                            <el-option label="后缀不匹配" value="notPostLike"></el-option>
+                            <el-option label="为空" value="isNull"></el-option>
+                            <el-option label="不为空" value="isNotNull"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid  v-if="email.condition=='notPostLike'||email.condition=='postLike'">
+                        <el-form-item prop="CDATA" :rules="[{ required: true, message: '请输入邮箱地址', trigger: 'blur' }]">
+                            <el-input  type="text" class="text-left" title="输入格式：@163.com" v-model="email.CDATA" ></el-input>
+                        </el-form-item>
+                    </el-form-grid>
+                    <el-form-grid  v-if="email.condition=='equal'||email.condition=='notEqual'">
+                        <el-form-item prop="CDATA" :rules="[{ required: true, message: '请输入邮箱地址', trigger: 'blur' },{ type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur,change' }]">
+                            <el-input  type="text" class="text-left" title="输入格式：xxx@163.com" v-model="email.CDATA" ></el-input>
+                        </el-form-item>
+                    </el-form-grid>
+                    <el-form-grid  v-if="email.condition=='isNull'||email.condition=='isNotNull'">
+                    </el-form-grid>
+                    <el-form-grid  size="xxs" v-if="emailindex !== emails.value.length - 1">
+                        <el-select v-model="email.relation" placeholder="请选择" class="el-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                        <a class="member-choose__delete" @click="deleteSubdivisionCondition(emailindex,emailindexs,emails,item,index)"><i class="bui-delete"></i></a>
+                        <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'email')"><i class="bui-add"></i></a>
+                    </el-form-grid>
+                </el-form>
+            </el-form-item>
+        </el-form-item>
+
+        <!-- 生日 -->
+        <el-form-item    v-if="birthdays.key === 'birthday' && birthdays.value.length >0" :key="birthdayindexs" v-for="(birthdays,birthdayindexs) in item.value">
+            <el-form-item label="生日："  :label-width="labelWidth2" :key="birthdayindex" v-for="(birthday,birthdayindex) in birthdays.value">
+                <el-form ref="birthday" placement="right" :model="birthday">
+                    <el-form-grid  size="xs">
+                        <el-select v-model="birthday.condition"   placeholder="请选择" class="is-gray">
+                            <el-option label="等于" value="equal"></el-option>
+                            <el-option label="不等于" value="notEqual"></el-option>
+                            <el-option label="早于" value="smaller"></el-option>
+                            <el-option label="晚于" value="larger"></el-option>
+                            <el-option label="为空" value="isNull"></el-option>
+                            <el-option label="不为空" value="isNotNull"></el-option>
+                            <el-option label="早于当前" value="earlierNow"></el-option>
+                            <el-option label="晚于当前" value="laterNow"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid  v-if="birthday.condition == 'notEqual' ||birthday.condition == 'equal' || birthday.condition == 'larger' || birthday.condition == 'smaller' ">
+                        <el-form-item prop="date" :rules="{ validator:birthdayVali, trigger: 'blur,change' }">
+                            <el-date-picker ref="birthdayDate" v-model="birthday.date" type="date" :editable="false"    format="MM-dd" placeholder="选择日期"></el-date-picker>
+                        </el-form-item>
+                    </el-form-grid>
+                    <el-form-grid  v-if="birthday.condition == 'isNull' || birthday.condition == 'isNotNull'">
+                    </el-form-grid>
+                    <el-form-grid  v-if="birthday.condition == 'earlierNow' || birthday.condition == 'laterNow' ">
+                        <el-form-grid size="sm">
+                            <el-row>
+                                <el-col :span="11">
+                                    <el-form-item prop="oldday" :rules="{ validator:birthdayFirstDay, trigger: 'blur,change' }">
+                                        <el-input type="number" v-model="birthday.oldday" placeholder="" :max="5" class="text-right"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="2" class="text-center">~</el-col>
+                                <el-col :span="11">
+                                    <el-form-item prop="newday" :rules="{validator:birthdayLastDay, trigger: 'blur,change'  }">
+                                        <el-input placeholder="" type="number" v-model="birthday.newday"  :max="5" class="text-right"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                        </el-form-grid>
+                        <el-form-grid >天内</el-form-grid>
+                    </el-form-grid>
+                    <el-form-grid size="xxs" v-if="birthdayindex !== birthdays.value.length - 1">
+                        <el-select v-model="birthday.relation" placeholder="请选择" class="el-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                        <a class="member-choose__delete" @click="deleteSubdivisionCondition(birthdayindex,birthdayindexs,birthdays,item,index)"><i class="bui-delete"></i></a>
+                        <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'birthday')"><i class="bui-add"></i></a>
+                    </el-form-grid>
+                </el-form>
+            </el-form-item>
+        </el-form-item>
+
+        <!-- 会员类型 -->
+        <el-form-item    v-if="user_types.key === 'user_type' && user_types.value.length >0" :key="user_typeindexs" v-for="(user_types,user_typeindexs) in item.value">
+            <el-form-item label="会员类型："  :label-width="labelWidth2" :key="user_typeindex" v-for="(user_type,user_typeindex) in user_types.value">
+                <el-form ref="user_type" placement="right" :model="user_type">
+                    <el-form-grid  size="xxs">
+                        <el-select v-model="user_type.condition"   placeholder="请选择" class="is-gray">
+                            <el-option label="等于" value="equal"></el-option>
+                            <el-option label="不等于" value="notEqual"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                        <el-select v-model="user_type.CDATA"   placeholder="请选择">
+                            <el-option label="成交客户" :value="2"></el-option>
+                            <el-option label="意向客户" :value="1"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid  size="xxs" v-if="user_typeindex !== user_types.value.length - 1">
+                        <el-select v-model="user_type.relation" placeholder="请选择" class="el-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                        <a class="member-choose__delete" @click="deleteSubdivisionCondition(user_typeindex,user_typeindexs,user_types,item,index)"><i class="bui-delete"></i></a>
+                        <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'user_type')"><i class="bui-add"></i></a>
+                    </el-form-grid>
+                </el-form>
+            </el-form-item>
+        </el-form-item>
+
+        <!-- 年龄 -->
+        <el-form-item    v-if="ages.key === 'age' && ages.value.length >0" :key="ageindexs"  v-for="(ages,ageindexs) in item.value">
+            <el-form-item label="年龄："    :label-width="labelWidth2" :key="ageindex" v-for="(age,ageindex) in ages.value">
+                <el-form placement="right" ref="age" :model="age">
+                    <el-form-grid  size="xs">
+                        <el-select v-model="age.condition"   placeholder="请选择" class="is-gray">
+                            <el-option label="等于" value="equal"></el-option>
+                            <el-option label="不等于" value="notEqual"></el-option>
+                            <el-option label="大于" value=smaller></el-option>
+                            <el-option label="大于等于" value="smallerEqual"></el-option>
+                            <el-option label="小于" value="larger"></el-option>
+                            <el-option label="小于等于" value="largerEqual"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                        <el-form-item prop="CDATA" :rules=" {required: true, validator:ageReg, trigger: 'change' }">
+                            <el-input   class="text-left" v-model="age.CDATA" ></el-input>
+                        </el-form-item>
+                    </el-form-grid>
+                    <el-form-grid >
+                        岁
+                    </el-form-grid>
+
+                    <el-form-grid  size="xxs" v-if="ageindex !== ages.value.length - 1">
+                        <el-select v-model="age.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                        <a class="member-choose__delete" @click="deleteSubdivisionCondition(ageindex,ageindexs,ages,item,index)"><i class="bui-delete"></i></a>
+                        <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'age')"><i class="bui-add"></i></a>
+                    </el-form-grid>
+                </el-form>
+            </el-form-item>
+        </el-form-item>
+
+
+        <!-- 地址 -->
+        <el-form-item    v-if="addresss.key === 'address' && addresss.value.length >0" :key="addressindexs" v-for="(addresss,addressindexs) in item.value">
+            <el-form-item label="地址："  :label-width="labelWidth2" :key="addressindex" v-for="(address,addressindex) in addresss.value">
+                <el-form ref="address" placement="right" :model="address" >
+                    <el-form-grid  size="xxs">
+                        <el-select v-model="address.condition"   placeholder="请选择" class="is-gray">
+                            <el-option label="包含" value="like"></el-option>
+                            <el-option label="不包含" value="notLike"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                        <el-form-item prop="CDATA" :rules="  { required: true, message: '请输入地址', trigger:'blur' }">
+                            <el-input  type="text" class="text-left"  th:v-model="address.CDATA" ></el-input>
+                        </el-form-item>
+                    </el-form-grid>
+                    <el-form-grid >
+                    </el-form-grid>
+                    <el-form-grid  size="xxs" v-if="addressindex !== addresss.value.length - 1">
+                        <el-select v-model="address.relation" placeholder="请选择" class="el-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                        <a class="member-choose__delete" @click="deleteSubdivisionCondition(addressindex,addressindexs,addresss,item,index)"><i class="bui-delete"></i></a>
+                        <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'address')"><i class="bui-add"></i></a>
+                    </el-form-grid>
+                </el-form>
+            </el-form-item>
+        </el-form-item>
+
+        <!-- openId -->
+        <el-form-item    v-if="open_ids.key === 'open_id' && open_ids.value.length >0" :key="open_idindexs" v-for="(open_ids,open_idindexs) in item.value">
+            <el-form-item label="openId："  :label-width="labelWidth2" :key="open_idindex" v-for="(open_id,open_idindex) in open_ids.value">
+                <el-form ref="open_id" placement="right" :model="open_id">
+                    <el-form-grid  size="xxs">
+                        <el-select v-model="open_id.condition"   placeholder="请选择" class="is-gray">
+                            <el-option label="等于" value="equal"></el-option>
+                            <el-option label="不等于" value="notEqual"></el-option>
+                            <el-option label="为空" value="isNull"></el-option>
+                            <el-option label="不为空" value="isNotNull"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid  v-if="open_id.condition == 'equal' || open_id.condition == 'notEqual'">
+                        <el-form-item prop="CDATA" :rules="  { required: true, message: '请输入openId', trigger:'blur' }">
+                            <el-input  type="text" class="text-left"  th:v-model="open_id.CDATA" ></el-input>
+                        </el-form-item>
+                    </el-form-grid>
+                    <el-form-grid  v-if="open_id.condition == 'isNull' || open_id.condition == 'isNotNull'"></el-form-grid>
+                    <el-form-grid  size="xxs" v-if="open_idindex !== open_ids.value.length - 1">
+                        <el-select v-model="open_id.relation" placeholder="请选择" class="el-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                        <a class="member-choose__delete" @click="deleteSubdivisionCondition(open_idindex,open_idindexs,open_ids,item,index)"><i class="bui-delete"></i></a>
+                        <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'open_id')"><i class="bui-add"></i></a>
+                    </el-form-grid>
+                </el-form>
+            </el-form-item>
+        </el-form-item>
+
+
+        <!--  客户发展时间  -->
+        <el-form-item    v-if="develop_times.key === 'develop_time' && develop_times.value.length >0" :key="develop_timeindexs" v-for="(develop_times,develop_timeindexs) in item.value">
+            <el-form-item label="客户发展时间："  label-width="130px" :key="develop_timeindex" v-for="(develop_time,develop_timeindex) in develop_times.value">
+                <el-form ref="develop_time" placement="right" :model="develop_time">
+                    <el-form-grid  size="xs">
+                        <el-select v-model="develop_time.condition"   placeholder="请选择" class="is-gray">
+                            <el-option label="等于" value="equal"></el-option>
+                            <el-option label="不等于" value="notEqual"></el-option>
+                            <el-option label="早于等于" value="largerEqual"></el-option>
+                            <el-option label="晚于等于" value="smallerEqual"></el-option>
+                            <el-option label="距离当前" value="earlierNow"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid  v-if="develop_time.condition == 'equal' || develop_time.condition == 'notEqual' || develop_time.condition == 'largerEqual' || develop_time.condition == 'smallerEqual'">
+                        <el-form-item prop="date" :rules="  {type: 'date',required: true, message: '请选择日期时间', trigger: 'change' }">
+                            <el-date-picker v-model="develop_time.date" type="date" :editable="false"    placeholder="选择日期"></el-date-picker>
+                        </el-form-item>
+                    </el-form-grid>
+                    <el-form-grid  v-if="develop_time.condition == 'between'">
+                        <el-form-grid size="sm">
+                            <el-row>
+                                <el-col :span="11">
+                                    <el-form-item prop="oldday" :rules="  {validator:commonValueReg, trigger: 'blur,change' }">
+                                        <el-input type="text" v-model="develop_time.oldday" placeholder="" :max="5" class="text-right"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="2" class="text-center">~</el-col>
+                                <el-col :span="11">
+                                    <el-form-item prop="newday" :rules="  {validator:commonValueReg, trigger: 'blur,change' }">
+                                        <el-input placeholder="" type="text" v-model="develop_time.newday"  :max="5" class="text-right"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                        </el-form-grid>
+                        <el-form-grid>天内</el-form-grid>
+                    </el-form-grid>
+                    <el-form-grid  size="xxs" v-if="develop_timeindex !== develop_times.value.length - 1">
+                        <el-select v-model="develop_time.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                        <a class="member-choose__delete" @click="deleteSubdivisionCondition(develop_timeindex,develop_timeindexs,develop_times,item,index)"><i class="bui-delete"></i></a>
+                        <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'develop_time')"><i class="bui-add"></i></a>
+                    </el-form-grid>
+                </el-form>
+            </el-form-item>
+        </el-form-item>
+
+        <!-- QQ -->
+        <el-form-item    v-if="QQs.key === 'QQ' && QQs.value.length >0" :key="QQindexs" v-for="(QQs,QQindexs) in item.value">
+            <el-form-item label="QQ："  :label-width="labelWidth2" :key="QQindex" v-for="(QQ,QQindex) in QQs.value">
+                <el-form ref="QQ" placement="right" :model="QQ">
+                    <el-form-grid  size="xs">
+                        <el-select v-model="QQ.condition"   placeholder="请选择" class="is-gray">
+                            <el-option label="等于" value="equal"></el-option>
+                            <el-option label="不等于" value="notEqual"></el-option>
+                            <el-option label="前缀匹配" value="preLike"></el-option>
+                            <el-option label="后缀匹配" value="postLike"></el-option>
+                            <el-option label="前缀不匹配" value="notPreLike"></el-option>
+                            <el-option label="后缀不匹配" value="notPostLike"></el-option>
+                            <el-option label="为空" value="isNull"></el-option>
+                            <el-option label="不为空" value="isNotNull"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid  v-if="QQ.condition==='equal'|| QQ.condition==='notEqual'">
+                        <el-form-item prop="CDATA" :rules=" [{ required: true, message: '请输入QQ号码', trigger: 'blur' }]">
+                            <el-input  type="text" class="text-left"  th:v-model="QQ.CDATA" ></el-input>
+                        </el-form-item>
+                    </el-form-grid >
+                    <el-form-grid  v-if=" QQ.condition =='preLike'|| QQ.condition=='postLike'|| QQ.condition =='notPreLike'|| QQ.condition=='notPostLike' ">
+                        <el-form-item prop="CDATA" :rules="   {validator:threeWordReg, trigger: 'blur,change' }">
+                            <el-input  type="text" class="text-left"   th:v-model="QQ.CDATA" ></el-input>
+                        </el-form-item>
+                    </el-form-grid>
+                    <el-form-grid  v-if="QQ.condition ==='isNull' || QQ.condition ==='isNotNull'">
+                    </el-form-grid>
+                    <el-form-grid   size="xxs" v-if="QQindex !== QQs.value.length - 1">
+                        <el-select v-model="QQ.relation" placeholder="请选择" class="el-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                        <a class="member-choose__delete" @click="deleteSubdivisionCondition(QQindex,QQindexs,QQs,item,index)"><i class="bui-delete"></i></a>
+                        <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'QQ')"><i class="bui-add"></i></a>
+                    </el-form-grid>
+                </el-form>
+            </el-form-item>
+        </el-form-item>
+
+
+
+        <!-- 最近关怀时间 -->
+        <el-form-item    v-if="LatestCallOnTimes.key === 'LatestCallOnTime' && LatestCallOnTimes.value.length >0" :key="LatestCallOnTimeindexs" v-for="(LatestCallOnTimes,LatestCallOnTimeindexs) in item.value">
+            <el-form-item label="最近关怀时间："  :label-width="labelWidth2" :key="LatestCallOnTimeindex" v-for="(LatestCallOnTime,LatestCallOnTimeindex) in LatestCallOnTimes.value">
+                <el-form ref="LatestCallOnTime" placement="right" :model="LatestCallOnTime">
+                    <el-form-grid >
+                        <el-form-item prop="CDATA" :rules="  { required: true, message: '请选择关怀类型', trigger: 'change' }">
+                            <el-select v-model="LatestCallOnTime.CDATA"   placeholder="请选择" class="is-gray">
+                                <el-option :label="option.v" :value="option.k" :key="option.k" v-for="option in LatestCallOnTime.result"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-form-grid>
+                    <el-form-grid  size="xs">
+                        <el-select v-model="LatestCallOnTime.condition"   placeholder="请选择" class="is-gray">
+                            <el-option label="为空" value="isNull"></el-option>
+                            <el-option label="等于" value="equal"></el-option>
+                            <el-option label="不等于" value="notEqual"></el-option>
+                            <el-option label="早于等于" value="smallerEqual"></el-option>
+                            <el-option label="晚于等于" value="largerEqual"></el-option>
+                            <el-option label="距离当前" value="earlierNow"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid  v-if="LatestCallOnTime.condition == 'equal' || LatestCallOnTime.condition == 'notEqual' || LatestCallOnTime.condition == 'largerEqual' || LatestCallOnTime.condition == 'smallerEqual'">
+                        <el-form-item prop="date" :rules="  {type: 'date', required: true, message: '请选择时间', trigger: 'change' }">
+                            <el-date-picker v-model="LatestCallOnTime.date" type="date"  :editable="false"   placeholder="选择日期"></el-date-picker>
+                        </el-form-item>
+                    </el-form-grid>
+                    <el-form-grid  v-if="LatestCallOnTime.condition == 'earlierNow'">
+                        <el-form-grid size="sm">
+                            <el-row>
+                                <el-col :span="11">
+                                    <el-form-item prop="oldday" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                                        <el-input type="text" v-model="LatestCallOnTime.oldday" placeholder="" :max="5" class="text-right"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="2" class="text-center">~</el-col>
+                                <el-col :span="11">
+                                    <el-form-item prop="newday" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                                        <el-input placeholder="" type="text" v-model="LatestCallOnTime.newday"  :max="5" class="text-right"></el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                        </el-form-grid>
+                        <el-form-grid>天内</el-form-grid>
+                    </el-form-grid>
+                    <el-form-grid  v-if="LatestCallOnTime.condition == 'null'">
+                    </el-form-grid>
+                    <el-form-grid  size="xxs" v-if="LatestCallOnTimeindex !== LatestCallOnTimes.value.length - 1">
+                        <el-select v-model="LatestCallOnTime.relation" placeholder="请选择" class="el-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                        <a class="member-choose__delete" @click="deleteSubdivisionCondition(LatestCallOnTimeindex,LatestCallOnTimeindexs,LatestCallOnTimes,item,index)"><i class="bui-delete"></i></a>
+                        <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'LatestCallOnTime')"><i class="bui-add"></i></a>
+                    </el-form-grid>
+                </el-form>
+            </el-form-item>
+        </el-form-item>
+
+        <!-- 积分 -->
+        <el-form-item   v-if="scores.key === 'score' && scores.value.length >0" :key="scoreindexs" v-for="(scores,scoreindexs) in item.value">
+            <el-form-item label="积分："  label-width="130px" :key="scoreindex" v-for="(score,scoreindex) in scores.value">
+                <el-form ref="score" placement="right" :model="score">
+                    <el-form-grid >
+                        <el-form-item prop="brand" :rules="  { required: true, message: '请选择品牌', trigger:'blur' }">
+                            <el-select v-model="score.brand"   placeholder="请选择" class="is-gray">
+                                <el-option :label="brand.k" :value="brand.v" v-for="(brand,index) in score.brands" :key="index"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-form-grid>
+                    <el-form-grid  size="xs">
+                        <el-select v-model="score.condition"   placeholder="请选择" class="is-gray" >
+                            <el-option label="等于" value="equal"></el-option>
+                            <el-option label="不等于" value="notEqual"></el-option>
+                            <el-option label="大于" value="larger"></el-option>
+                            <el-option label="大于等于" value="largerEqual"></el-option>
+                            <el-option label="小于" value="smaller"></el-option>
+                            <el-option label="小于等于" value="smallerEqual"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                        <el-form-item prop="CDATA" :rules="{validator:commonMoneyReg, trigger: 'blur,change' }">
+                            <el-input  type="text" class="text-right"  th:v-model="score.CDATA" ></el-input>
+                        </el-form-item>
+                    </el-form-grid>
+                    <el-form-grid  size="xxs" v-if="scoreindex !== scores.value.length - 1">
+                        <el-select v-model="score.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                        <a class="member-choose__delete" @click="deleteSubdivisionCondition(scoreindex,scoreindexs,scores,item,index)"><i class="bui-delete"></i></a>
+                        <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'score')"><i class="bui-add"></i></a>
+                    </el-form-grid>
+                </el-form>
+            </el-form-item>
+        </el-form-item>
+
+        <!-- 海信积分 -->
+        <el-form-item   v-if="scores.key === 'hx_score' && scores.value.length >0" :key="scoreindexs" v-for="(scores,scoreindexs) in item.value">
+            <el-form-item label="积分："  label-width="130px" :key="scoreindex" v-for="(score,scoreindex) in scores.value">
+                <el-form ref="hx_score" placement="right" :model="score">
+
+                    <el-form-grid  size="xs">
+                        <el-select v-model="score.condition"   placeholder="请选择" class="is-gray" >
+                            <el-option label="等于" value="equal"></el-option>
+                            <el-option label="不等于" value="notEqual"></el-option>
+                            <el-option label="大于" value="larger"></el-option>
+                            <el-option label="大于等于" value="largerEqual"></el-option>
+                            <el-option label="小于" value="smaller"></el-option>
+                            <el-option label="小于等于" value="smallerEqual"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                        <el-form-item prop="CDATA" :rules="{validator:commonMoneyReg, trigger: 'blur,change' }">
+                            <el-input  type="text" class="text-right"  th:v-model="score.CDATA" ></el-input>
+                        </el-form-item>
+                    </el-form-grid>
+                    <el-form-grid  size="xxs" v-if="scoreindex !== scores.value.length - 1">
+                        <el-select v-model="score.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                        <a class="member-choose__delete" @click="deleteSubdivisionCondition(scoreindex,scoreindexs,scores,item,index)"><i class="bui-delete"></i></a>
+                        <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'hx_score')"><i class="bui-add"></i></a>
+                    </el-form-grid>
+                </el-form>
+            </el-form-item>
+        </el-form-item>
+
+        <!-- 性别 -->
+        <el-form-item  v-if="sexs.key == 'sex' && sexs.value.length >0"  :key="sexsindexs" v-for="(sexs,sexsindexs) in item.value">
+            <el-form-item label="性别：" :label-width="labelWidth2"  :key="sexindex" v-for="(sex,sexindex) in sexs.value">
+                <el-form ref="sex" placement="right" :model="sex">
+                    <el-form-grid >
+                        <el-radio-group v-model="sex.CDATA">
+                            <el-radio label="1">男</el-radio>
+                            <el-radio label="0">女</el-radio>
+                            <el-radio label="-1">未知</el-radio>
+                        </el-radio-group>
+                    </el-form-grid>
+                    <el-form-grid >
+                        <a class="member-choose__delete" @click="deleteSubdivisionCondition(sexindex,sexsindexs,sexs,item,index)"><i class="bui-delete"></i></a>
+                    </el-form-grid>
+                </el-form>
+            </el-form-item>
+        </el-form-item>
+
+        <!-- 会员等级 -->
+        <el-form-item   v-if="grades.key == 'member_grade' && grades.value.length >0"  :key="gradesindexs"  v-for="(grades,gradesindexs) in item.value" >
+            <el-form-item label="会员等级："  :label-width="labelWidth2" :key="gradeindex"  v-for="(member_grade,gradeindex) in grades.value" rule="">
+                <el-form ref="member_grade" placement="right" :model="member_grade">
+                    <el-form-grid  size="xxs">
+                        <el-select v-model="member_grade.condition"   placeholder="请选择" class="is-gray">
+                            <el-option label="等于" value="equal"></el-option>
+                            <el-option label="不等于" value="notEqual"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                        <el-form-item prop="CDATA" :rules="  { required: true, message: '请选择会员等级', trigger: 'change' }">
+                            <ns-cascader v-model="member_grade.CDATA" :value="member_grade.CDATA" v-if="grades.key == 'member_grade' && grades.value.length >0"></ns-cascader>
+                        </el-form-item>
+                    </el-form-grid>
+                    <el-form-grid size="xxs" v-if="gradeindex !== grades.value.length - 1">
+                        <el-select v-model="member_grade.relation" placeholder="请选择" class="el-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                        <a class="member-choose__delete" @click="deleteSubdivisionCondition(gradeindex,gradesindexs,grades,item,index)"><i class="bui-delete"></i></a>
+                        <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'member_grade')"><i class="bui-add"></i></a>
+                    </el-form-grid>
+                </el-form>
+            </el-form-item>
+        </el-form-item>
+
+        <!-- hx会员等级 -->
+        <el-form-item   v-if="grades.key == 'hx_member_grade' && grades.value.length >0"  :key="gradesindexs"  v-for="(grades,gradesindexs) in item.value" >
+            <el-form-item label="会员等级："  :label-width="labelWidth2" :key="gradeindex"  v-for="(member_grade,gradeindex) in grades.value" rule="">
+                <el-form ref="hx_member_grade" placement="right" :model="member_grade">
+                    <el-form-grid  size="xxs">
+                        <el-select v-model="member_grade.condition"   placeholder="请选择" class="is-gray">
+                            <el-option label="等于" value="equal"></el-option>
+                            <el-option label="不等于" value="notEqual"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                        <el-form-item prop="CDATA" :rules="  { required: true, message: '请选择会员等级', trigger: 'change' }">
+                            <ns-cascader v-model="member_grade.CDATA" :value="member_grade.CDATA" v-if="grades.key == 'hx_member_grade' && grades.value.length >0"></ns-cascader>
+                        </el-form-item>
+                    </el-form-grid>
+                    <el-form-grid size="xxs" v-if="gradeindex !== grades.value.length - 1">
+                        <el-select v-model="member_grade.relation" placeholder="请选择" class="el-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                        <a class="member-choose__delete" @click="deleteSubdivisionCondition(gradeindex,gradesindexs,grades,item,index)"><i class="bui-delete"></i></a>
+                        <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'hx_member_grade')"><i class="bui-add"></i></a>
+                    </el-form-grid>
+                </el-form>
+            </el-form-item>
+        </el-form-item>
+
+
+
+
+
+        <!--  短信退订会员 -->
+        <!--  <el-form-item :label-width="130px" v-if="is_unsub_scribes.key == 'is_unsub_scribe' && is_unsub_scribes.value.length >0"  :key="is_unsub_scribesindexs" v-for ="(is_unsub_scribes,is_unsub_scribesindexs) in item.value">
+			<el-form-item label="短信退订会员：" :label-width="130px"  :key="is_unsub_scribeindex" v-for="(is_unsub_scribe,is_unsub_scribeindex) in is_unsub_scribes.value">
+			<el-form-grid >
+			 <el-radio-group v-model="is_unsub_scribe.CDATA">
+				<el-radio label="1">是</el-radio>
+				<el-radio label="0">否</el-radio>
+			  </el-radio-group>
+			</el-form-grid>
+			  <el-form-grid>
+				<a class="member-choose__delete" @click="deleteSubdivisionCondition(is_unsub_scribeindex,is_unsub_scribesindexs,is_unsub_scribes,item,index)"><i class="bui-delete"></i></a>
+			  </el-form-grid>
+			</el-form-item>
+		</el-form-item>
+
+		 邮件退订客户
+		<el-form-item :label-width="130px" v-if="is_email_unsubscribes.key == 'is_email_unsubscribe' && is_email_unsubscribes.value.length >0"  :key="is_email_unsubscribesindexs" v-for="(is_email_unsubscribes,is_email_unsubscribesindexs) in item.value">
+			<el-form-item label="邮件退订客户：" :label-width="130px"  :key="is_email_unsubscribeindex" v-for="(is_email_unsubscribe,is_email_unsubscribeindex) in is_email_unsubscribes.value">
+			<el-form-grid >
+			 <el-radio-group v-model="is_email_unsubscribe.CDATA">
+				<el-radio label="1">是</el-radio>
+				<el-radio label="0">否</el-radio>
+			  </el-radio-group>
+			</el-form-grid>
+			  <el-form-grid>
+				<a class="member-choose__delete" @click="deleteSubdivisionCondition(is_email_unsubscribeindex,is_email_unsubscribesindexs,is_email_unsubscribes,item,index)"><i class="bui-delete"></i></a>
+			  </el-form-grid>
+			</el-form-item>
+		</el-form-item> -->
+
+        <!-- 手机号 -->
+        <el-form-item    v-if="Mobiles.key === 'Mobile' && Mobiles.value.length >0" :key="Mobileindexs" v-for="(Mobiles,Mobileindexs) in item.value">
+            <el-form-item label="手机号："  :label-width="labelWidth2" :key="Mobileindex" v-for="(Mobile,Mobileindex) in Mobiles.value">
+                <el-form ref="Mobile" placement="right" :model="Mobile">
+                    <el-form-grid  size="xs">
+                        <el-select v-model="Mobile.condition"   placeholder="请选择" class="is-gray">
+                            <el-option label="等于" value="equal"></el-option>
+                            <el-option label="不等于" value="notEqual"></el-option>
+                            <el-option label="前缀匹配" value="preLike"></el-option>
+                            <el-option label="前缀不匹配" value="notPreLike"></el-option>
+                            <el-option label="为空" value="isNull"></el-option>
+                            <el-option label="不为空" value="isNotNull"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid  v-if="Mobile.condition === 'equal' || Mobile.condition === 'notEqual' ">
+                        <el-form-item prop="CDATA" :rules="   {validator:mobilePhoneReg, trigger: 'blur,change' }">
+                            <el-input  type="text" class="text-left"   th:v-model="Mobile.CDATA" ></el-input>
+                        </el-form-item>
+                    </el-form-grid>
+                    <el-form-grid  v-if=" Mobile.condition =='notPreLike'|| Mobile.condition=='preLike' ">
+                        <el-form-item prop="CDATA" :rules="   {validator:threeWordReg, trigger: 'blur,change' }">
+                            <el-input  type="text" class="text-left"  title="匹配前3个字符"   th:v-model="Mobile.CDATA" ></el-input>
+                        </el-form-item>
+                    </el-form-grid>
+                    <el-form-grid  size="xxs" v-if="Mobileindex !== Mobiles.value.length - 1">
+                        <el-select v-model="Mobile.relation" placeholder="请选择" class="el-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                        <a class="member-choose__delete" @click="deleteSubdivisionCondition(Mobileindex,Mobileindexs,Mobiles,item,index)"><i class="bui-delete"></i></a>
+                        <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'Mobile')"><i class="bui-add"></i></a>
+                    </el-form-grid>
+                </el-form>
+            </el-form-item>
+        </el-form-item>
+
+        <!-- 店铺筛选 -->
+        <el-form-item    v-if="shopChooses.key === 'shopChoose' && shopChooses.value.length >0" :key="shopChooseindexs" v-for="(shopChooses,shopChooseindexs) in item.value">
+            <el-form-item label="店铺筛选："  :label-width="labelWidth2" :key="shopChooseindex" v-for="(shopChoose,shopChooseindex) in shopChooses.value">
+                <el-form  ref="shopChoose" placement="right" :model="shopChoose">
+                    <el-form-grid >
+                        <el-select v-model="shopChoose.condition"   placeholder="请选择" class="is-gray">
+                            <el-option label="等于" value="equal"></el-option>
+                            <el-option label="不等于" value="notEqual"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-button type="primary" @click="openShopSelect(index,shopChooseindexs,shopChooseindex)"><i class="bui-select-shops"></i> 选择店铺</el-button>
+                    <el-form-grid >
+                        <el-form-item prop="array" :rules="  { validator:shopChooseVali, trigger:'change,blur' }">
+                            <el-form-grid v-if="shopChoose.array.length > 0">
+                                已经选择了<b class="text-danger">{{shopChoose.array.length}}</b>家店铺
+                            </el-form-grid>
+                        </el-form-item>
+                    </el-form-grid>
+                    <el-form-grid   size="xxs" v-if="shopChooseindex !== shopChooses.value.length - 1">
+                        <el-select v-model="shopChoose.relation" placeholder="请选择" class="el-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                        <a class="member-choose__delete" @click="deleteSubdivisionCondition(shopChooseindex,shopChooseindexs,shopChooses,item,index)"><i class="bui-delete"></i></a>
+                        <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'shopChoose')"><i class="bui-add"></i></a>
+                    </el-form-grid>
+                </el-form>
+            </el-form-item>
+        </el-form-item>
+
+        <!-- 触达黑名单 -->
+        <el-form-item  v-if="touch_up_blacks.key == 'touch_up_black' && touch_up_blacks.value.length >0"  :key="touch_up_blacksindexs" v-for="(touch_up_blacks,touch_up_blacksindexs) in item.value">
+            <el-form-item label="触达黑名单：" :label-width="labelWidth2"  :key="touch_up_blackindex" v-for="(touch_up_black,touch_up_blackindex) in touch_up_blacks.value">
+                <el-form ref="touch_up_black" placement="right" :model="touch_up_black">
+                    <el-form-grid >
+                        <el-form-item prop="brand" :rules="  { required: true, message: '请选择品牌', trigger:'blur' }">
+                            <el-select v-model="touch_up_black.brand"   placeholder="请选择" class="is-gray">
+                                <el-option :label="brand.k" :value="brand.v" v-for="(brand,index) in touch_up_black.brands" :key="index"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-form-grid>
+                    <el-form-grid >
+                        <el-radio-group v-model="touch_up_black.CDATA">
+                            <el-radio label="1">是</el-radio>
+                            <el-radio label="0">否</el-radio>
+                        </el-radio-group>
+                    </el-form-grid>
+                    <el-form-grid >
+                        <a class="member-choose__delete" @click="deleteSubdivisionCondition(touch_up_blackindex,touch_up_blacksindexs,touch_up_blacks,item,index)"><i class="bui-delete"></i></a>
+                    </el-form-grid></el-form>
+            </el-form-item>
+        </el-form-item>
+
+
+        <!-- 权益黑名单 -->
+        <el-form-item  v-if="permission_blacks.key == 'permission_black' && permission_blacks.value.length >0"  :key="permission_blacksindexs" v-for="(permission_blacks,permission_blacksindexs) in item.value">
+            <el-form-item label="权益黑名单：" :label-width="labelWidth2"  :key="permission_blackindex" v-for="(permission_black,permission_blackindex) in permission_blacks.value">
+                <el-form ref="permission_black" placement="right" :model="permission_black">
+                    <el-form-grid >
+                        <el-form-item prop="brand" :rules="  { required: true, message: '请选择品牌', trigger:'blur' }">
+                            <el-select v-model="permission_black.brand"   placeholder="请选择" class="is-gray">
+                                <el-option :label="brand.k" :value="brand.v" v-for="(brand,index) in permission_black.brands" :key="index"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-form-grid>
+                    <el-form-grid >
+                        <el-radio-group v-model="permission_black.CDATA">
+                            <el-radio label="1">是</el-radio>
+                            <el-radio label="0">否</el-radio>
+                        </el-radio-group>
+                    </el-form-grid>
+                    <el-form-grid >
+                        <a class="member-choose__delete" @click="deleteSubdivisionCondition(permission_blackindex,permission_blacksindexs,permission_blacks,item,index)"><i class="bui-delete"></i></a>
+                    </el-form-grid>
+                </el-form>
+            </el-form-item>
+        </el-form-item>
+
+        <!-- 成长值 -->
+        <el-form-item   v-if="total_grouth_values.key === 'total_grouth_value' && total_grouth_values.value.length >0" :key="total_grouth_valueindexs" v-for="(total_grouth_values,total_grouth_valueindexs) in item.value">
+            <el-form-item label="成长值："  label-width="130px" :key="total_grouth_valueindex" v-for="(total_grouth_value,total_grouth_valueindex) in total_grouth_values.value">
+                <el-form ref="total_grouth_value" placement="right" :model="total_grouth_value">
+                    <el-form-grid  size="xs">
+                        <el-select v-model="total_grouth_value.condition"   placeholder="请选择" class="is-gray" >
+                            <el-option label="等于" value="equal"></el-option>
+                            <el-option label="不等于" value="notEqual"></el-option>
+                            <el-option label="大于" value="larger"></el-option>
+                            <el-option label="大于等于" value="largerEqual"></el-option>
+                            <el-option label="小于" value="smaller"></el-option>
+                            <el-option label="小于等于" value="smallerEqual"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                        <el-form-item prop="CDATA" :rules="{validator:commonMoneyReg, trigger: 'blur,change' }">
+                            <el-input  type="text" class="text-right"  th:v-model="total_grouth_value.CDATA" ></el-input>
+                        </el-form-item>
+                    </el-form-grid>
+                    <el-form-grid >个</el-form-grid>
+                    <el-form-grid  size="xxs" v-if="total_grouth_valueindex !== total_grouth_values.value.length - 1">
+                        <el-select v-model="total_grouth_value.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                        </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                        <a class="member-choose__delete" @click="deleteSubdivisionCondition(total_grouth_valueindex,total_grouth_valueindexs,total_grouth_values,item,index)"><i class="bui-delete"></i></a>
+                        <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'total_grouth_value')"><i class="bui-add"></i></a>
+                    </el-form-grid>
+                </el-form>
+            </el-form-item>
+        </el-form-item>
+
+
+
+    </el-collapse-item>
+</th:block>

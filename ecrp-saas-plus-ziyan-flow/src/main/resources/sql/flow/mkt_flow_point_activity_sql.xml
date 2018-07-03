@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot source="">
+	<sqlGroup name="flow.point">
+		<!-- SMS START-->
+		<sql id="createSendMemberTable" value="CREATE TEMPORARY TABLE `temp_marketing_send_member` (
+				`id` INT(10) NOT NULL AUTO_INCREMENT,
+				`sys_customer_id` BIGINT(20) NULL DEFAULT NULL COMMENT '客户ID',
+				PRIMARY KEY (`id`),
+				INDEX `Target` (`target`)
+			)">
+		</sql>
+		<sql id="insertSendCidTable" value="
+				insert into temp_marketing_send_member(sys_customer_id)
+				values(#{sysCustomerId})
+			">
+		</sql>
+		<sql id="insertKdPointMarketingGroup" value="
+				insert into kd_point_marketing_group(state,activity_id,sys_customer_id,marketing_id,marketing_activity_id)
+				SELECT 1,#{activityId},a.sys_customer_id,#{marketingId},#{marketingActivityId}
+				FROM temp_marketing_send_member a
+				WHERE a.sys_customer_id = b.sys_customer_id
+			">
+		</sql>
+	</sqlGroup>
+
+</sqlRoot>

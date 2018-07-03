@@ -1,0 +1,496 @@
+<% include ../../../include/layout/start.ejs %>
+<div id="example" v-cloak>
+
+  <div class="template-page">
+    <div class="tmp-page__content">
+      <bus-multi-filter @submit-search="submitSearch"
+                        @reset-search="resetSearch"
+                        @recover-search="recoverSearch"
+                        @clean-search="cleanSearch">
+        <!-- 按钮组 -->
+        <template slot="btns">
+          <el-button type="primary" class="mb-sm" @click="openDialog"><i class="bui-add"></i>新增模板</el-button>
+          <el-button type="primary" class="mb-sm"><i class="bui-delete"></i>删除</el-button>
+        </template>
+        <!-- end/按钮组 -->
+        <!-- 单条件表单 -->
+        <el-form slot="singleform" :inline="true" class="pull-right">
+          <el-form-item>
+            <el-input
+              placeholder="请输入姓名"
+              icon="search"
+              v-model="multipleForm.user">
+            </el-input>
+          </el-form-item>
+        </el-form>
+        <!-- end/单条件表单 -->
+        <!-- 多条件表单 -->
+        <el-form :model="multipleForm" :inline="true" label-width="80px">
+          <el-form-item label="关键词：">
+            <el-form-grid size="xmd">
+              <el-input placeholder="请输入关键词" v-model="multipleForm.user"></el-input>
+            </el-form-grid>
+          </el-form-item>
+          <el-form-item label="交易来源：">
+            <el-form-grid size="xmd">
+              <el-select placeholder="请选择交易来源" v-model="multipleForm.source">
+                <el-option label="区域一" value="shanghai"></el-option>
+                <el-option label="区域二" value="beijing"></el-option>
+              </el-select>
+            </el-form-grid>
+          </el-form-item>
+        </el-form>
+        <!-- end/多条件表单 -->
+        <!-- 搜索结果 -->
+        <template slot="result">
+          <el-tag v-for="(tag,index) in 10" :key="tag" type="primary" :closable="true">tag： {{tag}}</el-tag>
+        </template>
+        <!-- end/搜索结果 -->
+      </bus-multi-filter>
+      <el-table
+        :data="tableData"
+        border
+        class="template-table">
+        <el-table-column
+          type="selection"
+          width="40">
+        </el-table-column>
+        <el-table-column
+          prop="date"
+          label="日期"
+          align="center"
+          width="100">
+        </el-table-column>
+        <el-table-column
+          prop="name"
+          label="姓名"
+          width="120">
+        </el-table-column>
+        <el-table-column
+          prop="province"
+          label="省份"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="address"
+          label="地址">
+          <template scope="scope">
+            <a class="is-link">{{scope.row.address}}</a>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="操作"
+          width="50"
+          align="center">
+          <template scope="scope">
+            <el-button type="text" @click.native.prevent="dialogDetailVisible = true">详情</el-button>
+            <!-- <el-dropdown @command="handleMoreCommand"  trigger="click" menu-align="start">
+                 <span class="el-dropdown-link">
+                   更多<i class="el-icon-caret-bottom el-icon&#45;&#45;right"></i>
+                 </span>
+               <el-dropdown-menu slot="dropdown">
+                 <el-dropdown-item :command="String(scope.$index)">删除</el-dropdown-item>
+               </el-dropdown-menu>
+             </el-dropdown>-->
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-pagination
+        class="template-table-pagination"
+        :page-sizes="[10, 20, 30, 50, 100]"
+        :page-size="10"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="100">
+      </el-pagination>
+
+      <!-- 分析  弹窗结构 -->
+      <el-dialog title="新增邮件模板" v-model="dialogVisible" :close-on-click-modal="false" :modal-append-to-body="false"
+                 size="middle" custom-class="mailtemplate">
+        <el-form class="mailtemplate-form">
+          <div class="mailtemplate-header">
+            <span class="title">编辑模板</span>
+            <el-form-item label="模板类型：" label-width="70px" class="pull-right">
+              <el-select placeholder="请选择" v-model="defaultSelect">
+                <el-option label="付款关怀模板" value="sel1"></el-option>
+                <el-option label="签收关怀模板" value="sel2"></el-option>
+                <el-option label="营销模板" value="sel3"></el-option>
+              </el-select>
+            </el-form-item>
+          </div>
+          <el-form-item label="标题占位符号：" label-width="90px" class="el-block-box">
+            <el-form-grid>
+              <el-tag type="gray" class="mailtemplate-form__tags">{昵称}</el-tag>
+              <el-tag type="gray" class="mailtemplate-form__tags">{姓名}</el-tag>
+              <el-tag type="gray" class="mailtemplate-form__tags">{订单编号}</el-tag>
+            </el-form-grid>
+          </el-form-item>
+          <el-form-item label="邮件标题：" label-width="90px" class="el-block-box">
+            <el-form-grid class="el-block  no-margin mailtemplate-form__input">
+              <el-input placeholder="请输入邮件标题" value="{Name}{Nick}{TradeId}{Name}"></el-input>
+            </el-form-grid>
+          </el-form-item>
+          <el-form-item label="尊敬的会员：" label-width="90px" class="el-block-box">
+            <el-form-grid>{$Nick$},您好！</el-form-grid>
+          </el-form-item>
+          <el-form-item>
+            <el-form-grid class="el-block no-margin">
+              <el-input type="textarea" placeholder="请输入邮件头部自定义内容" :rows="4"></el-input>
+            </el-form-grid>
+          </el-form-item>
+          <div class="mailtemplate-editor">
+            <table border="0" class="mailtemplate-editor__table">
+              <tbody>
+              <tr>
+                <td class="title">订单信息：</td>
+              </tr>
+              <tr>
+                <td class="border-bottom-0">
+                  <table width="90%" class="inner">
+                    <tbody>
+                    <tr>
+                      <td>订单编号：</td>
+                      <td>{$tradeid$}(点击订单号，可以查看订单详情)</td>
+                    </tr>
+                    <tr>
+                      <td>订单日期：</td>
+                      <td>{$date$}</td>
+                    </tr>
+                    <tr>
+                      <td>实付金额：</td>
+                      <td>{$money$}元</td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+            <table border="0" class="mailtemplate-editor__table">
+              <tbody>
+              <tr>
+                <td class="title">所购商品：</td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="inner">
+                    <el-table border>
+                      <el-table-column
+                        label="商品名称"></el-table-column>
+                      <el-table-column
+                        label="数量"
+                        width="140"
+                        align="right"></el-table-column>
+                    </el-table>
+                  </div>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+
+          </div>
+          <div class="mailtemplate-header">
+            <span class="title">推荐商品</span>
+            <el-form-item class="pull-right">
+              <div class="text-defalut">点击添加商品可以关联四个在售商品到签收关怀做为推荐商品</div>
+            </el-form-item>
+          </div>
+          <div class="mailtemplate-select">
+            <table class="mailtemplate-select__table" cellspacing="0" cellpadding="0" border="0" width="100%">
+              <tr>
+                <td class="goods-item">
+                  <div class="goods-addpic has-selected">
+                    <i class="bui-delete goods-deletepic"></i>
+                    <a href="#">
+                      <img
+                        src="http://ihd.image.alimmdn.com/fc458cce-8e2f-450c-b5c3-0592b0acbe5d?spm=a312x.7755591.0.0.79c1e74ZclSvH"/>
+                      <!-- <span>+ 添加商品</span>-->
+                    </a>
+                  </div>
+                  <div class="goods-name">{$商品名称$}</div>
+                  <div class="goods-price">
+                    <table border="0" width="100%" class="goods-addprice">
+                      <tbody>
+                      <tr>
+                        <td><span>{$商品价格$}</span></td>
+                        <td class="text-center" width="46">
+                          <el-button type="primary" size="small">购买</el-button>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </td>
+                <td class="goods-item">
+                  <div class="goods-addpic">
+                    <i class="bui-delete goods-deletepic"></i>
+                    <a href="#">
+                      <span>+ 添加商品</span>
+                    </a>
+                  </div>
+                  <div class="goods-name">{$商品名称$}</div>
+                  <div class="goods-price">
+                    <table border="0" width="100%" class="goods-addprice">
+                      <tbody>
+                      <tr>
+                        <td><span>{$商品价格$}</span></td>
+                        <td class="text-center" width="46">
+                          <el-button type="primary" size="small">购买</el-button>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </td>
+                <td class="goods-item">
+                  <div class="goods-addpic">
+                    <i class="bui-delete goods-deletepic"></i>
+                    <a href="#">
+                      <span>+ 添加商品</span>
+                    </a>
+                  </div>
+                  <div class="goods-name">{$商品名称$}</div>
+                  <div class="goods-price">
+                    <table border="0" width="100%" class="goods-addprice">
+                      <tbody>
+                      <tr>
+                        <td><span>619元</span></td>
+                        <td class="text-center" width="46">
+                          <el-button type="primary" size="small">购买</el-button>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </td>
+                <td class="goods-item">
+                  <div class="goods-addpic">
+                    <i class="bui-delete goods-deletepic"></i>
+                    <a href="#">
+                      <span>+ 添加商品</span>
+                    </a>
+                  </div>
+                  <div class="goods-name">{$商品名称$}</div>
+                  <div class="goods-price">
+                    <table border="0" width="100%" class="goods-addprice">
+                      <tbody>
+                      <tr>
+                        <td><span>619元</span></td>
+                        <td class="text-center" width="46">
+                          <el-button type="primary" size="small">购买</el-button>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <el-form-item label="选择测试发送邮件通道：" label-width="154px" class="el-inline-block">
+            <el-form-grid size="xmd">
+              <el-select placeholder="请选择" v-model="defaultSelect">
+                <el-option label="邮件自用通道" value="sel1"></el-option>
+                <el-option label="邮件公用通道" value="sel2"></el-option>
+              </el-select>
+            </el-form-grid>
+          </el-form-item>
+          <el-form-item class="el-inline-block" label-width="154px" label="接收测试邮件地址：">
+            <el-form-grid size="xmd">
+              <el-input type="text" placeholder="请输入接收测试邮件地址"></el-input>
+            </el-form-grid>
+            <el-form-grid>
+              <el-button>发送测试</el-button>
+            </el-form-grid>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="dialogVisible = false">保 存</el-button>
+        </div>
+      </el-dialog>
+      <el-dialog title="邮件详情" v-model="dialogDetailVisible" :close-on-click-modal="false"
+                 :modal-append-to-body="false" size="middle">
+        <el-form label-width="80px">
+          <el-form-item label="收件人：" class="form-text">
+            <el-form-grid>姓名XXX</el-form-grid>
+          </el-form-item>
+          <el-form-item label="时间：" class="form-text">
+            <el-form-grid>2017-08-21 12:32:43</el-form-grid>
+          </el-form-item>
+          <el-form-item label="邮件标题：" class="form-text">
+            <el-form-grid>2邮件标题邮件标题邮件标题</el-form-grid>
+          </el-form-item>
+          <el-form-item label-width="0" class="mt-sm">
+            <el-form-grid class="el-block-box" block>
+              <div class="mailtemplate-preview">
+                <div class="preview-header">
+                  <div class="text-title">尊敬的 {$Nick$}：您好，</div>
+                  <div class="preview-editor">
+                    邮件头部自定义内容，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位，邮件正文文本占位。
+                  </div>
+                </div>
+                <div class="mailtemplate-editor">
+                  <table border="0" class="mailtemplate-editor__table">
+                    <tbody>
+                    <tr>
+                      <td class="title">订单信息：</td>
+                    </tr>
+                    <tr>
+                      <td class="border-bottom-0">
+                        <table width="90%" class="inner">
+                          <tbody>
+                          <tr>
+                            <td>订单编号：</td>
+                            <td>{$tradeid$}(点击订单号，可以查看订单详情)</td>
+                          </tr>
+                          <tr>
+                            <td>订单日期：</td>
+                            <td>{$date$}</td>
+                          </tr>
+                          <tr>
+                            <td>实付金额：</td>
+                            <td>{$money$}元</td>
+                          </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                  <table border="0" class="mailtemplate-editor__table">
+                    <tbody>
+                    <tr>
+                      <td class="title">所购商品：</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="inner">
+                          <el-table border>
+                            <el-table-column
+                              label="商品名称"></el-table-column>
+                            <el-table-column
+                              label="数量"
+                              width="140"
+                              align="right"></el-table-column>
+                          </el-table>
+                        </div>
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+
+                </div>
+
+                <div class="text-title">推荐商品</div>
+                <div class="mailtemplate-select">
+                  <table class="mailtemplate-select__table" cellspacing="0" cellpadding="0" border="0" width="100%">
+                    <tr>
+                      <td class="goods-item">
+                        <div class="goods-addpic">
+                          <a>
+                            <img
+                              src="http://ihd.image.alimmdn.com/fc458cce-8e2f-450c-b5c3-0592b0acbe5d?spm=a312x.7755591.0.0.79c1e74ZclSvH"/>
+                          </a>
+                        </div>
+                        <div class="goods-name">百雀羚 邮费链接</div>
+                        <div class="goods-price">
+                          <table border="0" width="100%" class="goods-addprice">
+                            <tbody>
+                            <tr>
+                              <td><span>5元</span></td>
+                              <td class="text-center" width="46">
+                                <el-button type="primary" size="small" disabled>购买</el-button>
+                              </td>
+                            </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </td>
+                      <td class="goods-item">
+                        <div class="goods-addpic">
+                          <a>
+                            <img
+                              src="http://ihd.image.alimmdn.com/fc458cce-8e2f-450c-b5c3-0592b0acbe5d?spm=a312x.7755591.0.0.79c1e74ZclSvH"/>
+                          </a>
+                        </div>
+                        <div class="goods-name">百雀羚 邮费链接</div>
+                        <div class="goods-price">
+                          <table border="0" width="100%" class="goods-addprice">
+                            <tbody>
+                            <tr>
+                              <td><span>5元</span></td>
+                              <td class="text-center" width="46">
+                                <el-button type="primary" size="small" disabled>购买</el-button>
+                              </td>
+                            </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </td>
+                      <td class="goods-item">
+                        <div class="goods-addpic">
+                          <a>
+                            <img
+                              src="http://ihd.image.alimmdn.com/fc458cce-8e2f-450c-b5c3-0592b0acbe5d?spm=a312x.7755591.0.0.79c1e74ZclSvH"/>
+                          </a>
+                        </div>
+                        <div class="goods-name">百雀羚 邮费链接</div>
+                        <div class="goods-price">
+                          <table border="0" width="100%" class="goods-addprice">
+                            <tbody>
+                            <tr>
+                              <td><span>5元</span></td>
+                              <td class="text-center" width="46">
+                                <el-button type="primary" size="small" disabled>购买</el-button>
+                              </td>
+                            </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </td>
+                      <td class="goods-item">
+                        <div class="goods-addpic">
+                          <a>
+                            <img
+                              src="http://ihd.image.alimmdn.com/fc458cce-8e2f-450c-b5c3-0592b0acbe5d?spm=a312x.7755591.0.0.79c1e74ZclSvH"/>
+                          </a>
+                        </div>
+                        <div class="goods-name">【预售秒杀】百雀羚保湿精华乳女 至臻皙白晶亮焕皙白</div>
+                        <div class="goods-price">
+                          <table border="0" width="100%" class="goods-addprice">
+                            <tbody>
+                            <tr>
+                              <td><span>5元</span></td>
+                              <td class="text-center" width="46">
+                                <el-button type="primary" size="small" disabled>购买</el-button>
+                              </td>
+                            </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+                <div class="preview-message">
+                  <h1 label="标题居左"
+                      style="font-size: 18px; font-weight: bold; padding: 0px 4px 0px 0px; text-align: left; margin: 0px 0px 10px;">
+                    富文本编辑器里的文本区域占位</h1>
+                  <p>富文本编辑器里的文本区域占位</p>
+                  <p>富文本编辑器里的文本区域占位</p>
+                </div>
+              </div>
+
+            </el-form-grid>
+          </el-form-item>
+        </el-form>
+
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="dialogDetailVisible = false">关 闭</el-button>
+        </div>
+      </el-dialog>
+
+    </div>
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

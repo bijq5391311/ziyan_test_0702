@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="touch.KdMarketingTemplate">
+		<sql id="delTemplate" value="">
+			<if value="delete from kd_marketing_template where id = #{id}"></if>
+		</sql>
+		<sql id="findTemplateTitle" value="select kmt.template_title templateTitle from kd_marketing_template kmt where 1=1 ">
+			<!-- <if test="#{templateTitle} != NULL " ></if> -->
+		</sql>
+		<sql id="queryNoteTemplate" value="select * from kd_marketing_template kmt where kmt.marketing_manner=0"></sql>
+		<sql id="batchDelTemplate" value="">
+			<if value="delete from kd_marketing_template where id = ?"></if>
+		</sql>
+	</sqlGroup>
+	
+</sqlRoot>

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:task="http://www.springframework.org/schema/task"
+  xmlns:p="http://www.springframework.org/schema/p"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+  <!-- 自动扫描web包 ,将带有注解的类 纳入spring容器 -->
+  <!--<context:component-scan base-package="com.nascent.ecrpsaas.*.service.impl"></context:component-scan>-->
+
+  <!-- 自动扫描web包 ,将带有注解的类 纳入spring容器 -->
+  <context:component-scan base-package="com.nascent">
+    <context:exclude-filter type="regex" expression="com.nascent.ecrpsaas.WebMvcConfiguration"/>
+    <context:exclude-filter type="regex" expression="com.nascent.ecrpsaas.HttpErrorController"/>
+    <context:exclude-filter type="regex"
+      expression="com.nascent.ecrpsaas.thymeleaf.ThymeleafEngineConfiguration"/>
+  </context:component-scan>
+  <bean id="process" class="com.nascent.ecrpsaas.flow.ProcessEngine"/>
+
+  <task:scheduler id="scheduler" pool-size="10"/>
+  <task:scheduled-tasks scheduler="scheduler">
+    <!-- 每天23点10分00秒触发任务 -->
+    <task:scheduled ref="process" method="createInstance" cron="00 10 23 * * ?"/>
+    <!-- 每3分钟检查最新节点任务 -->
+    <task:scheduled ref="process" method="runNodeTask" fixed-rate="180000" initial-delay="5000"/>
+  </task:scheduled-tasks>
+
+  <context:property-placeholder location="classpath:redis.properties"/>
+
+  <bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">
+    <property name="maxIdle" value="${redis.maxIdle}"/>
+    <property name="maxTotal" value="${redis.maxActive}"/>
+    <property name="maxWaitMillis" value="${redis.maxWait}"/>
+    <property name="testOnBorrow" value="${redis.testOnBorrow}"/>
+  </bean>
+  <bean id="connectionFactory"
+    class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+    p:host-name="${redis.host}" p:port="${redis.port}" p:password="${redis.pass}"
+    p:pool-config-ref="poolConfig"
+  />
+  <bean id="redisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate">
+    <property name="connectionFactory" ref="connectionFactory"/>
+  </bean>
+
+  <context:property-placeholder location="classpath:mysql.properties"/>
+  <bean id="RepositoryService" class="com.nascent.plugins.spring.support.RepositoryServiceImpl">
+    <constructor-arg>
+      <map>
+        <entry key="">
+          <!-- 数据源 -->
+          <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+            destroy-method="close">
+            <property name="driverClass" value="com.mysql.jdbc.Driver"/>
+            <property name="jdbcUrl"
+              value="jdbc:mysql://121.41.162.23:30003/ecrp_saas_ziyan?characterEncoding=utf-8&amp;zeroDateTimeBehavior=convertToNull"/>
+            <property name="user" value="root"/>
+            <property name="password" value="southinfo@best1"/>
+            <property name="initialPoolSize" value="1"/>
+          </bean>
+          <!--<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init"
+            destroy-method="close">
+            &lt;!&ndash; 基本属性 url、user、password &ndash;&gt;
+            <property name="url"
+              value="jdbc:mysql://121.41.162.23:30003/ecrp_saas_ziyan?characterEncoding=utf-8&amp;zeroDateTimeBehavior=convertToNull"/>
+            <property name="username" value="root"/>
+            <property name="password" value="southinfo@best1"/>
+            &lt;!&ndash; 配置初始化大小、最小、最大 &ndash;&gt;
+            <property name="initialSize" value="1"/>
+            <property name="minIdle" value="10"/>
+            <property name="maxActive" value="300"/>
+            &lt;!&ndash; 配置获取连接等待超时的时间 &ndash;&gt;
+            <property name="maxWait" value="10000"/>
+            &lt;!&ndash; 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 &ndash;&gt;
+            <property name="timeBetweenEvictionRunsMillis" value="60000"/>
+            &lt;!&ndash; 配置一个连接在池中最小生存的时间，单位是毫秒 &ndash;&gt;
+            <property name="minEvictableIdleTimeMillis" value="300000"/>
+            <property name="validationQuery" value="SELECT 'x' FROM DUAL"/>
+            <property name="testWhileIdle" value="true"/>
+            <property name="testOnBorrow" value="false"/>
+            <property name="testOnReturn" value="false"/>
+            &lt;!&ndash; 打开PSCache，并且指定每个连接上PSCache的大小 如果用Oracle，则把poolPreparedStatements配置为true，mysql可以配置为false。 &ndash;&gt;
+            <property name="poolPreparedStatements" value="true"/>
+            <property name="maxPoolPreparedStatementPerConnectionSize" value="20"/>
+            &lt;!&ndash; 配置监控统计拦截的filters &ndash;&gt;
+          </bean>-->
+
+        </entry>
+      </map>
+    </constructor-arg>
+  </bean>
+
+  <bean id="sqlContext" class="com.nascent.plugins.spring.SqlContext">
+    <constructor-arg name="scanner">
+      <bean id="pluginLoader" class="com.nascent.plugins.spring.support.ClassScanner">
+        <property name="includeJars">
+          <list>
+            <value>*saas*</value>
+          </list>
+        </property>
+        <property name="parsers">
+          <list>
+            <bean class="com.nascent.plugins.spring.support.TableBindParser"/>
+          </list>
+        </property>
+      </bean>
+    </constructor-arg>
+    <constructor-arg name="lazyProxy" value="true"/>
+  </bean>
+  <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager"
+    p:cache-manager-ref="ehcacheManager"/>
+  <bean id="ehcacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"
+    p:config-location="classpath:cache.xml" p:shared="true"/>
+</beans>

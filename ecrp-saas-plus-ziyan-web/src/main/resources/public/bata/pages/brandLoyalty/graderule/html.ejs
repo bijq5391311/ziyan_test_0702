@@ -1,0 +1,716 @@
+<% include ../../../include/layout/start.ejs %>
+<div id="example" v-cloak>
+  <div class="template-page">
+    <div class="template-page-location">
+      <el-breadcrumb separator=">">
+        <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+        <el-breadcrumb-item>忠诚度管理</el-breadcrumb-item>
+        <el-breadcrumb-item>品牌VIP体系</el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>
+    <div class="template-page-tab">
+      <el-tabs v-model="activeName" type="card">
+        <el-tab-pane label="品牌1VIP制度" name="first">
+          <el-row>
+            <el-col :span="24">
+              <el-form label-width="120px" class="institution-form">
+                <el-form-item label="ECRP会员体系：" required>
+                  <el-form-grid>
+                    <el-switch on-text="开" off-text="关" v-model="delivery" :width="44"></el-switch>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="数据有效范围：">
+                  <el-form-grid>
+                    <el-radio v-model="formRadio" label="1">
+                      <el-form-grid>从</el-form-grid>
+                      <el-form-grid size="md">
+                        <el-date-picker type="date" placeholder="请选择日期" v-model="date"></el-date-picker>
+                      </el-form-grid>
+                      <el-form-grid>开始计时</el-form-grid>
+                    </el-radio>
+                    <el-radio v-model="formRadio" label="2">
+                      <el-form-grid>只累计最近</el-form-grid>
+                      <el-form-grid size="xs">
+                        <el-input type="number" placeholder="请输入天数" class="text-right"></el-input>
+                      </el-form-grid>
+                      <el-form-grid>天内数据</el-form-grid>
+                    </el-radio>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="支持降级：">
+                  <el-form-grid>
+                    <el-switch on-text="开" off-text="关" v-model="delivery" :width="44"></el-switch>
+                  </el-form-grid>
+                  <el-form-grid>当</el-form-grid>
+                  <el-form-grid size="xs">
+                    <el-input type="number" placeholder="请输入天数" class="text-right"></el-input>
+                  </el-form-grid>
+                  <el-form-grid>天内未有成功交易自动下降一个会员等级</el-form-grid>
+                </el-form-item>
+                <el-form-item label="排除名单：">
+                  <el-form-grid>
+                    <el-switch on-text="开" off-text="关" v-model="delivery" :width="44"></el-switch>
+                  </el-form-grid>
+                </el-form-item>
+                <!-- 与旧结构的差异1：将拖放结构与tab结构包含 在 "institution-rating" 类里面-->
+                <!--会员等级编辑与操作 -->
+                <div class="institution-rating">
+                  <!-- 与旧结构的差异2：添加 下面结构 -->
+                  <!-- 拖拽等级名称 -->
+                  <div class="rating-drag">
+                    <div class="rating-drag__bar">
+                      <bus-draggable class="rating-header" v-model="ratingData"
+                                     :options = options
+                                     @end="ratingSortSave(ratingData)">
+                        <div class="rating-header__item" v-for="(rating, index) in ratingData" :key="index"
+                             :class="{'is-active': ratingTabsValue === rating.name}"
+                             @click="handleRatingClick(rating.name)">
+                          <span class="rating-title">
+                            <span class="rating-edit" v-show="rating.edit">
+                            <el-input
+                            style="width: 120px;"
+                            ref="ratingNameInput"
+                            :value="rating.name"
+                            @keyup.enter.native="handleRatingConfirm(index, rating.name)"
+                            @blur="handleRatingConfirm(index, rating.name)">
+                            </el-input>
+                            </span>
+                            <span class="rating-name" v-show="!rating.edit"><label :class="{'is-move': !options.disabled}">{{rating.name}}</label>
+                          </span>
+                          <span class="rating-icon" v-show="!rating.edit&&showBtn" @click="handleRatingEdit(index)"><i
+                              class="el-icon-edit"></i></span></span>
+                          <span class="rating-icon" v-show="!rating.edit&&showBtn" @click="removeRatingTab(rating.name)"><i class="el-icon-close"></i></span>
+                          <span class="rating-icon" v-show="rating.edit" @click="removeRatingTab(rating.name)"><i class="el-icon-close"></i></span>
+                        </div>
+                      </bus-draggable>
+                      <el-form-grid class="rating-input">
+                        <el-input
+                          class="institution-form__edit-input"
+                          v-if="ratingInputVisible"
+                          v-model="ratingInputValue"
+                          ref="saveTagInput"
+                          @keyup.enter.native="handleInputConfirm"
+                          @blur="handleInputConfirm"
+                        >
+                        </el-input>
+                        <el-button v-show="!ratingInputVisible&&showBtn" class="institution-form__edit-button" @click="showRatingInput" type="icon"><i
+                            class="bui-add"></i>增加会员等级
+                        </el-button>
+                        <el-button type="primary" v-show="!showBtn" @click="showEditBtn" type="icon">编辑
+                        </el-button>
+                      </el-form-grid>
+                      <el-form-grid class="rating-input">
+                        <i v-show="showBtn" class="check-btn bui-success-fill" @click="saveEdit"></i>
+                        <i v-show="showBtn" class="close-btn bui-error-fill" @click="hideEditBtn"></i>
+                      </el-form-grid>
+                    </div>
+                  </div>
+                  <!-- /end 拖拽等级名称 -->
+                  <!-- 与旧结构的差异2：添加下面结构 -->
+                  <!-- 会员等级内容区 -->
+                  <el-tabs type="border-card" v-model="ratingTabsValue" v-if="ratingTabsShow" closable
+                           @tab-remove="removeRatingTab" class="institution-rating__tabs">
+                    <el-tab-pane v-for="(rating, index) in ratingData" :key="rating.name" :name="rating.name">
+                      <!-- 与旧结构的差异3：删除下面结构 -->
+                      <!--      <span slot="label" class="rating-title">
+                         <span class="rating-edit"  v-show="rating.edit">
+                           <el-input
+                             style="width: 120px;"
+                             icon="check"
+                             ref="ratingNameInput"
+                             :value="rating.name"
+                             @keyup.enter.native="handleRatingConfirm(index, rating.name)"
+                             @blur="handleRatingConfirm(index, rating.name)"
+                             @click="handleRatingConfirm(index, rating.name)">
+                          </el-input>
+                         </span>
+                         <span class="rating-name" v-show="!rating.edit">{{rating.name}} <i class="el-icon-edit" @click="handleRatingEdit(index)"></i></span>
+                       </span>-->
+                      <!--  /end与旧结构的差异4：删除下面结构 -->
+                      <div class="institution-rating__property">
+                        <el-form-item label="享受的折扣：" required>
+                          <el-form-grid size="xxs">
+                            <el-input type="number" class="text-right"></el-input>
+                          </el-form-grid>
+                          <el-form-grid>折</el-form-grid>
+                        </el-form-item>
+                        <el-form-item label="积分奖励：" required>
+                          <el-form-grid size="xxs">
+                            <el-select v-model="rewardSelect" placeholder="请选择" class="is-gray">
+                              <el-option label="加送" value="add"></el-option>
+                              <el-option label="倍送" value="double"></el-option>
+                            </el-select>
+                          </el-form-grid>
+                          <el-form-grid size="xs">
+                            <el-input placeholder="请输入积分" class="text-right"></el-input>
+                          </el-form-grid>
+                          <el-form-grid>积分</el-form-grid>
+                        </el-form-item>
+                        <!--  分割线-->
+                        <div class="institution-form__cut"></div>
+                        <el-form-item v-for="(item, series) in rating.rule" :key="item.label" :label="item.label + '：'"
+                                      required>
+                          <el-form-grid size="xxs" v-show="series !== rating.rule.length - 1">
+                            <el-select v-model="item.range" placeholder="请选择" class="is-gray">
+                              <el-option label="小于" value="less"></el-option>
+                              <el-option label="等于" value="equal"></el-option>
+                              <el-option label="大于" value="great"></el-option>
+                            </el-select>
+                          </el-form-grid>
+                          <el-form-grid size="xs">
+                            <el-input :value="item.value" :placeholder="item.placeholder" class="text-right"></el-input>
+                          </el-form-grid>
+                          <el-form-grid>{{item.unit}}</el-form-grid>
+                          <el-form-grid size="xxs" v-show="series !== rating.rule.length - 1">
+                            <el-select v-model="item.logic" placeholder="请选择" class="is-gray">
+                              <el-option label="并且" value="and"></el-option>
+                              <el-option label="或者" value="or"></el-option>
+                            </el-select>
+                          </el-form-grid>
+                          <!-- 删除 -->
+                          <el-form-grid v-show="series !== rating.rule.length - 1">
+                            <el-button @click="memberRuleDelete(index, series)" type="icon"><i class="bui-delete"></i>
+                            </el-button>
+                          </el-form-grid>
+                          <!-- end/删除 -->
+                          <!-- 添加 -->
+                          <el-form-grid v-if="series === rating.rule.length - 1">
+                            <el-popover placement="right"
+                                        popper-class="tmp-popover-add"
+                                        trigger="click"
+                                        title="选择条件"
+                                        v-model="item.popover"
+                                        @hide="memeberRulePopoverHide(index)"
+                                        width="150">
+                              <el-checkbox-group v-model="rating.ruleCheck">
+                                <el-checkbox v-for="(rule, index) in memberRuleCheckData" :key="index"
+                                             :label="rule.name"></el-checkbox>
+                              </el-checkbox-group>
+                              <div class="tmp-popover-add-footer">
+                                <el-button size="mini"
+                                           @click="item.popover = false, memberRuleSaveCheck('cancle',index)">取消
+                                </el-button>
+                                <el-button type="primary" size="mini"
+                                           @click="item.popover = false, memberRuleSaveCheck('confirm',index)">确定
+                                </el-button>
+                              </div>
+                              <el-button slot="reference" type="icon"><i class="bui-add"></i></el-button>
+                            </el-popover>
+                          </el-form-grid>
+                          <!-- end/添加 -->
+                        </el-form-item>
+                        <el-form-item class="institution-form__nolabel" label-width="32px">
+                          <el-form-grid>
+                            <span class="tmp-mark">或</span>
+                          </el-form-grid>
+                          <el-form-grid>
+                            购买了以下任意宝贝
+                          </el-form-grid>
+
+                          <!-- 选择商品结果列表 列表展开收缩切换结构-->
+                          <bus-toggles :max-height="180" class="is-double">
+                            <el-row class="tmp-choose" :gutter="20">
+                              <el-col :span="12">
+                                <div class="tmp-choose__title">
+                                  <el-button type="primary" @click="showChooseDialog"><i class="bui-select-goods"></i>选择商品
+                                  </el-button>
+                                  <span class="total">已选择20个商品</span></div>
+                                <ul class="tmp-choose__goods">
+                                  <!-- <li>对不起，查阅不到相关数据！</li>-->
+                                  <li>
+                                    <span class="g-name">法国原瓶进口 美圣世家仙马园波尔多干红葡萄酒750ml</span>
+                                    <i class="g-delete bui-delete"></i>
+                                  </li>
+                                  <li>
+                                    <span class="g-name">法国原瓶进口 美圣萄酒750ml</span>
+                                    <i class="g-delete bui-delete"></i>
+                                  </li>
+                                  <li>
+                                    <span class="g-name">法国圣世家仙马园波尔多干红葡萄酒750ml</span>
+                                    <i class="g-delete bui-delete"></i>
+                                  </li>
+                                  <li>
+                                    <span class="g-name">法国原瓶进口 美圣世家仙马园波尔多干红葡萄酒750ml</span>
+                                    <i class="g-delete bui-delete"></i>
+                                  </li>
+                                  <li>
+                                    <span class="g-name">法国原瓶进口 美圣萄酒750ml</span>
+                                    <i class="g-delete bui-delete"></i>
+                                  </li>
+                                  <li>
+                                    <span class="g-name">法国圣世家仙马园波尔多干红葡萄酒750ml</span>
+                                    <i class="g-delete bui-delete"></i>
+                                  </li>
+                                  <li>
+                                    <span class="g-name">法国原瓶进口 美圣世家仙马园波尔多干红l</span>
+                                    <i class="g-delete bui-delete"></i>
+                                  </li>
+                                  <li>
+                                    <span class="g-name">法国仙马园波尔多干红葡萄酒750ml</span>
+                                    <i class="g-delete bui-delete"></i>
+                                  </li>
+                                  <li>
+                                    <span class="g-name">法国原瓶进口 美圣世家仙马园美圣世家仙马园波尔多干红葡萄酒750ml美圣世家仙马园波尔多干红葡萄酒750ml波尔多干红葡萄酒750ml</span>
+                                    <i class="g-delete bui-delete"></i>
+                                  </li>
+                                  <li>
+                                    <span class="g-name">法国原瓶进口多干红葡萄酒750ml</span>
+                                    <i class="g-delete bui-delete"></i>
+                                  </li>
+                                  <li>
+                                    <span class="g-name">法国原瓶进口 美圣世家仙马园萄酒750ml</span>
+                                    <i class="g-delete bui-delete"></i>
+                                  </li>
+                                  <li>
+                                    <span class="g-name">法国仙马园波尔多干红葡萄酒750ml</span>
+                                    <i class="g-delete bui-delete"></i>
+                                  </li>
+                                </ul>
+                              </el-col>
+                              <el-col :span="12">
+                                <div class="tmp-choose__title">
+                                  <el-button type="primary" @click="showChooseDialog2"><i
+                                      class="bui-select-condition"></i>选择条件
+                                  </el-button>
+                                  <span class="total">已选择20个条件</span></div>
+                                <ul class="tmp-choose__goods">
+                                  <!-- <li>对不起，查阅不到相关数据！</li>-->
+                                  <li>
+                                    <span class="g-name">商品单价超过一万元</span>
+                                    <i class="g-delete bui-delete"></i>
+                                  </li>
+                                  <li>
+                                    <span class="g-name">商品单价超过5000元</span>
+                                    <i class="g-delete bui-delete"></i>
+                                  </li>
+                                  <li>
+                                    <span class="g-name">商品单价超过5000元</span>
+                                    <i class="g-delete bui-delete"></i>
+                                  </li>
+                                </ul>
+                              </el-col>
+                            </el-row>
+                          </bus-toggles>
+                          <!-- /end 选择商品结果列表 列表展开收缩切换结构-->
+                        </el-form-item>
+                        <el-form-item class="institution-form__nolabel" label-width="32px">
+                          <el-form-grid>
+                            <span class="tmp-mark">且</span>
+                          </el-form-grid>
+                          <el-form-grid>
+                            会员购买了以下宝贝
+                          </el-form-grid>
+
+                          <!-- 选择商品结果列表 列表展开收缩切换结构-->
+                          <bus-toggles :max-height="180" class="is-double or">
+                            <el-row class="tmp-choose" :gutter="30">
+                              <el-col :span="12">
+                                <div class="tmp-choose__title">
+                                  <el-button type="primary" @click="showChooseDialog"><i class="bui-select-goods"></i>选择商品
+                                  </el-button>
+                                  <span class="total">已选择0个商品</span></div>
+                                <ul class="tmp-choose__goods">
+                                  <li>暂无 相关数据！</li>
+                                </ul>
+                              </el-col>
+                              <el-col :span="12">
+                                <div class="tmp-choose__title">
+                                  <el-button type="primary" @click="showChooseDialog2"><i
+                                      class="bui-select-condition"></i>选择条件
+                                  </el-button>
+                                  <span class="total">已选择0个条件</span></div>
+                                <ul class="tmp-choose__goods">
+                                  <li>暂无相关数据！</li>
+                                </ul>
+                              </el-col>
+                            </el-row>
+                          </bus-toggles>
+                          <!-- /end 选择商品结果列表 列表展开收缩切换结构-->
+
+                          <!-- 选择商品结果列表 列表展开收缩切换结构-->
+                          <bus-toggles :max-height="180">
+                            <el-row class="tmp-choose">
+                              <el-col :span="24">
+                                <div class="tmp-choose__title">
+                                  <el-button type="primary" @click="showChooseDialog"><i class="bui-select-goods"></i>选择商品
+                                  </el-button>
+                                  <span>已选择0个商品</span></div>
+                                <ul class="tmp-choose__goods">
+                                  <li>暂无 相关数据！</li>
+                                </ul>
+                              </el-col>
+                            </el-row>
+                          </bus-toggles>
+                          <!-- /end 选择商品结果列表 列表展开收缩切换结构-->
+                        </el-form-item>
+                      </div>
+                    </el-tab-pane>
+                    <!--slot="custom" 必须加到el-tab-pane后面-->
+                    <!--  与旧结构的差异5：删除下面结构 -->
+                    <!--   <el-form-grid  slot="custom" >
+                      <el-form-grid class="rating-input">
+                        <el-input
+                          class="institution-form__edit-input"
+                          v-if="ratingInputVisible"
+                          v-model="ratingInputValue"
+                          ref="saveTagInput"
+                          @keyup.enter.native="handleInputConfirm"
+                          @blur="handleInputConfirm"
+                        >
+                        </el-input>
+                        <el-button v-else class="institution-form__edit-button" @click="showRatingInput"><i class="bui-add"></i>增加会员等级</el-button>
+                      </el-form-grid>
+                      <el-popover v-show="ratingData.length > 1" placement="right"
+                                  popper-class="tmp-popover-add"
+                                  trigger = "click"
+                                  v-model="ratingSort"
+                                  @show="ratingSortPopoverShow"
+                                  width="150">
+                        <div class="tmp-tips text-info"><i class="bui-info"></i>会员等级向下递增</div>
+                        <bus-draggable v-model="ratingDataSort" class="institution-sort__list" :options="{group:{ name:'people',  pull:'clone', put:false }}">
+                          <div class="sort-item" v-for="(sort, index) in ratingDataSort" :key="index">{{sort.name}}<i class="bui-drag sort-icon"></i></div>
+                        </bus-draggable>
+                        <div class="tmp-popover-add-footer">
+                          <el-button size="mini" @click="ratingSort = false">取消</el-button>
+                          <el-button type="primary" size="mini" @click="ratingSort = false, ratingSortSave(ratingDataSort)">保存</el-button>
+                        </div>
+                        <el-button class="rating-sort-btn" slot="reference"><i class="bui-sort"></i></el-button>
+                      </el-popover>
+                    </el-form-grid>-->
+                    <!--  /end与旧结构的差异5：删除下面结构 -->
+                  </el-tabs>
+                  <!-- 会员等级内容区 -->
+                </div>
+                <!--会员等级编辑与操作 -->
+                <!-- /end与旧结构的差异1：将拖放结构与tab结构包含 在 "institution-rating" 类里面-->
+                <el-form-item>
+                  <el-form-grid>
+                    <el-button type="primary">保存</el-button>
+                  </el-form-grid>
+                </el-form-item>
+              </el-form>
+            </el-col>
+          </el-row>
+          <!-- 选择商品弹窗结构 -->
+          <el-dialog title="选择商品" v-model="dialogChooseGoodsVisible" size="middle" :close-on-click-modal="false"
+                     class="g-wrapper" custom-class="condition-dialog">
+            <el-row class="tmp-choose__condition" :gutter="20">
+              <el-col :span="15" class="condition-left" ref="conditionItem">
+                <el-form :inline="true">
+                  <el-form-item label="商品名称：">
+                    <el-form-grid width="156">
+                      <el-input placeholder="请输入商品名称"></el-input>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="商品编码：" style="margin-right:0;">
+                    <el-form-grid width="156">
+                      <el-input placeholder="请输入商品编码"></el-input>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="商品分类：">
+                    <el-form-grid width="156">
+                      <el-input placeholder="请输入商品分类"></el-input>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="交易金额：" style="margin-right:0;">
+                    <el-form-grid width="156">
+                      <el-row>
+                        <el-col :span="11">
+                          <el-input placeholder="最大价格" class="text-right"></el-input>
+                        </el-col>
+                        <el-col :span="2" style="text-align:center">~</el-col>
+                        <el-col :span="11">
+                          <el-input placeholder="最小价格" class="text-right"></el-input>
+                        </el-col>
+                      </el-row>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item class="el-block condition-control">
+                    <el-form-grid>
+                      <el-button type="primary">搜索</el-button>
+                      <el-button>重置</el-button>
+                    </el-form-grid>
+                  </el-form-item>
+                </el-form>
+                <el-table :data="goodaData">
+                  <el-table-column
+                    type="selection"
+                    align="center"
+                    width="35">
+                  </el-table-column>
+                  <el-table-column property="name" label="商品名称"></el-table-column>
+                  <el-table-column property="code" label="商品编号" width="110"></el-table-column>
+                  <el-table-column label="详情" width="100" align="center">
+                    <template scope="scope">
+                      <div class="tmp-cell__buttons">
+                        <el-popover
+                          placement="bottom"
+                          width="110"
+                          trigger="click">
+                          <div>15457878787</div>
+                          <div><span>库存：399</span><span>价格：457元</span></div>
+                          <el-button type="text" slot="reference">SKU筛选</el-button>
+                        </el-popover>
+                      </div>
+                    </template>
+                  </el-table-column>
+                </el-table>
+                <el-pagination
+                  class="template-table-pagination"
+                  layout="prev, pager, next"
+                  :total="50">
+                </el-pagination>
+              </el-col>
+              <el-col :span="9" class="condition-right">
+                <div class="tmp-choose__result">
+                  <p class="title">已选择了13件商品</p>
+                  <el-scrollbar ref="tmpChooseScroll"
+                                outsider
+                                :wrap-style="'max-height:' + dialogChooseListHeight + 'px;'"
+                                wrap-class="tmp-choose__scroll" q>
+                    <ul class="tmp-choose__goods">
+                      <li>
+                        <span class="g-name">法国原瓶进口 美圣世家仙马园波尔多干红葡萄酒750ml</span>
+                        <a><i class="g-delete bui-delete"></i></a>
+                      </li>
+                      <li>
+                        <span class="g-name">法国原瓶进口ml</span>
+                        <a><i class="g-delete bui-delete"></i></a>
+                      </li>
+                      <li>
+                        <span class="g-name">波尔多干红葡萄酒750ml</span>
+                        <a><i class="g-delete bui-delete"></i></a>
+                      </li>
+                      <li>
+                        <span class="g-name">法国原瓶进口ml</span>
+                        <a><i class="g-delete bui-delete"></i></a>
+                      </li>
+                      <li>
+                        <span class="g-name">法国原瓶进口ml</span>
+                        <a><i class="g-delete bui-delete"></i></a>
+                      </li>
+                      <li>
+                        <span class="g-name">波尔多干红葡萄酒750ml</span>
+                        <a><i class="g-delete bui-delete"></i></a>
+                      </li>
+                      <li>
+                        <span class="g-name">法国原瓶进口ml</span>
+                        <a><i class="g-delete bui-delete"></i></a>
+                      </li>
+                      <li>
+                        <span class="g-name">法国原瓶进口ml</span>
+                        <a><i class="g-delete bui-delete"></i></a>
+                      </li>
+                      <li>
+                        <span class="g-name">波尔多干红葡萄酒750ml</span>
+                        <a><i class="g-delete bui-delete"></i></a>
+                      </li>
+                      <li>
+                        <span class="g-name">法国原瓶进口ml</span>
+                        <a><i class="g-delete bui-delete"></i></a>
+                      </li>
+                      <li>
+                        <span class="g-name">法国波尔多干红葡萄酒750ml</span>
+                        <a><i class="g-delete bui-delete"></i></a>
+                      </li>
+                      <li>
+                        <span class="g-name">尔多干红葡萄酒750ml</span>
+                        <a><i class="g-delete bui-delete"></i></a>
+                      </li>
+                      <li>
+                        <span class="g-name">法国原瓶进口 美圣世家仙马园波尔多干红葡萄酒750ml</span>
+                        <a><i class="g-delete bui-delete"></i></a>
+                      </li>
+                      <li>
+                        <span class="g-name">法国原瓶进口ml</span>
+                        <a><i class="g-delete bui-delete"></i></a>
+                      </li>
+                      <li>
+                        <span class="g-name">波尔多干红葡萄酒750ml</span>
+                        <a><i class="g-delete bui-delete"></i></a>
+                      </li>
+                      <li>
+                        <span class="g-name">法国波尔多干红葡萄酒750ml</span>
+                        <a><i class="g-delete bui-delete"></i></a>
+                      </li>
+                      <li>
+                        <span class="g-name">尔多干红葡萄酒750ml</span>
+                        <a><i class="g-delete bui-delete"></i></a>
+                      </li>
+                      <li>
+                        <span class="g-name">法国原瓶进口 美圣世家仙马园波尔多干红葡萄酒750ml</span>
+                        <a><i class="g-delete bui-delete"></i></a>
+                      </li>
+                      <li>
+                        <span class="g-name">法国原瓶进口ml</span>
+                        <a><i class="g-delete bui-delete"></i></a>
+                      </li>
+                      <li>
+                        <span class="g-name">波尔多干红葡萄酒750ml</span>
+                        <a><i class="g-delete bui-delete"></i></a>
+                      </li>
+                      <li>
+                        <span class="g-name">法国波尔多干红葡萄酒750ml</span>
+                        <a><i class="g-delete bui-delete"></i></a>
+                      </li>
+                      <li>
+                        <span class="g-name">尔多干红葡萄酒750ml</span>
+                        <a><i class="g-delete bui-delete"></i></a>
+                      </li>
+                      <li>
+                        <span class="g-name">法国原瓶进口 美圣世家仙马园波尔多干红葡萄酒750ml</span>
+                        <a><i class="g-delete bui-delete"></i></a>
+                      </li>
+                      <li>
+                        <span class="g-name">法国原瓶进口ml</span>
+                        <a><i class="g-delete bui-delete"></i></a>
+                      </li>
+                      <li>
+                        <span class="g-name">波尔多干红葡萄酒750ml</span>
+                        <a><i class="g-delete bui-delete"></i></a>
+                      </li>
+                      <li>
+                        <span class="g-name">法国波尔多干红葡萄酒750ml</span>
+                        <a><i class="g-delete bui-delete"></i></a>
+                      </li>
+                      <li>
+                        <span class="g-name">尔多干红葡萄酒750ml</span>
+                        <a><i class="g-delete bui-delete"></i></a>
+                      </li>
+                    </ul>
+                  </el-scrollbar>
+                </div>
+              </el-col>
+            </el-row>
+            <div slot="footer" class="dialog-footer">
+              <el-button @click="dialogChooseGoodsVisible = false">取 消</el-button>
+              <el-button type="primary" @click="dialogChooseGoodsVisible = false">确 定</el-button>
+            </div>
+          </el-dialog>
+          <!-- /end 选择商品弹窗结构 -->
+
+          <!-- 选择条件弹窗结构 -->
+          <el-dialog title="选择条件" v-model="dialogChooseConditionVisible" size="middle" :modal-append-to-body="false"
+                     :close-on-click-modal="false" class="r-wrapper" custom-class="condition-dialog">
+            <el-row class="tmp-choose__condition rules" :gutter="20">
+              <div class="condition-left" ref="conditionItem2">
+                <el-form label-width="70px">
+                  <el-form-item label="商品名称：" v-for="(name, index) in chooseCondition.name" :key="index">
+                    <el-form-grid size="md">
+                      <el-input placeholder="请输入商品名称" v-model="name.value"></el-input>
+                    </el-form-grid>
+                    <el-form-grid size="xxs" v-show="index !== chooseCondition.name.length - 1">
+                      <el-select placeholder="选择" v-model="name.rule" class="is-gray">
+                        <el-option label="并且" value="and"></el-option>
+                        <el-option label="或者" value="or"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                    <el-form-grid v-show="index !== chooseCondition.name.length - 1">
+                      <el-button @click="deleteItem(chooseCondition.name)" type="icon"><i class="bui-delete"></i>
+                      </el-button>
+                    </el-form-grid>
+                    <el-form-grid v-show="index === chooseCondition.name.length - 1">
+                      <el-button @click="addItem(chooseCondition.name, index)" type="icon"><i class="bui-add"></i>
+                      </el-button>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="商品编码：" v-for="(code, index) in chooseCondition.code" :key="index">
+                    <el-form-grid size="md">
+                      <el-input placeholder="请输入商品编码" v-model="code.value"></el-input>
+                    </el-form-grid>
+                    <el-form-grid size="xxs" v-show="index !== chooseCondition.code.length - 1">
+                      <el-select placeholder="选择" v-model="code.rule" class="is-gray">
+                        <el-option label="并且" value="and"></el-option>
+                        <el-option label="或者" value="or"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                    <el-form-grid v-show="index !== chooseCondition.code.length - 1">
+                      <el-button @click="deleteItem(chooseCondition.code)" type="icon"><i class="bui-delete"></i>
+                      </el-button>
+                    </el-form-grid>
+                    <el-form-grid v-show="index === chooseCondition.code.length - 1">
+                      <el-button @click="addItem(chooseCondition.code, index)" type="icon"><i class="bui-add"></i>
+                      </el-button>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="价格区间：" v-for="(price, index) in chooseCondition.price" :key="index">
+                    <el-form-grid size="md">
+                      <el-row>
+                        <el-col :span="11">
+                          <el-input placeholder="最大价格" class="text-right" v-model="price.start"></el-input>
+                        </el-col>
+                        <el-col :span="2" class="text-center">~</el-col>
+                        <el-col :span="11">
+                          <el-input placeholder="最小价格" class="text-right" v-model="price.end"></el-input>
+                        </el-col>
+                      </el-row>
+                    </el-form-grid>
+                    <el-form-grid size="xxs" v-show="index !== chooseCondition.price.length - 1">
+                      <el-select placeholder="选择" v-model="price.rule" class="is-gray">
+                        <el-option label="并且" value="and"></el-option>
+                        <el-option label="或者" value="or"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                    <el-form-grid v-show="index !== chooseCondition.price.length - 1">
+                      <el-button @click="deleteItem(chooseCondition.price)" type="icon"><i class="bui-delete"></i>
+                      </el-button>
+                    </el-form-grid>
+                    <el-form-grid v-show="index === chooseCondition.price.length - 1">
+                      <el-button @click="addItem(chooseCondition.price, index)" type="icon"><i class="bui-add"></i>
+                      </el-button>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="商品分类：" v-for="(cate, index) in chooseCondition.cate" :key="index">
+                    <el-form-grid size="md">
+                      <el-select placeholder="请选择" v-model="cate.select">
+                        <el-option label="商品分类1" value="cate1"></el-option>
+                        <el-option label="商品分类2" value="cate2"></el-option>
+                        <el-option label="商品分类3" value="cate3"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                    <el-form-grid size="xxs" v-show="index !== chooseCondition.cate.length - 1">
+                      <el-select placeholder="选择" v-model="cate.rule" class="is-gray">
+                        <el-option label="并且" value="and"></el-option>
+                        <el-option label="或者" value="or"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                    <el-form-grid v-show="index !== chooseCondition.cate.length - 1">
+                      <el-button @click="deleteItem(chooseCondition.cate)" type="icon"><i class="bui-delete"></i>
+                      </el-button>
+                    </el-form-grid>
+                    <el-form-grid v-show="index === chooseCondition.cate.length - 1">
+                      <el-button @click="addItem(chooseCondition.cate, index)" type="icon"><i class="bui-add"></i>
+                      </el-button>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item>
+                    <el-form-grid>
+                      <el-button type="primary">商品预览</el-button>
+                    </el-form-grid>
+                  </el-form-item>
+                </el-form>
+              </div>
+              <div class="condition-right">
+                <el-table :data="goodaData">
+                  <el-table-column property="name" label="商品名称" :show-overflow-tooltip="true"></el-table-column>
+                  <el-table-column property="code" label="商品编号" width="110"></el-table-column>
+                </el-table>
+                <el-pagination
+                  class="template-table-pagination"
+                  layout="total, prev, pager, next"
+                  :total="50">
+                </el-pagination>
+              </div>
+            </el-row>
+            <div slot="footer" class="dialog-footer">
+              <el-button @click="dialogChooseConditionVisible = false">取 消</el-button>
+              <el-button type="primary" @click="dialogChooseConditionVisible = false">确 定</el-button>
+            </div>
+          </el-dialog>
+          <!-- /end 选择条件弹窗结构 -->
+        </el-tab-pane>
+      </el-tabs>
+    </div>
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="organization.SysShop">
+		<sql id="queryBrotherNameCount" value="select count(1) from sys_shop 
+					where group_id = #{group_id} and parent_id=#{parent_id} and name = #{name} and state=1">
+		</sql>
+		
+		<sql id="queryIsnotShopCount" value="select * from sys_shop 
+				where group_id=#{group_id} and state=1 and is_shop =0"></sql>
+		
+		
+		<sql id="queryShopData" value="">
+			<if test="#code!=null" value="
+				select  s.* from sys_shop s 
+				inner join sys_department_shop ds 
+				on s.code=ds.shop_code 
+				where s.code like ${'code%'} and ds.department_code like ${'department_code%'} and s.state=1 and s.is_shop=1 
+				group by s.code">
+			</if>
+		</sql>
+	
+	
+		<sql id="queryMaxChildCode" value=" select  * from sys_shop 
+				where parent_id=#{parent_id}">
+				<if test="#group_id!=0" value="and group_id=#{group_id} "></if>
+				<if value="order by id desc limit 1"></if>
+		</sql>
+		
+		
+		<sql id="queryShopPlat" value="select * from sys_shop 
+				where group_id=#{group_id}  and state=1 ">
+				<if value="and code like ${'code%'}"></if>
+		</sql>
+		
+		<sql id="queryShopsInGroupByCodes" value="">
+			<if value="select * from sys_shop where group_id=#{groupId} and state=1 and is_shop=1 and code in (${'codes'})"></if>
+		</sql>
+		
+		<sql id="batchDelete" value="update sys_shop set state = 0 where id=?"></sql>
+		
+		<sql id="batchDeleteSeletedShop" value="">
+			<if value="delete from sys_shop where code like ${'code%'} and is_shop=1"></if>
+		</sql>
+		
+		
+		<sql id = "loadChannelTree" value = "select id as id, code as code , name as label, parent_id as parentId, true as showAdd,
+		               true as showEdit, CASE parent_id when 0 then false 
+                        else true end  AS showDelete  from sys_shop where 1=1" limit=" order by createTime desc" >
+			<if value=" and is_shop=#{isShop}"></if>
+			<if value=" and state=#{state}"></if>
+		</sql>
+		<sql id = "loadChannelTreeByCodeLK" value = "select id as id, code as code , name as label, parent_id as parentId, true as showAdd,
+                       true as showEdit, CASE parent_id when 0 then false 
+                        else true end  AS showDelete  from sys_shop where  1= 1">
+		<if value=" and code in(${'codes'})"></if>
+		<if value=" and is_shop=#{isShop}"></if>
+        <if value=" and state=#{state}"></if>
+        <if value=" order by create_time desc"></if>
+        </sql>
+        
+        <sql id="queryChannelTree" value="select id as id,parent_id as parentId,`code` as code,`name` as label,'false' as checked
+		       from  sys_shop where state = 1 and is_shop = 0">
+		    <auth tenant="group_id"></auth>   
+		 </sql>
+		 
+		 <sql id="queryShopInChannel" value="select shop.name as shopName,  shop.* ,ext.id as extId,ext.app_key,ext.app_secret,ext.access_token,ext.expires_in,ext.jl_session_key,ext.jlkey_expire_time,ext.kd_session_key,ext.plat_from_type,ext.guid,ext.uid,brand.brand_name from sys_shop shop 
+		 	left join sys_brand brand on brand.id=shop.brand_id
+		    left join sys_shop_ext ext on shop.code=ext.code
+		 	where shop.state=1 and shop.is_shop=1">
+		 	<bind name="code" value="#code == null ? null : (#code+'%')"></bind>
+		 	<bind name="shopName" value="#shopName == null ? null : ('%'+#shopName+'%')"></bind>
+		 	<if value="and shop.code like #{code}"></if>
+			<if value="and shop.name like #{shopName}"></if>
+			<if value = "order by shop.create_time desc"></if>
+		 </sql>
+		
+		 <sql id="queryChannelList" value="select id as id,parent_id,code,name 
+		       from  sys_shop where state = 1 and is_shop = 0">
+		  	<auth tenant="group_id"></auth>      
+		  </sql>
+		 
+		 <sql id="queryChannelName" value="">
+			<if value="select group_concat(name separator '/') channelName 
+				from sys_shop where state=1 and is_shop=0"></if>
+			<if value="and code in (${'code'})"></if>
+		</sql>
+		
+		<sql id="checkShopInChannel" value="select count(1) from sys_shop 
+			where state=1 and is_shop=1 ">
+			<if value="and code != #{code}"></if>
+			<if value="and name = #{name}"></if>
+		</sql>
+		<sql id="loadByCode" value="select * from sys_shop where code=#{code}"></sql>
+		<sql id="queryAllShop" value="select * from sys_shop where is_shop=1 and state=1">
+			<auth tenant="group_id"></auth>
+		</sql>
+		<sql id="loadChannelShopTree" 
+			 value="select id as id,parent_id as parentid,`code` as code
+			 ,`name` as label, if(is_shop = 0,false,true) as showadd,shop_count as ext1
+             from  sys_shop where state = 1  "> 
+        </sql>
+        
+        <!-- 获取当前用户所属的岗位店铺 -->
+		<sql id="queryUserPositionShop" value="select a.department_code as departmentCode, b.shop_code as shopCode,c.name as shopName from sys_user_department a
+			    inner join sys_position_shop b on a.position_code=b.position_code
+                            inner join sys_shop c on b.shop_code=c.code where c.state=1 and c.is_shop=1">
+			<if value="and a.user_id=#{user_id}"></if>
+			<if value="group by shopCode"></if>
+		</sql>
+		
+		<!-- 获取当前部门下面所有子部门能看到的店铺 -->
+		<sql id="queryShopCodeByDepartmentCode" value="select distinct b.shop_code as shopCode,c.name as shopName from sys_user_department a
+			    inner join sys_position_shop b on a.department_code=b.department_code
+                            inner join sys_shop c on b.shop_code=c.code
+			   where 1=1  and c.state=1 and c.is_shop=1 ">
+			    <if value="and a.department_code!=#{departmentCode}"></if>
+			    <if value="and a.department_code like ${'departmentCode%'}"></if>
+	    </sql>
+	</sqlGroup>
+</sqlRoot>

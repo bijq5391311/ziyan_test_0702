@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+    <sqlGroup name="api.zyOutShop">
+        <sql id="countOutShop" count="select count(1)" value="
+        select count(1) as count from out_shop s 
+        where 1=1 ">
+            <if value=" and s.out_code in (${shopIds})"/>
+            <if value=" and out_code = ${outerShop}"/>
+        </sql>
+    </sqlGroup>
+</sqlRoot> 

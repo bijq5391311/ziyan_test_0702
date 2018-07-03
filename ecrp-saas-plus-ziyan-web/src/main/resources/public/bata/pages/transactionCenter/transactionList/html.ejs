@@ -1,0 +1,539 @@
+<% include ../../../include/layout/start.ejs %>
+<div id="example" v-cloak>
+  <div class="template-page">
+    <div class="tmp-page__content">
+      <el-row>
+        <el-col :span="24">
+          <bus-multi-filter @submit-search="submitSearch"
+                            @reset-search="resetSearch"
+                            @recover-search="recoverSearch"
+                            @clean-search="cleanSearch">
+            <!-- 按钮组 -->
+            <template slot="btns">
+              <el-button type="primary" @click="addRow">新增事务工单</el-button>
+              <el-button type="primary" @click="editTransaction">处理事务</el-button>
+              <el-button type="primary" @click="delLotRow"><i class="bui-delete"></i>删除</el-button>
+            </template>
+            <!-- end/按钮组 -->
+            <!-- 单条件表单 -->
+            <el-form slot="singleform" :inline="true" class="pull-right">
+              <el-form-item>
+                <el-input
+                  placeholder="请输入姓名"
+                  icon="search"
+                  v-model="multipleForm.user"
+                  :on-icon-click="filterSubmit">
+                </el-input>
+              </el-form-item>
+            </el-form>
+            <!-- end/单条件表单 -->
+            <!-- 多条件表单 -->
+            <el-form :model="multipleForm" :inline="true" label-width="80px">
+              <el-form-item label="关键词：">
+                <el-form-grid size="xmd">
+                  <el-input placeholder="请输入关键词" v-model="multipleForm.user"></el-input>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="交易来源：">
+                <el-form-grid size="xmd">
+                  <el-select placeholder="请选择交易来源" v-model="multipleForm.source">
+                    <el-option label="区域一" value="shanghai"></el-option>
+                    <el-option label="区域二" value="beijing"></el-option>
+                  </el-select>
+                </el-form-grid>
+              </el-form-item>
+            </el-form>
+            <!-- end/多条件表单 -->
+            <!-- 搜索结果 -->
+            <template slot="result">
+              <el-tag v-for="(tag,index) in 10" :key="index" type="primary" :closable="true">tag</el-tag>
+            </template>
+            <!-- end/搜索结果 -->
+          </bus-multi-filter>
+          <el-table
+            border
+            :data="tableData"
+            class="template-table"
+            @selection-change="handleSelectionChange"
+            v-loading.lock="loadingtable"
+            element-loading-icon="<img src='<%= require('V/xenon/images/logo-loading.png') %>' />"
+            element-loading-text="拼命加载中">
+            <el-table-column
+              type="selection"
+              align="center"
+              width="40">
+            </el-table-column>
+            <el-table-column
+              prop="date"
+              label="日期"
+              align="center"
+              width="100">
+            </el-table-column>
+            <el-table-column
+              prop="name"
+              label="姓名"
+              width="180">
+            </el-table-column>
+            <el-table-column
+              prop="province"
+              label="省份"
+              width="180">
+            </el-table-column>
+            <el-table-column
+              prop="address"
+              label="地址">
+              <template scope="scope">
+                <a class="is-link">{{scope.row.address}}</a>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="操作"
+              align="center"
+              width="90"
+              align="center">
+              <template scope="scope">
+                <div class="tmp-cell__buttons">
+                  <el-button type="text" @click.native.prevent="dialogViewVisible = true">查看</el-button>
+                  |
+                  <el-button type="text" @click.native.prevent="delRow(scope.$index, tableData)">删除</el-button>
+                </div>
+              </template>
+            </el-table-column>
+          </el-table>
+          <el-pagination
+            class="template-table-pagination"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="currentPage4"
+            :page-sizes="[10, 20, 30, 50, 100]"
+            :page-size="10"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="100">
+          </el-pagination>
+        </el-col>
+      </el-row>
+      <el-dialog title="工单事务处理" v-model="dialogEditVisible" :modal-append-to-body="false" size="large"
+                 custom-class="transaction-dialog">
+        <div class="transaction-content is-cut">
+          <el-row :gutter="20">
+            <el-col :span="14">
+              <h5 class="transaction-title is-gao"><i class="bui-gao"></i>事务详情</h5>
+              <el-row class="control-form">
+                <el-col :span="12">
+                  <div class="control-item">
+                    <label class="control-label">事务编码：</label>
+                    <div class="control-content">1578787878787</div>
+                  </div>
+                </el-col>
+                <el-col :span="12">
+                  <div class="control-item">
+                    <label class="control-label">事务来源：</label>
+                    <div class="control-content">客道精灵</div>
+                  </div>
+                </el-col>
+                <el-col :span="12">
+                  <div class="control-item">
+                    <label class="control-label">事务类型：</label>
+                    <div class="control-content">售后</div>
+                  </div>
+                </el-col>
+                <el-col :span="12">
+                  <div class="control-item">
+                    <label class="control-label">优先等级：</label>
+                    <div class="control-content">高</div>
+                  </div>
+                </el-col>
+                <el-col :span="12">
+                  <div class="control-item">
+                    <label class="control-label">过期时间：</label>
+                    <div class="control-content">2017-08-19 12:12:42</div>
+                  </div>
+                </el-col>
+                <el-col :span="12">
+                  <div class="control-item">
+                    <label class="control-label">创建时间：</label>
+                    <div class="control-content">2017-08-16 12:12:42</div>
+                  </div>
+                </el-col>
+                <el-col :span="24">
+                  <div class="control-item">
+                    <label class="control-label">事务描述：</label>
+                    <div class="control-content">
+                      此处是对事务进行描述，此处是对事务进行描述，此处是对事务进行描述，此处是对事务进行描述，此处是对事务进行描述，此处是对事务进行描述，此处是对事务进行描述，此处是对事务进行描述，此处是对事务进行描述，此处是对事务进行描述，此处是对事务进行描述
+                    </div>
+                  </div>
+                </el-col>
+              </el-row>
+              <div class="transaction-detail">
+                <div class="control-form p-left">
+                  <div class="control-item">
+                    <label class="control-label">商品信息：</label>
+                    <div class="control-content">D2C官网</div>
+                  </div>
+                  <div class="control-item">
+                    <label class="control-label">评价人：</label>
+                    <div class="control-content">评价人姓名</div>
+                  </div>
+                  <div class="control-item">
+                    <label class="control-label">评价时间：</label>
+                    <div class="control-content">2017-08-12 12:32:53</div>
+                  </div>
+                  <div class="control-item">
+                    <label class="control-label">评价结果：</label>
+                    <div class="control-content">好评</div>
+                  </div>
+                  <div class="control-item">
+                    <label class="control-label">评价内容：</label>
+                    <div class="control-content">好评评价内容，好评评价内容好评评价内容好评评价内容好评评价内容，好评评价内容好评评价内容好评评价内容好评评价内容</div>
+                  </div>
+                </div>
+                <div class="p-right">
+                  <img src='http://ecrp.image.alimmdn.com/bfab940757cbb12a0e6c3fed107d1e19.jpg' width="120"/>
+                </div>
+              </div>
+              <hr>
+              <h5 class="transaction-title">处理记录</h5>
+              <el-table
+                border
+                :data="tableData"
+                class="template-table"
+                @selection-change="handleSelectionChange"
+                v-loading.lock="loadingtable"
+                element-loading-icon="<img src='<%= require('V/xenon/images/logo-loading.png') %>' />"
+                element-loading-text="拼命加载中">
+                <el-table-column
+                  prop="date"
+                  label="处理时间"
+                  align="center"
+                  width="100">
+                </el-table-column>
+                <el-table-column
+                  prop="name"
+                  label="处理人">
+                </el-table-column>
+                <el-table-column
+                  prop="province"
+                  label="处理信息">
+                </el-table-column>
+                <el-table-column
+                  prop="id"
+                  align="right"
+                  label="额外成本 ">
+                  <template scope="scope">
+                    {{scope.row.id.toFixed(2)}}
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  prop="address"
+                  show-overflow-tooltip
+                  label="短信通知">
+                </el-table-column>
+              </el-table>
+              <el-pagination
+                class="template-table-pagination"
+                :current-page="currentPage4"
+                :page-sizes="[10, 20, 30, 50, 100]"
+                :page-size="10"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="100">
+              </el-pagination>
+            </el-col>
+            <el-col :span="10">
+              <h5 class="transaction-title">处理信息</h5>
+              <el-form :model="tableForm" placement="right" label-width="100px">
+                <el-form-item label="处理信息：">
+                  <el-form-grid class="el-block">
+                    <el-input type="textarea" placeholder="请输入处理信息"></el-input>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="处理状态：">
+                  <el-form-grid>
+                    <el-checkbox-group v-model="formCheckBox">
+                      <el-checkbox label="已解决" name="type"></el-checkbox>
+                    </el-checkbox-group>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="下一个处理人：">
+                  <el-form-grid size="xmd">
+                    <el-select placeholder="请选择" v-model="defaultSelect">
+                      <el-option label="处理人1" value="1"></el-option>
+                      <el-option label="处理人2" value="2"></el-option>
+                    </el-select>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="处理成本：">
+                  <el-form-grid size="sm">
+                    <el-input placeholder="请输入金额" class="text-right">
+                      <span slot="append">元</span>
+                    </el-input>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="是否短信通知：">
+                  <el-form-grid>
+                    <el-checkbox-group v-model="formCheckBox">
+                      <el-checkbox label="是" name="yes"></el-checkbox>
+                    </el-checkbox-group>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="联系人手机号：">
+                  <el-form-grid size="xmd">
+                    <el-input placeholder="请输入联系人手机号">
+                    </el-input>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="短信内容：">
+                  <el-form-grid class="el-block">
+                    <el-input type="textarea" placeholder="请输入处理信息"></el-input>
+                  </el-form-grid>
+                </el-form-item>
+              </el-form>
+            </el-col>
+          </el-row>
+        </div>
+        <div slot="footer" class="dialog-footer">
+
+          <el-button @click="dialogEditVisible = false">取 消</el-button>
+          <el-button type="primary" @click="dialogEditVisible =  false">保 存</el-button>
+        </div>
+      </el-dialog>
+      <el-dialog title="工单事务查看" v-model="dialogViewVisible" :modal-append-to-body="false" size="large"
+                 custom-class="transaction-dialog">
+        <div class="transaction-content">
+          <el-row :gutter="30">
+            <el-col :span="24">
+              <h5 class="transaction-title is-gao"><i class="bui-gao"></i>事务详情</h5>
+              <el-row class="control-form">
+                <el-col :span="12">
+                  <div class="control-item">
+                    <label class="control-label">事务编码：</label>
+                    <div class="control-content">1578787878787</div>
+                  </div>
+                </el-col>
+                <el-col :span="12">
+                  <div class="control-item">
+                    <label class="control-label">事务来源：</label>
+                    <div class="control-content">客道精灵</div>
+                  </div>
+                </el-col>
+                <el-col :span="12">
+                  <div class="control-item">
+                    <label class="control-label">事务类型：</label>
+                    <div class="control-content">售后</div>
+                  </div>
+                </el-col>
+                <el-col :span="12">
+                  <div class="control-item">
+                    <label class="control-label">优先等级：</label>
+                    <div class="control-content">高</div>
+                  </div>
+                </el-col>
+                <el-col :span="12">
+                  <div class="control-item">
+                    <label class="control-label">过期时间：</label>
+                    <div class="control-content">2017-08-19 12:12:42</div>
+                  </div>
+                </el-col>
+                <el-col :span="12">
+                  <div class="control-item">
+                    <label class="control-label">创建时间：</label>
+                    <div class="control-content">2017-08-16 12:12:42</div>
+                  </div>
+                </el-col>
+                <el-col :span="24">
+                  <div class="control-item">
+                    <label class="control-label">事务描述：</label>
+                    <div class="control-content">
+                      此处是对事务进行描述，此处是对事务进行描述，此处是对事务进行描述，此处是对事务进行描述，此处是对事务进行描述，此处是对事务进行描述，此处是对事务进行描述，此处是对事务进行描述，此处是对事务进行描述，此处是对事务进行描述，此处是对事务进行描述
+                    </div>
+                  </div>
+                </el-col>
+              </el-row>
+              <div class="transaction-detail">
+                <div class="control-form p-left">
+                  <div class="control-item">
+                    <label class="control-label">商品信息：</label>
+                    <div class="control-content">D2C官网</div>
+                  </div>
+                  <div class="control-item">
+                    <label class="control-label">评价人：</label>
+                    <div class="control-content">评价人姓名</div>
+                  </div>
+                  <div class="control-item">
+                    <label class="control-label">评价时间：</label>
+                    <div class="control-content">2017-08-12 12:32:53</div>
+                  </div>
+                  <div class="control-item">
+                    <label class="control-label">评价结果：</label>
+                    <div class="control-content">好评</div>
+                  </div>
+                  <div class="control-item">
+                    <label class="control-label">评价内容：</label>
+                    <div class="control-content">好评评价内容，好评评价内容好评评价内容好评评价内容好评评价内容，好评评价内容好评评价内容好评评价内容好评评价内容</div>
+                  </div>
+                </div>
+                <div class="p-right">
+                  <img src='http://ecrp.image.alimmdn.com/bfab940757cbb12a0e6c3fed107d1e19.jpg' width="120"/>
+                </div>
+              </div>
+              <hr>
+              <h5 class="transaction-title">处理记录</h5>
+              <el-table
+                border
+                :data="tableData"
+                class="template-table"
+                @selection-change="handleSelectionChange"
+                v-loading.lock="loadingtable"
+                element-loading-icon="<img src='<%= require('V/xenon/images/logo-loading.png') %>' />"
+                element-loading-text="拼命加载中">
+                <el-table-column
+                  prop="date"
+                  label="处理时间"
+                  align="center"
+                  width="100">
+                </el-table-column>
+                <el-table-column
+                  prop="name"
+                  label="处理人">
+                </el-table-column>
+                <el-table-column
+                  prop="province"
+                  label="处理信息">
+                </el-table-column>
+                <el-table-column
+                  prop="id"
+                  align="right"
+                  label="额外成本 ">
+                  <template scope="scope">
+                    {{scope.row.id.toFixed(2)}}
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  prop="address"
+                  show-overflow-tooltip
+                  label="短信通知">
+                </el-table-column>
+              </el-table>
+              <el-pagination
+                class="template-table-pagination"
+                :current-page="currentPage4"
+                :page-sizes="[10, 20, 30, 50, 100]"
+                :page-size="10"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="100">
+              </el-pagination>
+            </el-col>
+          </el-row>
+        </div>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="dialogViewVisible = false">取 消</el-button>
+          <el-button type="primary" @click="dialogViewVisible =  false">保 存</el-button>
+        </div>
+      </el-dialog>
+      <el-dialog title="编辑" v-model="dialogFormVisible" :modal-append-to-body="false">
+        <el-form :model="tableForm" placement="right">
+          <el-form-item label="日期">
+            <el-date-picker type="date" placeholder="选择日期" v-model="tableForm.date"
+                            format="yyyy-MM-dd"></el-date-picker>
+          </el-form-item>
+          <el-form-item label="姓名">
+            <el-input v-model="tableForm.name" auto-complete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="省份">
+            <el-input v-model="tableForm.province"></el-input>
+          </el-form-item>
+          <el-form-item label="地址">
+            <el-input v-model="tableForm.address"></el-input>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="dialogFormVisible = false">取 消</el-button>
+          <el-button type="primary" @click="saveForm">保 存</el-button>
+        </div>
+      </el-dialog>
+      <el-dialog title="新增事务工单" v-model="dialogAddVisible" :modal-append-to-body="false" size="tiny" width="450">
+        <el-form placement="right" :model="addForm" :rules="addRules" label-width="100px" ref="addFormElement">
+          <el-form-item label="会员ID：" required>
+            <el-form-grid size="xmd">
+              <el-form-item prop="id">
+                <el-input v-model="addForm.id" auto-complete="off"></el-input>
+              </el-form-item>
+            </el-form-grid>
+          </el-form-item>
+          <el-form-item label="会员姓名：" required>
+            <el-form-grid size="xmd">
+              <el-form-item prop="name">
+                <el-input v-model="addForm.name" auto-complete="off"></el-input>
+              </el-form-item>
+            </el-form-grid>
+          </el-form-item>
+          <el-form-item label="事态描述：" required>
+            <el-form-grid size="xmd">
+              <el-form-item prop="description">
+                <el-input type="textarea" v-model="addForm.description"></el-input>
+              </el-form-item>
+            </el-form-grid>
+          </el-form-item>
+          <el-form-item label="事务类型：">
+            <el-form-grid size="xmd">
+              <el-form-item prop="type">
+                <el-select placeholder="请选择" v-model="addForm.type">
+                  <el-option label="甲" value="one"></el-option>
+                  <el-option label="乙" value="two"></el-option>
+                </el-select>
+              </el-form-item>
+            </el-form-grid>
+          </el-form-item>
+          <el-form-item label="优先级：">
+            <el-form-grid size="xmd">
+              <el-form-item prop="priority">
+                <el-select placeholder="请选择" v-model="addForm.priority">
+                  <el-option label="最高" value="one"></el-option>
+                  <el-option label="最低" value="two"></el-option>
+                </el-select>
+              </el-form-item>
+            </el-form-grid>
+          </el-form-item>
+          <el-form-item label="事务过期时间：">
+            <el-form-grid size="xmd">
+              <el-form-item prop="time">
+                <el-date-picker v-model="addForm.time" type="date" placeholder="请选择日期"></el-date-picker>
+              </el-form-item>
+            </el-form-grid>
+          </el-form-item>
+          <el-form-item label="下一处理人：">
+            <el-form-grid size="xmd">
+              <el-form-item prop="next">
+                <el-select placeholder="选择处理人" v-model="addForm.next">
+                  <el-option label="无" value="zero"></el-option>
+                  <el-option label="甲" value="one"></el-option>
+                  <el-option label="乙" value="two"></el-option>
+                </el-select>
+              </el-form-item>
+            </el-form-grid>
+          </el-form-item>
+          <el-form-item label="图片上传：">
+            <el-form-grid>
+              <el-form-grid>
+                <el-upload
+                  class="upload-demo"
+                  action=""
+                  :on-preview="handlePreview"
+                  :on-remove="handleRemove">
+                  <el-button size="small" type="primary">点击上传</el-button>
+                  <el-form-grid block slot="tip" class="text-info">只能上传 <span class="text-warning">jpg/jpeg/png/bmp/gif</span>
+                    文件，且不超过 <span class="text-warning">2M</span></el-form-grid>
+                </el-upload>
+              </el-form-grid>
+              <!--<el-input type="file" v-model="addForm.name" auto-complete="off"></el-input>-->
+            </el-form-grid>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="addCancel">取 消</el-button>
+          <el-button type="primary" @click="addSubmit">保 存</el-button>
+        </div>
+      </el-dialog>
+    </div>
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

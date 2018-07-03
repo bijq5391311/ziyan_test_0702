@@ -1,0 +1,134 @@
+<th:block th:fragment="renderTemplate(dslJSON, context)">
+	<div class="template-layout"
+		th:with="
+			tree = ${dslJSON.get('tree')}
+		">
+		
+		<!--/* 树区域 */-->
+		<div class="template-layout-left" th:if="${context.get('enable_tree')}">
+			<th:block th:insert="../public/renderEngine3.0/tree/template::render(${tree}, ${context})"></th:block>
+		</div>
+		
+		<!-- 表格区域 -->
+		<div class="template-layout-right">
+			<el-row>
+			 <el-col :span="24">
+				<!--/* 表格顶部表单和按钮区域 */-->
+				<div class="template-table-bar">
+					<el-row type="flex">
+						<!--/* 按钮区域 */-->
+						<el-col :span="buttonRatio">
+							<ns-table-operate-button :buttons="_data._table.operate_buttons"></ns-table-operate-button>
+						</el-col>
+						
+						<!--/* 查询区域  单条件*/-->
+						<el-col :span="inputRatio">
+							<el-form :model="quickSearchModel" :inline="true" class="pull-right">
+									<th:block th:if="${quickInput != null && quickInput.size() > 0}">
+										<!--/* //TODO 特殊需求，暂时没有想到好的方法，待调整 */-->
+										<!--/* //快速搜索的组合情况, radio,text | text | radio(可能有) */-->
+										<th:block th:each="input, stat : ${context.get('quickSearch')}">
+											<th:block th:if="${#strings.equals(input.get('type'), 'radio')}">
+												<el-form-item v-show="_data._queryConfig.expand === false"
+													th:with="
+														control = ${input.get('control')},
+												    	url = ${control.get('url')},
+												    	useUrl = ${!#strings.isEmpty(url)},
+												    	useSPEL = ${useUrl && #strings.startsWith(url, '$')},
+												    	useAjax = ${useUrl && useSPEL == false},
+												    	options = ${useSPEL ? T(com.nascent.plugins.spring.boot.SpEL).getValue(#ctx, url) : control.options}
+													"
+												>
+													<el-radio-group th:v-model="${'quickSearchModel.'+input.get('name')}" style="margin-right:20px;">
+											            <el-radio th:each="item,iterStat : ${options}"
+											              th:attr = "
+											                ':label'= ${#strings.startsWith(item.v,'#') ? #strings.substringAfter(item.v,'#') : null },
+											                'label'= ${!#strings.startsWith(item.v,'#') ? item.v : null }
+											              "
+											            >[[${item.k}]]
+											          	</el-radio>
+											        </el-radio-group>
+												</el-form-item>
+											</th:block>
+											<th:block th:if="${#strings.equals(input.get('type'), 'text')}">
+												<el-form-item v-show="_data._queryConfig.expand === false">
+													<el-input ref="quickText" th:v-model="${'quickSearchModel.'+input.get('name')}" th:placeholder="${input.get('placeholder')}"  
+														th:name="${input.get('name')}" 
+														icon="search"
+														:on-icon-click="$quickSearchAction$"
+													></el-input>
+												</el-form-item>
+											</th:block>
+										</th:block>
+									</th:block>
+								<el-form-item th:if="${context.get('inputs').size() > 1}">
+									<el-button type="text" @click="$handleTabClick">
+										{{collapseText}}<i :class="{'el-icon--right': true, 'el-icon-arrow-down': !_data._queryConfig.expand, 'el-icon-arrow-up': _data._queryConfig.expand} "></i>
+									</el-button>
+								</el-form-item>
+							</el-form>
+						</el-col>	
+					</el-row>
+					 <!-- 图表类的页面，栅格3等分，中间显示图表切换按钮组 -->
+				</div>
+					
+				<div class="template-table-search" v-show="_data._queryConfig.expand">
+					<div class="template-table-filter" v-show="_data._queryConfig.expand === true && _data._queryConfig.showCondition === false">
+						<el-row>
+							<!--/* 表单区域 */-->
+							<el-col :span="20" class="template-table-plat">
+								<el-form ref="table_filter_form" placement="right" label-width="90px" :model="model" :rules="rules" :inline="true">
+									<th:block th:insert="../public/renderEngine3.0/grid/inputFactory::renderInputTemplate(${dslJSON}, ${context})"></th:block>
+								</el-form>
+																
+							   	<!--/* 操作按钮区域 */-->
+					            <div class="template-table-control">
+									<el-button type="primary" @click="$searchAction$()">搜索</el-button>
+									<el-button @click="$resetInputAction$()">重置</el-button>
+					            </div>
+							</el-col>	
+						</el-row>
+					</div>
+					
+					<div class="template-table-result" v-show="_data._queryConfig.searched === true && _data._queryConfig.showCondition === true && _data._queryConfig.expand === true">
+					    <div class="rule">
+					       	 
+					       	 <span class="rule-label">滤选条件：</span>
+					       	 <template v-for="(obj, key) in textToShow">
+					            <el-tag type="primary" :closable="true" @close="$removeFilter$(key)"> {{ obj.label }} : {{ obj.text }} </el-tag>
+				           	 </template>
+							<div class="control">
+								<el-button type="primary" @click="$editInputAction$()">修改</el-button>
+								<el-button @click="$clearInputAction$()">清空</el-button>
+							</div>
+					    </div>
+					    
+					</div>
+				</div>
+				
+				<!-- 表格 -->
+				<el-table ref="table" :data="_data._table.data" class="template-table" border resizable
+					v-loading.lock="_data._table.loadingtable"
+	                element-loading-icon="<img src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABcAAAAXCAYAAADgKtSgAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyFpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDE0IDc5LjE1MTQ4MSwgMjAxMy8wMy8xMy0xMjowOToxNSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIChXaW5kb3dzKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDpCMjNCMzlEQjRCRUYxMUU3QTRFMjhGNjZBMDREQUYzOSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpCMjNCMzlEQzRCRUYxMUU3QTRFMjhGNjZBMDREQUYzOSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkIyM0IzOUQ5NEJFRjExRTdBNEUyOEY2NkEwNERBRjM5IiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOkIyM0IzOURBNEJFRjExRTdBNEUyOEY2NkEwNERBRjM5Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+HsLAvwAABQlJREFUeNq0VWlsVFUU/u59982bte20UDptcVpGBrcoomAJpEYxGhaNJsQIYvQHKUGNgVQTNS7RhCjGIk2EsPhHJUTkh2AU1ESUBCJuBBcWDRWwpWUpM52205m33et5b6BAaNE/nsw3b//uWb57DsPc1bjSmP+DUqVLqdp1FOdH6xq6ouVVL9co+yvXe4zRbX/bHAj8u+2G0JptU0NfZ0etqxtfRsLhx6OQH1hSQTHm+zGS8auQ0sJsHxhr9iMIRqBcBru3Gycle39Qqoc543CVF1gpSHkJrkKuovT3E7l0B5HTW5ycpzuhOGzThm7l0eNii6nkAzo9LhDzEKFwCUYjryTC/XS8hXnE5J0QXhDarGRYzk4YyvLc1ejeWUduJ6LZlk8uifQiRiKv9mpBmOhVVDENRkA4dcKZ7hSdXddq2S9mxvqaeMBwQ96CGkfGVTvIhWkBel8QdP/IL+R12JKEvYS60rKex1p+PCvOFJZ5YFxDGsHKBHJm3ozoEcWkBKcFTMcl1ah5lJ4fKNvIWGXIWuWXeZ4m/DxMTKngnPfWojjFcMwDbn0KiYYk+qOJu06WT/w1ZBgiqGvQdYGQ4H9zTW08Y5ehI3cdggELK27aMOx5yi8eEPOVq3Q6NY6PkflmQ5md+boURHU93MLQnAzXPvdyHeEOBlkQBiscPWeGp5/J1vSOKevCk5PXYmnqUyRDHcSxxiffVCL2TPMiO5hQmea4bmUyiTR4vJrUUZyvdLHVIG891ZhSR5Jlj/xZqGrKuSr33M3r8NSkbUiO+YukE8RgphHR82lpGs66HUFL5b51e5KrM+k6F6djaZ2bhTZIudUXKKnCoeC4cg/CiU4dr2VzO29vxVszViEZ68JQNoHBYhWlVZ5Pi1VxHHp/Q2mdASyqPfbohBr1bvW5ENRgOOgGiFTKt11XSuY4wSCRH0fyxRp5NP9Rchlqx/2GQq7W30ycSJlXXqCCyPrEI2P3PfFxf/pbaVWgKtBFkE1Ze8Lml4ztCzvt2MBOZ1ZrTAyQlAZo5wkcphJNUp1YE1mOWuMIBguN7SxozWSM6Bl56LJrKLVvEHkbX1e/Y/esUE8LzHJ/MwaYiwEnsEDAXbveWI/X9DVIsF78TtI/hno0U+0/YUvRyA8jZ6W2qCJ7RhW1KXDEbcrUb1VFcYhcf89Py+KORYgrbWMsfCrWWxjb1m2FMTk8hBNuxdIAE73LxbZX7sMv2M2mIsVO4X71IwI8j6xs/IwV5VxJG407lAzNUxrbwALOkgudTGuZXocbwz1YED/0XberO30I3D2nsgv9jg5XC955FuXZsbLn+7n6N7hBO4QBNo71s9guoax7laI8UO2YzeCaop3r8mkWlL6iA9cvg5hR8YfflyPMwTvh7hV78tfED+fLWst0Gzb1CMHRbrJg5rRKbIpwJpS09+rSmub1Hc2RsIm46IRWheNmKz29vK2GjVIHIBpU0OaYF+p5dgjhGJWnhXosvG4tRfmHQ1IsZHYhpXMn7XnjUu2KFF2uWPYmF3ghqg1d2bONgHHJpeFLKaScJa5iYUrdIr9HMAVTRWebdgiC2VR4RcrRSH7iVRf66xEtP/JAkEqNOObo+8fo4G20B70kaqQib+q4CJbeYOp5jamVXnSjGVfnp8gVKI3Qh+jw9cUllSdkD62UrJVXn6LetmSleTwa6PN76Gwz4RzhBGEx3Vv1H2YvRa8U/i/7R4ABAK4QL3WFKVtqAAAAAElFTkSuQmCC' />"
+	                element-loading-text="拼命加载中"
+	                @sort-change = "$orderChange$"
+					>
+					<th:block th:insert="../public/renderEngine3.0/grid/column::render(${dslJSON.get('columns')})"></th:block>
+				</el-table>
+				
+				<!-- 分页 -->
+				<el-pagination v-if="_data._pagination.enable" class="template-table-pagination" 
+					:page-sizes = "_data._pagination.sizeOpts"
+					:total="_data._pagination.total" 
+					:current-page="_data._pagination.page" 
+					:page-size="_data._pagination.size" 
+					layout="total, sizes, prev, pager, next, jumper" 
+					@size-change="$sizeChange$" 
+					@current-change="$pageChange$"
+				>
+				</el-pagination>
+			 </el-col>
+		  </el-row>
+		</div>
+	</div>
+</th:block>

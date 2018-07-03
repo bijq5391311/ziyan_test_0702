@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="organization.GroupInfo">
+		<sql id="queryKdGroupInfo" value="select id,name,code,tb_remain_count as tbRemainCount,
+		email_send_name as emailSendName ,email_send_address as emailSendAddress,
+		 marketing_append_email as marketingAppendEmail,app_key as appKey,
+		 app_secret as appSecret from sys_group where 1=1 limit 1">
+		</sql>
+		
+	</sqlGroup>
+</sqlRoot>

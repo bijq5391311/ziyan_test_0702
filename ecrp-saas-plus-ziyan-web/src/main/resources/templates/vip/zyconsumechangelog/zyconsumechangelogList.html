@@ -1,0 +1,21 @@
+<th:block
+	th:include="../public/include/layout::layout(~{::content}, ~{::script})">
+	<div th:fragment="content">
+		<div id="consumeLog" v-cloak>
+		   <ns-trade-detail ref="tradeDetail" ></ns-trade-detail>
+			<ns-designer-table-value-change-log ref="table">
+			</ns-designer-table-value-change-log>
+		</div>
+	</div>
+	<th:block th:fragment="script">
+		<script type="text/javascript"
+			th:insert="../public/ecrp/render/renderTemplate::render('consume_value_change_log_table','value-change-log','moment')"></script>
+		<script type="text/javascript"
+			th:src="@{/static/plus/ziyan/vip/js/consumechangelogTable.js}"></script>
+		<script th:inline="javascript">
+			define("consumechangelog", [ "ns-designer-table-value-change-log" ]);
+		</script>
+	</th:block>
+
+
+</th:block>

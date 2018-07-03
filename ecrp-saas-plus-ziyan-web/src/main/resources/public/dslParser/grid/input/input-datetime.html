@@ -1,0 +1,27 @@
+<th:block th:fragment="render(item, preffix)">
+ 	<th:block th:with="
+		label = ${input.text + '：'},
+		class = ${input.inline ? 'el-inline-block' : null},
+		name = ${input.name}
+	">
+		<el-form-item th:label="${label}" th:class = "${class}">
+			<el-form-grid size="xmd">
+				<el-form-item th:prop = "${name}" >
+					<el-date-picker v-showRequired th:if="${item.type == 'datetime'}" 
+						type="datetime" 
+						placeholder="" 
+						th:v-model="${preffix + item.name}" 
+						format="yyyy-MM-dd hh:mm:ss">
+					</el-date-picker>
+					
+					<el-date-picker v-showRequired th:if="${item.type == 'date'}" 
+						type="date"
+						placeholder="" 
+						th:v-model="${preffix + item.name}" 
+						format="yyyy-MM-dd">
+					</el-date-picker>
+				</el-form-item>
+			</el-form-grid>
+		</el-form-item>
+	</th:block>
+</th:block>

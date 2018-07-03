@@ -1,0 +1,39 @@
+<th:block th:fragment="render(tree, context)">
+	<th:block th:if="tree != null">
+		<th:block th:with="
+			methods = ${context.get('tree_method_map')}
+		">
+		 <div class="template-left-tree" >
+		<el-scrollbar ref="layoutLeftScroll"
+                            wrap-class="template-layout__scroll">
+			<ns-tree ref="tree" th:url="${tree.get('url')}" 
+				node-key="id" 
+				class="template-tree-organize"
+				:expand-on-click-node = "false"
+				:highlight-current = "true"
+				th:attr="
+					':showCheckbox' = ${tree.get('showCheckbox')},
+					':defaultExpandAll' = ${tree.get('expandAll')},
+					':load'= ${methods.containsKey('$load') ? '$load' : null},
+					':filterNodeMethod'= ${methods.containsKey('$filterNodeMethod') ? '$filterNodeMethod' : null},
+					':accordion'= ${methods.containsKey('$accordion') ? '$accordion' : null},
+					':beforeAddNode'= ${methods.containsKey('$beforeAddNode') ? '$beforeAddNode' : null},
+					':saveNewData'= ${methods.containsKey('$saveNewData') ? '$saveNewData' : null},
+					':saveEditData'= ${methods.containsKey('$saveEditData') ? '$saveEditData' : null},
+					':beforeDeleteNode'= ${methods.containsKey('$beforeDeleteNode') ? '$beforeDeleteNode' : null},
+					':afterDeleteNode'= ${methods.containsKey('$afterDeleteNode') ? '$afterDeleteNode' : null},
+					':setCustomIcon'=${methods.containsKey('$setCustomIcon') ? '$setCustomIcon' : null},
+					'@node-click'= ${methods.containsKey('$nodeClick') ? '$nodeClick' : null},
+					'@check-change'= ${methods.containsKey('$checkChange') ? '$checkChange' : null},
+					'@node-expand'= ${methods.containsKey('$nodeExpand') ? '$nodeExpand' : null},
+					'@node-collapse'= ${methods.containsKey('$nodeCollapse') ? '$nodeCollapse' : null},
+					'@current-change'= ${methods.containsKey('$currentChange') ? '$currentChange' : null}
+				"
+				>
+			</ns-tree>
+			</el-scrollbar>
+			</div>
+		</th:block>
+		
+	</th:block>
+</th:block>

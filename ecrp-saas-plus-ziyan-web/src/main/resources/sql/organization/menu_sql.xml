@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="organization.SysMenu">
+		<sql id="queryMenuList" value="select * from sys_menu where group_id=#{group_id} and state=1 and is_group=0"></sql>
+		<sql id="deleteMenuBach" value="delete from sys_menu  where id=?"></sql>
+		<sql id="queryChildMenu" value="select count(1) from sys_menu where parent_id=#{parent_id} and state=1"></sql>
+		<sql id="queryMenuTree" value="select id as id,parent_id as parentId,`code` as code,`name` as label,'false' as checked,type_icon as icon,'true' as showAdd,'true' as showEdit,
+		     if(parent_id=0,'false','true') as showDelete 
+		       from  sys_menu where state = 1">
+		</sql>
+		
+		<sql id="queryParentIds" value="select parent_ids from sys_menu where id=#{id}"></sql>
+   <!--根据ids查询菜单-->
+		<sql id="queryMenuListByIds" value="select * from sys_menu where 1=1">
+			<if value="and id in (${ids})"></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>

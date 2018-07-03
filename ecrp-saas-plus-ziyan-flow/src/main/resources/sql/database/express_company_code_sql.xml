@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="database.ExpressCompanyCodeVo">
+		<sql id="queryExpressCompanyList" value="select * from express_company_code where state=1"></sql>
+	</sqlGroup>
+</sqlRoot>

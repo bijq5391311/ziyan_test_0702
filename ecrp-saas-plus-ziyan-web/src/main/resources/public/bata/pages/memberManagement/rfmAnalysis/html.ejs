@@ -1,0 +1,71 @@
+<% include ../../../include/layout/start.ejs %>
+<div id="example" v-cloak>
+  <div class="template-page">
+    <div class="tmp-page__content">
+      <el-form inline class="text-right">
+        <el-form-item class="no-margin">
+          <el-button type="text" @click="isOpen = !isOpen">
+            <span v-if="!isOpen">收起搜索<i class="el-icon-arrow-up el-icon--right"></i></span>
+            <span v-else>展开搜索<i class="el-icon-arrow-down el-icon--right"></i></span>
+          </el-button>
+          <el-button type="text" @click="getState"><i class="bui-note"></i>帮助说明</el-button>
+        </el-form-item>
+      </el-form>
+
+      <div class="rfm-instructions" :class="{ show: cookieState }">
+        <p>1.销售趋势分析用于反映某个时间内的销售数据的波动变化情况，常用于大促时销售数据变化的跟踪；</p>
+        <p>2.当付款时间为1天，数据按小时展示；当付款时间在（1天，1月）之间，数据按天展示；当付款时间大于1个月，数据按照月展示；</p>
+        <p>3.订单金额与商品件数不排除补差价商品。</p>
+      </div>
+
+      <el-form inline :class="{ hide: isOpen }" class="rfm-form" label-width="80px">
+        <el-form-item label="品牌：" class="no-margin">
+          <el-form-grid>
+            <el-select placeholder="选择品牌" clearable v-model="defaultSelect">
+              <el-option label="品牌1" value="1"></el-option>
+              <el-option label="品牌2" value="2"></el-option>
+              <el-option label="品牌3" value="3"></el-option>
+              <el-option label="品牌4" value="4"></el-option>
+              <el-option label="品牌5" value="5"></el-option>
+              <el-option label="品牌6" value="6"></el-option>
+            </el-select>
+          </el-form-grid>
+        </el-form-item>
+        <el-form-item label="店铺：" class="no-margin">
+          <el-form-grid>
+            <el-select placeholder="选择店铺" clearable v-model="defaultSelect1">
+              <el-option label="店铺1" value="1"></el-option>
+              <el-option label="店铺2" value="2"></el-option>
+              <el-option label="店铺3" value="3"></el-option>
+              <el-option label="店铺4" value="4"></el-option>
+              <el-option label="店铺5" value="5"></el-option>
+              <el-option label="店铺6" value="6"></el-option>
+            </el-select>
+          </el-form-grid>
+        </el-form-item>
+        <el-form-item label="时间段：" class="no-margin">
+          <el-form-grid size="xmd">
+            <el-date-picker type="daterange"
+                            placeholder="请选择时间范围" v-model="daterange">
+            </el-date-picker>
+          </el-form-grid>
+        </el-form-item>
+        <el-form-item>
+          <el-form-grid>
+            <el-button type="primary">搜索</el-button>
+            <el-button @click="resetFun">重置</el-button>
+          </el-form-grid>
+        </el-form-item>
+      </el-form>
+      <div class="rfm-main">
+        <span class="rfm-main__titleX">{{titleX}}</span>
+        <span class="rfm-main__titleY">{{titleY}}</span>
+        <div class="rfm-main__content">
+          <ul class="rfm-list clearfix" ref="rfmList">
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

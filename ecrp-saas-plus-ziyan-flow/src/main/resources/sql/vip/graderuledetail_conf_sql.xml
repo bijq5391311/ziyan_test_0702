@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="vip.GradeRuleDetail">
+	
+		<sql id="deleteByName" value="" >
+	    	<if  test="#grade_name!=null and #grade_rule_id!=null"  value="delete from grade_rule_detail where grade_name = #{grade_name} and grade_rule_id = #{grade_rule_id}"></if>
+	    </sql>
+	    
+	    <sql id="deleteGradeRuleDetailByGradeRuleId" value="" >
+	    	<if  test="#grade_rule_id!=null"  value="delete from grade_rule_detail where grade_rule_id = #{grade_rule_id}"></if>
+	    </sql>
+	    <sql id="selectConditionByIds" value="" >
+	    	<if value="select * from grade_rule_condition where id in( #{ids} ) "></if>
+	    </sql>
+	    <sql id="selectdetailByIds" value="" >
+	    	<if value="select * from grade_rule_detail where grade_rule_id in( #{ids} ) "></if>
+	    </sql>
+	    <sql id="selectNearDataId">
+	    <if value="select * from grade_rule where id = (select max(id) from grade_rule where state = 1 )"></if>
+	    </sql>
+	      <sql id="selectNearDataId">
+	    <if value="select * from grade_rule where id = (select max(id) from grade_rule where state = 1 )"></if>
+	    </sql>
+	       <sql id="queryGradeRuleByBrandIds" value="select * from grade_rule where state=1">
+	    <if test="#brand_ids != ''" value=" and brand_id in (${'brand_ids'})"></if>
+	    <if test="#brand_ids == ''" value=" and brand_id = #{brand_ids}"></if>
+	    </sql>
+	    
+	    <sql id="updataGraderuledetailName" value="update grade_rule_detail set grade_name=#{grade_name} where id=#{id}">
+	    
+	    </sql>
+	     <sql id="updataGraderuledetailGrade" value="update grade_rule_detail set grade=#{grade} where id=#{id}">
+	     </sql>
+	    <sql  id="getGraderuledetailByGroupid" value="select grade_name as n, grade as v  from grade_rule_detail where state = 1 
+	      and group_id = #{group_id} order by grade asc">
+	    </sql> 
+	     <sql  id="getMemberGradeRuleDetail" value="select * from grade_rule_detail where state = 1  and group_id = #{group_id} and grade > 0 order by grade">
+	    </sql> 
+	   <sql id="loadCountofdetail"  value="select count(1) from grade_rule_detail where state = 1 and grade_rule_id = #{grade_rule_id}">
+	   
+	   </sql>
+	   <sql id="queryGradeRuleOneRule"  value="select * from grade_rule where state = 1 ">
+	   <if value=" and brand_id in (${'brand_id'})"></if>
+	    </sql>
+	    <sql id="queryGradeAndGradeName" value="">
+	    <if value="select grade,grade_name gradeName from grade_rule_detail where grade_rule_id =(
+			select grade_rule_id from grade_rule_detail 
+			join grade_rule on grade_rule.id = grade_rule_detail.grade_rule_id where brand_id in (${'brandIds'})
+			group by grade_rule_id
+			order by count(grade_rule_id) desc
+			limit 1)order by grade"></if>
+	    </sql>
+		<sql id="validGradeInCare" value="select count(1) from care_auto_pattern cap,care_urge cu where 1=1 ">
+            <if value=" and cap.grade_rule_detail_id = #{gradeDetailId}"></if>
+            <if value=" and cu.grade_rule_detail_id = #{gradeDetailId}"></if>
+        </sql>
+	</sqlGroup>
+	
+</sqlRoot>

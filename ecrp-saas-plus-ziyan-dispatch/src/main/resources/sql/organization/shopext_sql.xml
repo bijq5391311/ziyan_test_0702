@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="organization.ShopExtModel">
+		<sql id="loadShopExt" value="select * from sys_shop_ext where 1=1">
+			<if test="#name!=null" value="and group_id=#{group_id} and plat_from_type=#{plat_from_type} and name=#{name}"></if>
+		</sql>
+		<sql id="loadShopByPlat" value="select id from sys_shop_ext where 1=1">
+			<if test="#code!=null" value="and code like ${'code%'}"></if>
+		</sql>
+		<sql id="batchDeleteShops" value="delete from sys_shop_ext where id=?"></sql>
+
+		
+		<!-- 结果为guid列表 -->
+		<sql id="querySelectedShop" value="select guid  from sys_shop_ext where group_id=#{group_id}">
+			<if  value="and code like ${'code%'} and state =1"></if>
+		</sql>
+		<sql id="queryList" value="select ext.* from sys_shop_ext  ext 
+				inner join sys_shop  shop on shop.code=ext.code
+				where 1=1">
+	    
+	   </sql>
+	   
+	   <sql id="queryLineShopList" value="select ext.* from sys_shop_ext  ext 
+				inner join sys_shop  shop on shop.code=ext.code
+				where shop.out_sid is not null">
+	   	 <if value=" and ext.code like ${'code%'}"></if>
+	     <if value=" and ext.name like ${'%name%'}"></if>
+	     <if value=" and ext.create_time between #{startTime} and #{endTime}"></if>
+	   </sql>
+	   
+	   <sql id="checkShopByCode" value="select count(1) from sys_shop_ext 
+			where state=1 ">
+			<if value="and code = #{code}"></if>
+		</sql>
+		
+		<sql id="queryShopByCode" value="select * from sys_shop_ext where state=1" >
+			<if value="and code = #{code}"></if>
+		</sql>
+    	
+    	<sql id="queryShopByPlatFromType" value="select * from sys_shop_ext where 1=1">
+    		<if value="and group_id =#{group_id}"></if>
+    		<if value="and plat_from_type in (2,3,5,6,8,9,10,12,13,16)"></if>
+    	</sql>
+    	
+    	<sql id="queryAllShop" value="select * from sys_shop_ext where 1=1">
+    		<if value="and group_id =#{group_id}"></if>
+    	</sql>
+	</sqlGroup>
+</sqlRoot>

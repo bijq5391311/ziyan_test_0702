@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="touch.WxTemplateTags">
+		<sql id="deleteByTemplateId" value="delete from wx_template_tags where wx_template_id = #{templateId}">
+		</sql>
+	</sqlGroup>
+</sqlRoot>

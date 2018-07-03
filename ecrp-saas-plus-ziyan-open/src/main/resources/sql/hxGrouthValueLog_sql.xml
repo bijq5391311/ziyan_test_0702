@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="grouthValueLog">
+	    <sql id="listLogByOpenId" value="select h.generate_time,
+	    	h.`action`,h.grouth_value,h.remark from hx_grouth_value_log h 
+	    	where 1=1 and h.state=1 ">
+	    	<if value=" and h.sys_customer_id=#{sysCustomerId}"></if>
+	    	<if value=" order by h.generate_time desc"></if>
+	    	<if value=" limit #{start},#{size}"></if>
+	    </sql>
+	    <sql id="countLogByOpenId" value="select h.id 
+	    	from hx_grouth_value_log h 
+	    	where 1=1 and h.state=1 ">
+	    	<if value=" and h.open_id=#{openId}"></if>
+	    </sql>
+	</sqlGroup>
+</sqlRoot>

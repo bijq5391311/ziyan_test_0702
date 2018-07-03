@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xmlns:cache="http://www.springframework.org/schema/cache"
+       xsi:schemaLocation="http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+
+    http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache-3.2.xsd">
+
+    <!-- 自动扫描web包 ,将带有注解的类 纳入spring容器 -->
+    <context:component-scan base-package="com.nascent">
+        <!--<context:exclude-filter type="regex" expression="com.nascent.ecrpsaas.WebMvcConfiguration"/>-->
+        <!--<context:exclude-filter type="regex" expression="com.nascent.ecrpsaas.HttpErrorController"/>-->
+    </context:component-scan>
+
+     <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+        <property name="driverClass" value="com.mysql.jdbc.Driver"/>
+        <property name="jdbcUrl"
+                  value="jdbc:mysql://121.41.162.23:30003/ecrp_saas_ziyan?characterEncoding=utf-8&amp;zeroDateTimeBehavior=convertToNull"/>
+        <property name="user" value="root"/>
+        <property name="password" value="southinfo@best1"/>
+        <property name="initialPoolSize" value="1"/>
+        <property name="testConnectionOnCheckin" value="false"/>
+    	<property name="testConnectionOnCheckout" value="true"/>
+    	<property name="preferredTestQuery" value="SELECT 1"/>
+    </bean> 
+    
+   <!--    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+        <property name="driverClass" value="com.mysql.jdbc.Driver"/>
+        <property name="jdbcUrl"
+                  value="jdbc:mysql://10.10.201.83:3306/ecrp_saas_ziyan?characterEncoding=utf-8&amp;zeroDateTimeBehavior=convertToNull"/>
+        <property name="user" value="root"/>
+        <property name="password" value="ziyan001.,"/>
+        <property name="initialPoolSize" value="1"/>
+        <property name="testConnectionOnCheckin" value="false"/>
+    	<property name="testConnectionOnCheckout" value="true"/>
+    	<property name="preferredTestQuery" value="SELECT 1"/>
+    </bean> -->
+
+    <bean id="RepositoryService" class="com.nascent.plugins.spring.support.RepositoryServiceImpl">
+        <constructor-arg>
+            <map>
+                <entry key="" value-ref="dataSource"></entry>
+            </map>
+        </constructor-arg>
+    </bean>
+
+    <bean id="sqlContext" class="com.nascent.plugins.spring.SqlContext">
+        <constructor-arg name="scanner">
+            <bean id="pluginLoader" class="com.nascent.plugins.spring.support.ClassScanner">
+                <property name="includeJars">
+                    <list>
+                        <value>*\ecrp-saas-plus-ziyan*</value>
+                    </list>
+                </property>
+                <property name="classPatterns">
+                    <list>
+                        <value>com/nascent/ecrpsaas/*</value>
+                        <value>com\nascent\ecrpsaas\*</value>
+                        <value>com.nascent.ecrpsaas*</value>
+                    </list>
+                </property>
+                <property name="parsers">
+                    <list>
+                        <bean class="com.nascent.plugins.spring.support.TableBindParser"/>
+                    </list>
+                </property>
+            </bean>
+        </constructor-arg>
+        <constructor-arg name="lazyProxy" value="true"/>
+    </bean>
+
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <cache:annotation-driven/>
+    <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager"
+          p:cache-manager-ref="ehcacheManager"/>
+    <bean id="ehcacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"
+          p:config-location="classpath:cache.xml" p:shared="true"/>
+</beans>  

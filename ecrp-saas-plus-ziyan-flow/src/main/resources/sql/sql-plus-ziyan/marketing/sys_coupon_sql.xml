@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="marketing.sysCoupon">
+	    <sql id="queryList" count="select count(1)" value="select * from sys_coupon c where 1=1" >
+	         <bind name="couponName" value="#coupon_name == null ? null : ('%' + #coupon_name + '%')"></bind>
+	         <if value=" and c.coupon_name like #{couponName}"></if>
+	         <if value=" and c.coupon_type =#{coupon_type}"></if>
+	         <if value=" and c.state =#{state}"></if>
+	         <if value=" and c.create_time &gt;= #{startTime}"></if>
+	    	 <if value=" and c.create_time &lt;= #{endTime}"></if>
+	    	 <if value=" and c.coupon_id = #{coupon_id}"></if>
+	    	 <if value = " order by c.update_time desc "></if>
+	    </sql>
+	    <sql id="findCouponExtList" count="select count(1)" value="
+	    	select
+			sc.coupon_type as couponType, sc.rights_and_interests as interests, 
+			sc.shop_ids as shopIds, sc.appoint_goods_ids as goodsIds,
+			sc.conditions_of_use as conditionsOfUse, 
+			sc.full_or_plus_money as money, e.coupon_code as code, 
+			e.state as state, e.valid_time_begin as begin,
+			e.valid_time_end as end, kc.customer_name as name  
+			from zy_coupon_customer_ext e 
+			left join sys_coupon sc on e.coupon_id = sc.coupon_id
+			left join kd_customer kc on e.sys_customer_id = kc.sys_customer_id 
+			where e.sys_customer_id &gt; 0  ">
+			<bind name="name" value="#name == null ? null : ('%' + #name + '%')"></bind>
+			<bind name="name" value="#name == null ? null : ('%' + #name + '%')"></bind>
+			<if value=" and e.coupon_code =#{couponCode}"></if>
+	        <if value=" and kc.customer_name like #{name}"></if>
+	        <if value=" and sc.coupon_name like #{couponName}"></if>
+			<if value = " order by e.update_time desc "></if>
+	    </sql>
+	    <sql id="queryCouponByCouponId" value =
+				"select * from sys_coupon s where 1=1 ">
+			<if value=" and s.coupon_id = #{couponId}"></if>
+		</sql>
+		<!-- 查询外部平台店铺列表  -->
+		<sql id="queryGoodsNameStr" value="select GROUP_CONCAT(o.out_name SEPARATOR '，') as nameStr from out_shop o where 1=1">
+		   <if value=" and id in (${ids})"></if>
+		</sql>
+		<!--查询有效优惠卷-->
+		<sql id="queryAvailableCouponList" value="select * from sys_coupon c where 1=1 and state = 0 "></sql>
+		<!-- 查询外部平台商品列表  -->
+		<sql id="queryKdGoodsList" value="select title as title,picture_url as pictureUrl from kd_goods where 1=1">
+		   <if value=" and id in (${ids})"></if>
+		</sql>
+		<sql id="queryCouponAllList" value="select * from sys_coupon c where 1=1 and state = 0 ">
+		</sql>
+		<!--查询所有有效优惠券-->
+		<sql id="findValidCouponList" value="SELECT *
+		FROM sys_coupon c
+		WHERE c.state = 0 AND ((c.coupon_amouet &gt; 0 AND c.coupon_amouet &gt; c.sent_amount) OR c.coupon_amouet &lt; 0) AND (
+				(c.valid_time_type = 1 AND c.valid_time_type = 0 AND c.valid_time_begin &lt; NOW() AND c.valid_time_end &gt; NOW()
+				) OR
+				 c.valid_time_type = 0
+			) ">
+		</sql>
+		<!--查询所有有效且无限优惠券-->
+		<sql id="findAvailableAndValidCouponList" value="SELECT *
+			FROM sys_coupon c
+			WHERE c.state = 0 AND c.coupon_amouet = -1  
+			AND (
+					( 
+					 c.valid_time_type = 0 AND
+					 NOW() &lt;  c.valid_time_end
+					) OR
+					c.valid_time_type = 1
+			)">
+		</sql>
+		<!--查询优惠券发放统计列表-->
+		<sql id="couponAnalyze" value="SELECT c.coupon_type as couponType, 
+		sum(c.sent_amount) as sentAmount,
+		sum(c.cancel_after_verification) as verification,
+		count(1) as count FROM sys_coupon c 
+			group by c.coupon_type 
+		">
+		</sql>
+		<!-- 优惠券已发放数量 + n  -->
+		<sql id="addCouponSentAmount" value="update sys_coupon c set c.sent_amount =  c.sent_amount +  ">
+            <if value=" #{sentAmount}"/>
+            <if value=" where c.coupon_id = #{couponId} and (c.coupon_amouet=-1 or c.coupon_amouet &gt; c.sent_amount) "/>
+		</sql>
+		<!-- 优惠券已发放数量 - n  -->
+		<sql id="subCouponSentAmount" value="update sys_coupon c set c.sent_amount =  c.sent_amount -  ">
+            <if value=" #{sentAmount}"/>
+            <if value=" where c.coupon_id = #{couponId}"/>
+		</sql>
+	</sqlGroup>
+</sqlRoot> 

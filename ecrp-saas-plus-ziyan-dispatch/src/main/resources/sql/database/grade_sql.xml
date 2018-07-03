@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="database.grade">
+		<sql id="queryGradeName" value="select grd.grade_name as gradeName  from  grade_rule_detail grd inner join grade_rule gr on grd.grade_rule_id = gr.id where   gr.brand_id = #{brandId}  ">
+		</sql>
+		
+		   <sql id="queryGrade"  value="  select grd.grade  from  grade_rule_detail grd inner join grade_rule gr on grd.grade_rule_id = gr.id where 1=1  ">
+	          <if  value="  and  gr.brand_id =  #{brandId}"></if>
+	         <if  value=" and grd.update_time   &gt;=  #{startTime}"></if>
+			<if  value=" and grd.update_time &lt;=    #{endTime}"></if>
+		    <if  value="   order by grd.grade asc"></if>
+	    </sql>
+	</sqlGroup>
+</sqlRoot>

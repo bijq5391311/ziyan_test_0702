@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="touch.KdDataDictionary">
+		<sql id="querySendEmailLog" value="select kdd.name,kdd.update_time from kd_data_dictionary kdd where 1=1 ">
+			<if value=""></if>
+ 		</sql>
+	</sqlGroup>
+</sqlRoot>

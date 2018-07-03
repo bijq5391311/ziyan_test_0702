@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="voice.evaluateSortRecord">
+		<sql  id = "loadEvaluateSortrecord" value = "select category_ids_code as categoryIdsCode,remark  as sortRemark  from evaluate_sort_record where  state =1">
+		        <if value=" and evaluate_id = #{evaluateId} "></if>
+	</sql>
+
+	</sqlGroup>
+	</sqlRoot>

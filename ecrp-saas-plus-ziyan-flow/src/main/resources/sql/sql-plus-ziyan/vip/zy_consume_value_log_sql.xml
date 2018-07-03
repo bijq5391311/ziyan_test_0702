@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+    <sqlGroup name="vip.zyConsumeValueLog">
+        <sql id="queryConsumeValueLog" value="
+			SELECT
+                t.sys_customer_id AS sysCustomerId,
+                t.consumevalue AS grouthValue,
+                t.action,
+                t.action_source AS actionSource,
+                t.create_time AS createTime,
+                t.generate_time AS generateTime,
+                t.consume_value_from_type AS grouthValueFromType,
+                t.consume_value_from_name AS grouthValueFromName,
+                t.hd_type AS hdType,
+                kc.member_card AS memberCard,
+                kc.mobile
+            from
+                zy_consume_value_log t
+            INNER JOIN kd_customer kc ON t.sys_customer_id = kc.sys_customer_id
+            WHERE
+                1 = 1
+            ">
+            <bind name="memberCard" value="@com.nascent.plugins.taobao.StringUtils@isEmpty(#memberCard) ? null : '%'+#memberCard+'%'"></bind>
+            <if value=" and kc.member_card like #{memberCard}"></if>
+            <bind name="mobile" value="@com.nascent.plugins.taobao.StringUtils@isEmpty(#mobile) ? null : '%'+#mobile+'%'"></bind>
+            <if value=" and kc.mobile like #{mobile}"></if>
+            <if value=" and t.consume_value_from_type = #{consumeValueFromType}"></if>
+            <if  value=" and t.generate_time &gt;= #{startTime}"></if>
+            <if  value=" and t.generate_time &lt;= #{endTime}"></if>
+            <if value=" limit #{start}, #{length}"></if>
+            <if value=" ORDER BY t.create_time DESC"></if>
+        </sql>
+    </sqlGroup>
+</sqlRoot>
+
+

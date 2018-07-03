@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="organization.SysPositionMenu">
+	   <sql id= "loadAuthorityTree" value="select id as id,parent_id as parentid, name as label ,type_icon as icon
+               from  sys_menu   where state = #{state}"> </sql>
+     <sql id="deleteByPositionCode" value="delete from sys_position_menu where 1=1" >
+        <if value = " and position_code = #{positionCode}"></if>
+     </sql>
+     
+      <sql id="queryAuthorityList"
+         value="select * from sys_position_menu where position_code=#{position_code} and menu_id not in (select parent_id from sys_menu)">
+      </sql>
+	</sqlGroup>
+</sqlRoot>

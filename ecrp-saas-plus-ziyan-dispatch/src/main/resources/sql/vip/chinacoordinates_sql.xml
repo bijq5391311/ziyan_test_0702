@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="vip.ChinaCoordinates">
+		<sql id="queryCoordinates" value="" >
+	    	<if value="select city,longitude,latitude from china_coordinates where city in (${'citys'})
+GROUP BY city order by field(city,${'citys'})"></if>
+	    </sql>
+	</sqlGroup>
+	
+</sqlRoot>

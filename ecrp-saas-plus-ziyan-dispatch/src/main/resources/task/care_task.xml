@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:task="http://www.springframework.org/schema/task"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+
+
+
+    http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/task
+    http://www.springframework.org/schema/task/spring-task.xsd">
+
+  <bean id="careAutoSmsJob" class="com.nascent.ecrpsaas.dispatch.task.care.CareAutoSmsJob">
+    <property name="smsTradeCareScheduler" ref="smsTradeCareScheduler"></property>
+    <property name="smsBirthdayCareScheduler" ref="smsBirthdayCareScheduler"></property>
+    <property name="smsFestivalCareScheduler" ref="smsFestivalCareScheduler"></property>
+  </bean>
+  <bean id="careAutoEmailJob"
+    class="com.nascent.ecrpsaas.dispatch.task.care.CareAutoEmailJob">
+    <property name="emailTradeCareScheduler" ref="emailTradeCareScheduler"></property>
+  </bean>
+  <bean id="careAutoWxJob" class="com.nascent.ecrpsaas.dispatch.task.care.CareAutoWxJob">
+    <property name="wxTradeCareScheduler" ref="wxTradeCareScheduler"></property>
+  </bean>
+
+
+  <bean id="careUrgeJob" class="com.nascent.ecrpsaas.dispatch.task.care.CareUrgeJob">
+    <property name="smsUrgeScheduler" ref="smsUrgeScheduler"></property>
+  </bean>
+  <task:scheduler id="smsTradeCareScheduler" pool-size="5"/>
+  <task:scheduler id="wxTradeCareScheduler" pool-size="5"/>
+  <task:scheduler id="emailTradeCareScheduler" pool-size="5"/>
+  <task:scheduler id="smsUrgeScheduler" pool-size="5"/>
+  <task:scheduler id="smsFestivalCareScheduler" pool-size="5"></task:scheduler>
+  <task:scheduler id="smsBirthdayCareScheduler" pool-size="5"></task:scheduler>
+
+  <!--自动化服务-->
+  <task:scheduler id="care_auto_scheduler" pool-size="9"/>
+  <task:scheduled-tasks scheduler="care_auto_scheduler">
+    <!-- 购物短信关怀 -->
+    <task:scheduled ref="careAutoWxJob" method="work" initial-delay="5000" fixed-delay="10000"/>
+    <!-- 购物微信关怀 -->
+    <task:scheduled ref="careAutoSmsJob" method="work" initial-delay="5000" fixed-delay="10000"/>
+    <!-- 购物邮件关怀 -->
+    <task:scheduled ref="careAutoEmailJob" method="work" initial-delay="5000" fixed-delay="10000"/>
+    <!-- 节日关怀服务 --> 
+    <task:scheduled ref="careAutoSmsJob" method="careFestivalWork" initial-delay="5000"
+      fixed-delay="10000"/>
+    <!-- 生日关怀服务  -->
+    <task:scheduled ref="careAutoSmsJob" method="careBirthdayWork" initial-delay="5000"
+      fixed-delay="10000"/>
+    <!-- 获取关怀短信发送结果服务 -->
+    <task:scheduled ref="careAutoSmsJob" method="getSendResult" initial-delay="5000"
+      fixed-delay="10000"/>
+   <!--  生成节日关怀通知信息服务 -->
+    <task:scheduled ref="careAutoSmsJob" method="createFestivalNotifyWork" cron="0 1 0 1/1 * ?"/>
+    <!-- 生成生日关怀通知信息服务 -->
+    <task:scheduled ref="careAutoSmsJob" method="createBirthdayNotifyWork" cron="0 1 0 1/1 * ?"/>
+    <!--短信催付服务-->
+    <task:scheduled ref="careUrgeJob" method="work" initial-delay="5000"
+      fixed-delay="10000"></task:scheduled>
+  </task:scheduled-tasks>
+
+</beans>  

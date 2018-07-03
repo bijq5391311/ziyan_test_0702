@@ -1,0 +1,33 @@
+<th:block th:include="../public/include/layout::layout(~{::content},~{::script})">
+	<div th:fragment="content" class="template-page-tab">
+		<div id="app">
+		<div th:text="${nuiPath}"></div>
+			<e-report></e-report>
+		</div>
+	</div>
+	
+	<th:block th:fragment="script" th:inline="javascript">
+		<script type="text/javascript">
+		</script>
+		<script type="text/javascript" th:inline="javascript">
+		require(["vue", "nui", "jquery", "dsl/report"/* 报表组件创建工具 */, "echarts"/*引入echart*/, "utilbuild/main"], function(Vue, Nui, $, createReportComponent, echarts) {
+			//报表dsl
+			var dsl = ([#th:block th:insert="${report.dslPath}"/]);
+			if(!dsl.url)
+				dsl.url = [[${report.queryUrl}]];
+			
+			new Vue({
+				el: "#app",
+				components: {
+					"e-report": createReportComponent(dsl)
+				}
+			})
+		});
+		</script>
+	</th:block>
+</th:block>
+
+
+
+
+

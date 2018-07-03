@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="marketing.MarketingDetail">
+	    <sql id="queryList" value="select * from marketing_detail where 1=1">
+	       <bind name="outNick" value="#outNick == null ? null : ('%'+#outNick+'%')"></bind>
+	        <if value="and coupon_id=#{couponId}"></if>
+	        <if test="#dataFrom != 6 and #dataFrom == -1" value="and data_from != 6"></if>
+	        <if test="#dataFrom == 6" value="and data_from = 6"></if>
+	        <if value="and `usage` = #{usage}"></if>
+	        <if value="and is_successed = #{isSuccessed}"></if>
+	        <if value="and marketing_type = #{marketingType}"></if>
+	        <if test="#outNick != '%%' and #outNick != null" value="and out_nick like #{outNick}"> </if>
+	        <if value="order by update_time"></if>
+	    </sql>
+	</sqlGroup>
+</sqlRoot> 

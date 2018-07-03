@@ -1,0 +1,1 @@
+{"version":3,"sources":["webpack:///./src/pages/test/t0/src/page.css"],"names":[],"mappings":"AACA,QACE,aAA4B","file":"static/css/test/t0/page.css","sourcesContent":["@import \"../../../../assets/theme/default/var.css\";\r\n.test01{\r\n  color:  var(--color-success)\r\n}\r\n\n\n\n// WEBPACK FOOTER //\n// ./src/pages/test/t0/src/page.css"],"sourceRoot":""}

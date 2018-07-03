@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="core.Knowledge">
+	
+<!-- 	删除树节点 -->
+		<sql id="batchdeleteCategory" value="" >
+	    	<if value="delete from kdjl_knowledge_category where id = ?"></if>
+	    </sql>
+	
+<!-- 	删除知识 -->
+		<sql id="batchdelete" value="" >
+	    	<if value="delete from kdjl_knowledge where id = ?"></if>
+	    </sql>
+	    
+<!-- 	    审核通过 -->
+	    <sql id="batchApprove" value="">
+	   		<if value="UPDATE kdjl_knowledge set status = 2 where id = ?"></if>
+	    </sql>
+<!-- 	    提交审核-->
+	    <sql id="batchAduit" value="">
+	   		<if value="UPDATE kdjl_knowledge set status = 1 where id = ?"></if>
+	    </sql>
+<!-- 	    不通过审核 -->
+	    <sql id="batchNotApprove" value="">
+	   		<if value="UPDATE kdjl_knowledge set status = 0 where id = ?"></if>
+	    </sql>
+	    
+	    <sql id="getKnowledgeByItemId" value="">
+	   		<if value="SELECT * from kdjl_knowledge WHERE FIND_IN_SET(#{sys_good_id},item_ids)"></if>
+	    </sql>
+	    
+	    <sql id="loadList" value="SELECT (select user_name FROM sys_user where id = k.create_user_id) as user_name,( SELECT kc.category_name FROM kdjl_knowledge_category kc
+									where id = k.category_id ) AS category_name, k.* from kdjl_knowledge k where state = 1">
+	    	<if test="#group_id != null" value=" and group_id=#{group_id}"></if>
+	    	<if test="#create_id > 0" value=" and create_user_id=#{create_id}"></if>
+	    	<if test="#category_id != null" value =" and FIND_IN_SET(category_id, #{category_id})"></if>
+	    	
+	    	<bind name="title" value="#title == null ? null : ('%'+#title+'%')"></bind>
+      		<if value=" and title like #{title}"></if>
+	    	<bind name="tag" value="#tag == null ? null : ('%'+#tag+'%')"></bind>
+      		<if value=" and tags like #{tag}"></if>
+	    	<if value="and status=#{status}" ></if>
+	    	<if test="#department_code != null" value=" and department_code=(SELECT CODE FROM sys_department WHERE id = #{department_code}) "></if>
+	    	<if test="#item_ids == 1 " value=" and item_ids != ''"></if>
+	    	<if test="#item_ids == 2 " value=" and item_ids IS NULL"></if>
+	    	<bind name="concent" value="#concent == null ? null : ('%'+#concent+'%')"></bind>
+	    	<if value=" and content like #{concent}"></if>
+<!-- 	    	用create_time做开始时间传入 update_time做结束时间     仅限时间范围查询! -->
+	    	<if value=" and create_time>=#{create_time}"></if>
+	    	<if value=" and #{update_time} >=create_time"></if>
+	    	<if test="#item_ids != null and #item_ids != ''" value=" and find_in_set(#{item_ids},item_ids)"></if>
+	    	<if value=" order  by update_time desc"></if>
+	    
+	    </sql>
+<!-- 	    获取树 -->
+	      <sql id="queryKnowledgeTree" value="SELECT id AS id, parent_id AS parent_id, `category_name` AS label,
+								'false' AS checked, if(level=0,'false','true') AS showAdd, 'true' AS showEdit, IF (parent_id = 0, 'false', 'true') AS showDelete
+							from kdjl_knowledge_category WHERE state = 1 ">
+			<if test="#group_id != null" value=" and group_id = #{group_id}"></if>
+		  </sql>
+		  
+		  
+		  <sql id="loadMassageById" value="select (select category_name from kdjl_knowledge_category where id = k.category_id) as text, k.* from kdjl_knowledge k where id = #{id}">
+		  </sql>
+	</sqlGroup>
+	
+</sqlRoot>

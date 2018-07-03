@@ -1,0 +1,20 @@
+<% include ../../../include/layout/start.ejs %>
+<div id="example" v-cloak>
+  <div class="template-page text-center">
+    <el-form inline class="text-left" ref="layoutTop">
+      <el-form-item label="时间：" class="no-margin">
+        <el-form-grid size="lg">
+          <el-date-picker type="daterange"
+                          placeholder="请选择时间范围" v-model="daterange">
+          </el-date-picker>
+        </el-form-grid>
+        <el-form-grid>
+          <el-button type="primary">搜索</el-button>
+          <el-button>重置</el-button>
+        </el-form-grid>
+      </el-form-item>
+    </el-form>
+    <canvas id="canvas" ref="layoutBottom" v-bind:style="{ marginTop: marginTop + 'px' }"></canvas>
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

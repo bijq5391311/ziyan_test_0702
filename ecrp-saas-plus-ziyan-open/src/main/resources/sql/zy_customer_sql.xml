@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+    <sqlGroup name="api.zyKdCustomer">
+        <sql id="queryCustomerIdByMemberCard" count="select count(1)" value="
+        select sys_customer_id as customerId from kd_customer c 
+        where 1=1 ">
+            <if value=" and c.mobile = ${memberCard}"/>
+        </sql>
+    </sqlGroup>
+</sqlRoot> 

@@ -1,0 +1,106 @@
+<% include ../../../include/layout/start.ejs %>
+<div id="example" v-cloak>
+  <div class="template-page">
+    <div class="template-page-tab">
+      <div class="template-left-tree">
+        <el-scrollbar ref="leftScrollOrg"
+                      wrap-class="template-layout__scroll" outsider>
+          <h5 class="template-tree-title">选择组织架构</h5>
+          <el-tree-extra class="template-tree-organize"
+                         :empty-text="orgnazationEmpty"
+                         :data="orgnazationData"
+                         node-key="id"
+                         :indent="20"
+                         :expand-on-click-node="false"
+                         :maxlength="15"
+                         show-icon
+                         icon-add="bui-add"
+                         icon-edit="bui-edit"
+                         icon-delete="bui-delete">
+          </el-tree-extra>
+        </el-scrollbar>
+      </div>
+      <el-tabs type="card" v-model="authorityCate" @tab-click="handleTab" class="authority-tab">
+        <el-tab-pane label="数据权限" name="data" ref="dataContentScroll">
+          <div class="authority-data">
+            <!--  选择渠道 -->
+            <div class="authority-panel is-left">
+              <div class="authority-panel__title">选择渠道</div>
+              <div class="authority-panel__body">
+                <el-scrollbar ref="channelTreeScroll" outsider>
+                  <el-tree-extra class="template-tree-organize"
+                                 :highlight-current="true"
+                                 :data="data">
+                  </el-tree-extra>
+                </el-scrollbar>
+              </div>
+            </div>
+            <!-- /end 选择渠道 -->
+            <!--  选择店铺 -->
+            <div class="authority-panel is-right is-autosize">
+              <div class="authority-panel__title">
+                <span>已选择<b>24</b>家店铺</span>
+                <el-form class="pull-right">
+                  <el-form-item>
+                    <el-input
+                      placeholder="请输入关键字搜索"
+                      icon="search">
+                    </el-input>
+                  </el-form-item>
+                </el-form>
+              </div>
+              <div class="authority-panel__body">
+                <div class="authority-shops">
+                  <div class="authority-shops__header">
+                    <el-checkbox label="全选"></el-checkbox>
+                  </div>
+                  <!--选择店铺 店铺列表-->
+                  <el-scrollbar ref="shopListScroll">
+                    <div class="authority-shops__list">
+                      <el-checkbox-group v-model="shopList">
+                        <el-checkbox label="天猫旗舰店 A"></el-checkbox>
+                        <el-checkbox label="网易考拉专营店 C"></el-checkbox>
+                        <el-checkbox label="天猫旗舰店 C"></el-checkbox>
+                        <el-checkbox label="淘宝店 B"></el-checkbox>
+                        <el-checkbox label="京东POP店 A"></el-checkbox>
+                        <el-checkbox label="网易考拉专营店 A"></el-checkbox>
+                        <el-checkbox label="天猫旗舰店 B"></el-checkbox>
+                        <el-checkbox label="淘宝店 C"></el-checkbox>
+                        <el-checkbox label="网易考拉专营店 B"></el-checkbox>
+                        <el-checkbox label="京东POP店 B"></el-checkbox>
+                        <el-checkbox label="淘宝店 A"></el-checkbox>
+                      </el-checkbox-group>
+                    </div>
+                  </el-scrollbar>
+
+                  <!-- /end 选择店铺 店铺列表-->
+                  <div class="authority-controls">
+                    <el-button type="primary">确定</el-button>
+                    <el-button>重置</el-button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--  选择店铺 -->
+          </div>
+        </el-tab-pane>
+        <el-tab-pane label="功能权限" name="func">
+          <el-row>
+            <el-col :span="24">
+              <div class="mb-sm">
+                <el-button type="primary">复制权限</el-button>
+              </div>
+              <el-scrollbar ref="permissionScroll">
+                <el-tree-extra class="template-tree-organize"  show-checkbox
+                               :highlight-current="true"
+                               :data="data">
+                </el-tree-extra>
+              </el-scrollbar>
+            </el-col>
+          </el-row>
+        </el-tab-pane>
+      </el-tabs>
+    </div>
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

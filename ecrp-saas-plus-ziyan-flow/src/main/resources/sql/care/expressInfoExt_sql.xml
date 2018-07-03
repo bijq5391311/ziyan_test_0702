@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="care.ExpressInfoLog">
+		<sql id="queryExpressInfoExtByIDForUpdate" value="SELECT * FROM express_info_log WHERE sys_trade_id=#{sys_trade_id} order by express_time desc, id desc "></sql>
+	</sqlGroup>
+</sqlRoot>

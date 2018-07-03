@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="base.affair">
+		<sql id="queryAffairByCode" value="SELECT kt.type_name  AS k, kt.ID AS v  from kd_affair_type kt  WHERE kt.parent_id = (SELECT id from kd_affair_type where code = #{code}) AND state = 1 ">
+		</sql>
+		
+		<sql id="queryAffairType" value=" select id as k, type_name as v  from kd_affair_type where state =1 and type_state = 1 and parent_id = 2 ">
+		</sql>
+		
+	    <sql id="queryAffairAndCount" value="select id as id, type_name as typeName">
+          <if value=",(select COUNT(0) from kd_affair_list where kd_affair_list.type_large=kd_affair_type.id and create_user=#{sysUserId} and kd_affair_list.state=1 and kd_affair_list.transaction_status='0') as count"></if>
+          <if value=" from kd_affair_type where parent_id = (select ID from kd_affair_type k where k.code = 'ALL')"></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>

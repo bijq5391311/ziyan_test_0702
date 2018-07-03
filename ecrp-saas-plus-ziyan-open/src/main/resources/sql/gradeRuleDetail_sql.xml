@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="gradeRuleDetail">
+	    <sql id="findAllGradeRule" value="select g.grade,g.grade_name,
+	    	g.total_grouth_value,g.discount from grade_rule_detail g where 1=1 ">
+	    	<if value="and g.state=1"></if>
+	    </sql>
+	</sqlGroup>
+</sqlRoot>

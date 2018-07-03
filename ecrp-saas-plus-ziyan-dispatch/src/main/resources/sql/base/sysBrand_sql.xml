@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="base.sysBrand">
+	    <sql id="queryBrandIdandName" value="SELECT distinct sys_brand.id as v,sys_brand.brand_name as k from sys_position_shop join sys_shop 
+			on sys_position_shop.shop_code= sys_shop.`code`
+			join sys_brand on sys_shop.brand_id=sys_brand.id
+			where 1=1">
+	      <if value=" and sys_position_shop.position_code=#{Position}"></if>
+	    </sql>
+	   <sql id="queryIdandName" value="SELECT  sys_brand.id ,sys_brand.brand_name from sys_position_shop 
+	    join sys_shop ON sys_position_shop.shop_code=sys_shop.`code`
+	    join sys_brand on sys_shop.brand_id=sys_brand.id where 1=1
+	    ">
+	      <if value=" and sys_position_shop.department_code=#{departmentCode}"></if>
+	    </sql>
+	    
+	    <sql id="queryBrand" value="select id,brand_name as brandName from sys_brand where state=1 "></sql>
+	    
+	    <sql id="queryBrandInCurrentUser" value="SELECT  sys_brand.id as brandId,sys_brand.brand_name as brandName 
+			  from sys_position_shop 
+		     inner join sys_shop ON sys_position_shop.shop_code=sys_shop.`code`
+		     inner join sys_brand on sys_shop.brand_id=sys_brand.id where sys_brand.state=1">
+		      <if value=" and sys_position_shop.department_code=#{department_code}"></if>
+		      <if value="group by  sys_brand.id"></if>
+		 </sql>
+	</sqlGroup>
+</sqlRoot>

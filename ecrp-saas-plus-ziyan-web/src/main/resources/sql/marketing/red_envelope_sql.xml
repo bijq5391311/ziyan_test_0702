@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="marketing.envelope">
+	    <sql id="findList" value="select * from red_envelope where 1=1">
+	     <bind name="name" value="#name == null ? null : ('%'+#name+'%')"></bind>
+         <if value="and name like #{name}"></if>
+	    </sql>
+	</sqlGroup>
+</sqlRoot>

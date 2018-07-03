@@ -1,0 +1,9 @@
+一、环境要求：
+	1、安装node.js v6.x
+二、配置说明
+	1、增加配置文件。例：nui.all.config.js
+	2、增加name 主入口文件。例：nui.all.js
+三、打包，在命令行运行 ：“node r.js -o [配置文件]”。 例：合并压缩.bat
+四、使用要求 
+	1、在页面 require.js 脚本引用之后，插入打包后的文件路径。例：<scriptsrc="require.js"></script><script src="nui.all.min.js"></script>
+	

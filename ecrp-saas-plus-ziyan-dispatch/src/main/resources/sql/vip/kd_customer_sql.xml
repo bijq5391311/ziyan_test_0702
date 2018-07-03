@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="vip.KdCustomer">
+		<sql id="queryCustomerByIDs" value="select * from kd_customer where 1=1">
+		 <if value="and sys_customer_id in(${customerIds})"></if>
+		</sql>
+		<sql id="updateCustomerActivated" 
+		  value="update kd_customer set is_activate = #{isActivate}
+		        and member_card = #{memberCard} 
+		        where sys_customer_id = #{sysCustomerId}"></sql>
+		        
+		<sql id="updateTime" value="update kd_customer set update_time = now() where state = 1 and sys_customer_id = #{sys_customer_id}">
+		</sql>
+	</sqlGroup>
+</sqlRoot>

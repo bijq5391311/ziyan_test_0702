@@ -1,0 +1,229 @@
+<% include ../../../include/layout/start.ejs %>
+<div id="constantly" v-cloak>
+  <div class="template-page">
+    <div class="constantly-content">
+      <div class="constantly-panel">
+        <div class="constantly-panel__title">
+          <span>销售情况</span>
+
+          <el-row class="pull-right">
+            <el-col :span="24">
+              <el-form :inline="true" class="constantly-form">
+                <el-form-item label="数据视角：">
+                  <el-form-grid size="xs">
+                    <el-select placeholder="请选择" clearable v-model="defaultSelect">
+                      <el-option label="部门" value="part"></el-option>
+                      <el-option label="品牌" value="brand"></el-option>
+                      <el-option label="渠道 " value="brand"></el-option>
+                    </el-select>
+                  </el-form-grid>
+                  <el-form-grid size="xmd">
+                    <el-popover ref="droptreepopover"
+                                v-model="dropTreeVisible"
+                                :width="droptreeWidth"
+                                placement="bottom-start"
+                                trigger="click"
+                                popper-class="tmp-droptree-popover">
+                      <el-scrollbar
+                        wrap-class="tmp-droptree-scroll"
+                      >
+                        <el-input class="tmp-droptree-search" placeholder="输入关键字进行过滤"></el-input>
+                        <el-tree-extra :data="dropTreeList"
+                                       ref="dropTree"
+                                       :expand-on-click-node="false"
+                                       show-checkbox
+                                       node-key="id"
+                                       @check-change="handleSelectValue"
+                                       class="tmp-droptree-tree"></el-tree-extra>
+                      </el-scrollbar>
+                      <div class="tmp-droptree-footer">
+                        <el-button size="mini" type="text" @click="dropTreeVisible = false">取消</el-button>
+                        <el-button type="primary" size="mini" @click="handleHideDroptree">确定</el-button>
+                      </div>
+                    </el-popover>
+                    <el-input ref="droptreeinput"
+                              v-model="dropTreeValue"
+                              icon="circle-close"
+                              :on-icon-click="handleCleanClick"
+                              @click.native="handleShowDropTree" placeholder="点击选择" class="tmp-droptree-input"
+                              v-popover:droptreepopover class="tmp-droptree-input"></el-input>
+                  </el-form-grid>
+                  <el-form-grid size="xmd">
+                    <el-select placeholder="选择店铺" clearable v-model="defaultMultipleSelect">
+                      <el-option label="店铺1" value="1"></el-option>
+                      <el-option label="店铺2" value="2"></el-option>
+                      <el-option label="店铺3" value="3"></el-option>
+                      <el-option label="店铺4" value="4"></el-option>
+                      <el-option label="店铺5" value="5"></el-option>
+                      <el-option label="店铺6" value="6"></el-option>
+                    </el-select>
+                  </el-form-grid>
+                </el-form-item>
+              </el-form>
+            </el-col>
+          </el-row>
+        </div>
+        <div class="constantly-panel__body">
+          <el-row class="constantly-grid" :gutter="10">
+            <el-col :span="6" v-for="data in constantlyData1" :key="data.id">
+              <div class="constantly-grid__content">
+                <div class="xe-widget xe-counter constantly-widget is-unfill">
+                  <div class="xe-icon">
+                    <i :class="'bui-' + data.icon"></i>
+                  </div>
+                  <div class="xe-label">
+                    <strong class="num"><b v-if="data.type === 'price'">￥</b>
+                      <el-countup class="normal-span" :start="0" :end="data.value"></el-countup>
+                    </strong>
+                    <span>{{data.description}}
+                     <el-popover
+                       v-if="data.tips !== ''"
+                       popper-class="constantly-popover"
+                       class="constantly-widget-tips"
+                       placement="right"
+                       trigger="hover"
+                       :content="data.tips">
+                        <i slot="reference" class="bui-question-fill"></i>
+                      </el-popover>
+                    </span>
+                  </div>
+                </div>
+                <p class="total-num">{{data.totalTitle}}：{{data.total}}</p>
+              </div>
+            </el-col>
+          </el-row>
+
+          <el-form :inline="true" class="constantly-form">
+            <el-form-item>
+              <el-form-grid>
+                <el-radio-group v-model="trendCompareRadio" class="spacing-button">
+                  <el-radio-button v-for="rad in trendCompareRadioData" :key="rad" :label="rad"></el-radio-button>
+                </el-radio-group>
+              </el-form-grid>
+            </el-form-item>
+            <el-form-item label="最近：" class="pull-right" style="margin-right:0">
+              <div class="constantly-form__platform">
+                <el-badge>
+                  <span :class="{ 'is-active': currentRecent === 'today'}" @click="chooseRecent('today')">今日</span>
+                </el-badge>
+                <el-badge>
+                  <span :class="{ 'is-active': currentRecent === 'seven'}" @click="chooseRecent('seven')">7日</span>
+                </el-badge>
+                <el-badge>
+                  <span :class="{ 'is-active': currentRecent === 'month'}" @click="chooseRecent('month')">30日</span>
+                </el-badge>
+              </div>
+            </el-form-item>
+          </el-form>
+          <div class="constantly-echarts">
+            <business-echarts :options="option" class="oscillogram" auto-resize></business-echarts>
+          </div>
+        </div>
+      </div>
+      <div class="constantly-panel">
+        <div class="constantly-panel__title">
+          <span>客户总览</span>
+
+          <el-row class="pull-right">
+            <el-col :span="24">
+              <el-form :inline="true" class="constantly-form">
+                <el-form-item>
+                  <el-form-grid size="xmd">
+                    <el-select placeholder="选择品牌" clearable v-model="defaultMultipleSelect">
+                      <el-option label="品牌1" value="1"></el-option>
+                      <el-option label="品牌2" value="2"></el-option>
+                      <el-option label="品牌3" value="3"></el-option>
+                      <el-option label="品牌4" value="4"></el-option>
+                      <el-option label="品牌5" value="5"></el-option>
+                      <el-option label="品牌6" value="6"></el-option>
+                    </el-select>
+                  </el-form-grid>
+                </el-form-item>
+              </el-form>
+            </el-col>
+          </el-row>
+        </div>
+        <div class="constantly-panel__body">
+          <el-row class="constantly-grid" :gutter="30">
+            <el-col :span="12">
+              <p class="text-center customer-title">总客户数：42,999,902</p>
+              <div class="constantly-echarts">
+                <business-echarts :options="option1" class="customer-echart" auto-resize></business-echarts>
+              </div>
+            </el-col>
+            <el-col :span="12">
+              <p class="text-center customer-title">总会员数：42,999,902</p>
+              <div class="constantly-echarts">
+                <business-echarts :options="option2" class="customer-echart" auto-resize></business-echarts>
+              </div>
+            </el-col>
+          </el-row>
+        </div>
+      </div>
+      <el-row class="constantly-grid" :gutter="10">
+        <el-col :span="12">
+          <div class="constantly-panel">
+            <div class="constantly-panel__title">
+              <span>营销活动</span>
+            </div>
+            <div class="constantly-panel__body activity-calendar">
+              <el-calendar class="activity-wrap__calendar"
+                           ref="activityCalendar"
+                           :date-cell-content="dateCellRenderMarket"
+                           header-type="tab">
+              </el-calendar>
+            </div>
+          </div>
+        </el-col>
+        <el-col :span="12">
+          <div class="constantly-panel activity-content">
+            <div class="constantly-panel__title">
+              <span>客户关怀</span>
+            </div>
+            <div class="constantly-panel__body clearfix">
+              <a class="list-area chosed-unit"  href="#">
+                <span class="icon bui-expediting-o"></span>
+                <span>订单催付</span>
+                <label>1</label>
+              </a>
+              <a class="list-area" href="#">
+                <span class="icon bui-pre-payment-o"></span>
+                <span>付款关怀</span>
+              </a>
+              <a class="list-area" href="#">
+                <span class="icon bui-box-o"></span>
+                <span>发货提醒</span>
+              </a>
+              <a class="list-area" href="#">
+                <span class="icon bui-sign-o"></span>
+                <span>签收关怀</span>
+              </a>
+              <a class="list-area" href="#">
+                <span class="icon bui-confirm-o"></span>
+                <span>确认关怀</span>
+              </a>
+              <a class="list-area chosed-unit"  href="#">
+                <span class="icon bui-refund-o"></span>
+                <span>退换关怀</span>
+                <label>1</label>
+              </a>
+              <a class="list-area" href="#">
+                <span class="icon bui-update"></span>
+                <span>升级提醒</span>
+              </a>
+              <a class="list-area" href="#">
+                <span class="icon bui-birthday-o"></span>
+                <span>生日祝福</span>
+              </a>
+              <a class="list-area" href="#">
+                <span class="icon bui-concern-o"></span>
+                <span>节日关怀</span>
+              </a>
+            </div>
+          </div>
+        </el-col>
+      </el-row>
+    </div>
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

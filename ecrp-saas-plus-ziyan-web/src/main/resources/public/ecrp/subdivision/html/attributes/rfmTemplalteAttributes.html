@@ -1,0 +1,975 @@
+<th:block th:fragment="attributes">
+<el-collapse-item style="margin-left: 10px"   :title="item.key"  name= "rfm" :key="index"  id="rfm" v-if="item.value.length>0 && item.key =='RFM模型属性'"  v-for="(item, index) in A1">
+     
+            <!-- 客户发展时间 -->
+            <el-form-item    v-if="develop_times.key === 'develop_time' && develop_times.value.length >0" :key="develop_timeindexs" v-for="(develop_times,develop_timeindexs) in item.value">
+                <el-form-item label="客户发展时间："  :label-width="labelWidth2" :key="develop_timeindex" v-for="(develop_time,develop_timeindex) in develop_times.value">
+                     <el-form ref="develop_time" placement="right" :model="develop_time">
+                     <el-form-grid  size="xs">
+                      <el-select v-model="develop_time.condition"   placeholder="请选择" class="is-gray">
+                      <el-option label="等于" value="equal"></el-option>
+                      <el-option label="不等于" value="notEqual"></el-option>
+                      <el-option label="早于等于" value="smallerEqual"></el-option>
+                      <el-option label="晚于等于" value="largerEqual"></el-option>
+                      <el-option label="距离当前" value="earlierNow"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                    <el-form-grid  v-if="develop_time.condition =='equal'||develop_time.condition=='notEqual'||develop_time.condition=='smallerEqual'||develop_time.condition=='largerEqual'">
+                    <el-form-item prop="date" :rules="  {type: 'date', required: true, message: '请选择日期时间', trigger: 'change' }">
+                     <el-date-picker v-model="develop_time.date" type="date" :editable="false" placeholder="选择日期"></el-date-picker>
+                   </el-form-item>
+                   </el-form-grid>
+                    <el-form-grid  v-if="develop_time.condition == 'earlierNow'">
+                    <el-form-grid  size="sm">
+                        <el-row>
+                            <el-col :span="11">
+                             <el-form-item prop="oldday" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                              <el-input type="text" v-model="develop_time.oldday" placeholder="" :max="5" class="text-right"></el-input>
+                            </el-form-item>
+                            </el-col>
+                            <el-col :span="2" class="text-center">~</el-col>
+                            <el-col :span="11">
+                            <el-form-item prop="newday" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                            <el-input placeholder="" type="text" v-model="develop_time.newday"  :max="5" class="text-right"></el-input>
+                        </el-form-item>
+                    </el-col>
+                  </el-row>
+                    </el-form-grid>
+                     <el-form-grid >天内</el-form-grid>
+                  </el-form-grid>
+                  <el-form-grid  size="xxs" v-if="develop_timeindex !== develop_times.value.length - 1">
+                          <el-select v-model="develop_time.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid >
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(develop_timeindex,develop_timeindexs,develop_times,item,index)"><i class="bui-delete"></i></a>
+                  <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'develop_time')"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+            <!-- 下单次数 -->
+            <el-form-item    v-if="order_timess.key === 'order_times' && order_timess.value.length >0" :key="order_timesindexs" v-for="(order_timess,order_timesindexs) in item.value">
+                <el-form-item label="下单次数："  :label-width="labelWidth2" :key="order_timesindex" v-for="(order_times,order_timesindex) in order_timess.value">
+                    <el-form ref="order_times" placement="right" :model="order_times">  
+                  	<el-form-grid  size="sm">
+                        <el-row>
+                            <el-col :span="11">
+                             <el-form-item prop="start" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                              <el-input type="text" v-model="order_times.start" placeholder="" :max="5" class="text-right"></el-input>
+                            </el-form-item>
+                            </el-col>
+                            <el-col :span="2" class="text-center">~</el-col>
+                            <el-col :span="11">
+                            <el-form-item prop="end" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                            <el-input placeholder="" type="text" v-model="order_times.end"  :max="5" class="text-right"></el-input>
+                        </el-form-item>
+                    </el-col>
+                  </el-row>
+                    </el-form-grid>
+                   
+                   <el-form-grid >
+                   次
+                  </el-form-grid>
+                     <el-form-grid  size="xxs" v-if="order_timesindex !== order_timess.value.length - 1">
+                          <el-select v-model="order_times.relation" no-data-text="或者" class="is-gray">
+                            <el-option label="或者" value="and"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid >
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(order_timesindex,order_timesindexs,order_timess,item,index)"><i class="bui-delete"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+            
+            <!-- 下单金额 -->
+            <el-form-item    v-if="order_amounts.key === 'order_amount' && order_amounts.value.length >0" :key="order_amountindexs" v-for="(order_amounts,order_amountindexs) in item.value">
+                <el-form-item label="下单金额："  :label-width="labelWidth2" :key="order_amountindex" v-for="(order_amount,order_amountindex) in order_amounts.value">
+                    <el-form ref="order_amount" placement="right" :model="order_amount">
+                 	<el-form-grid  size="sm">
+                        <el-row>
+                            <el-col :span="11">
+                             <el-form-item prop="start" :rules=" { validator:commonMoneyReg, trigger: 'blur,change' }">
+                              <el-input type="text" v-model="order_amount.start" placeholder="" :max="5" class="text-right"></el-input>
+                            </el-form-item>
+                            </el-col>
+                            <el-col :span="2" class="text-center">~</el-col>
+                            <el-col :span="11">
+                            <el-form-item prop="end" :rules=" { validator:commonMoneyReg, trigger: 'blur,change' }">
+                            <el-input placeholder="" type="text" v-model="order_amount.end"  :max="5" class="text-right"></el-input>
+                        </el-form-item>
+                    </el-col>
+                  </el-row>
+                    </el-form-grid>
+                   <el-form-grid >
+                   元
+                  </el-form-grid>
+                   <el-form-grid  size="xxs" v-if="order_amountindex !== order_amounts.value.length - 1">
+                          <el-select v-model="order_amount.relation" no-data-text="或者" class="is-gray">
+                            <el-option label="或者" value="and"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid >
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(order_amountindex,order_amountindexs,order_amounts,item,index)"><i class="bui-delete"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+            
+            <!-- 最后下单时间 -->
+            <el-form-item    v-if="last_order_times.key === 'last_order_time' && last_order_times.value.length >0" :key="last_order_timeindexs" v-for="(last_order_times,last_order_timeindexs) in item.value">
+                <el-form-item label="最近下单时间："  :label-width="labelWidth2" :key="last_order_timeindex" v-for="(last_order_time,last_order_timeindex) in last_order_times.value">
+                    <el-form ref="last_order_time" placement="right" :model="last_order_time">  
+                     <el-form-grid  size="xs">
+                      <el-select v-model="last_order_time.condition"   placeholder="请选择" class="is-gray">
+                      <el-option label="等于" value="equal"></el-option>
+                      <el-option label="不等于" value="notEqual"></el-option>
+                      <el-option label="早于等于" value="smallerEqual"></el-option>
+                      <el-option label="晚于等于" value="largerEqual"></el-option>
+                      <el-option label="距离当前" value="earlierNow"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                    <el-form-grid  v-if="last_order_time.condition =='equal'||last_order_time.condition=='notEqual'||last_order_time.condition=='smallerEqual'||last_order_time.condition=='largerEqual'">
+                     <el-form-item prop="date" :rules="  {type: 'date', required: true, message: '请选择日期时间', trigger: 'change' }">
+                     <el-date-picker v-model="last_order_time.date" type="date" :editable="false"    placeholder="选择日期"></el-date-picker>
+                   </el-form-item>
+                   </el-form-grid>
+                    <el-form-grid  v-if="last_order_time.condition == 'earlierNow'">
+                    <el-form-grid  size="sm">
+                        <el-row>
+                            <el-col :span="11">
+                             <el-form-item prop="oldday" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                              <el-input type="text" v-model="last_order_time.oldday" placeholder="" :max="5" class="text-right"></el-input>
+                            </el-form-item>
+                            </el-col>
+                            <el-col :span="2" class="text-center">~</el-col>
+                            <el-col :span="11">
+                            <el-form-item prop="newday" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                            <el-input placeholder="" type="text" v-model="last_order_time.newday"  :max="5" class="text-right"></el-input>
+                    </el-form-item>
+                    </el-col>
+                  </el-row>
+                    </el-form-grid>
+                     <el-form-grid >天内</el-form-grid>
+                  </el-form-grid>
+                  <el-form-grid  size="xxs" v-if="last_order_timeindex !== last_order_times.value.length - 1">
+                          <el-select v-model="last_order_time.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid >
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(last_order_timeindex,last_order_timeindexs,last_order_times,item,index)"><i class="bui-delete"></i></a>
+                  <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'last_order_time')"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+            <!-- 下单休眠天数 -->
+            <el-form-item    v-if="lastOrderTimes.key === 'lastOrderTime' && lastOrderTimes.value.length >0" :key="lastOrderTimeindexs" v-for="(lastOrderTimes,lastOrderTimeindexs) in item.value">
+                <el-form-item label="下单休眠天数："  :label-width="labelWidth2" :key="lastOrderTimeindex" v-for="(lastOrderTime,lastOrderTimeindex) in lastOrderTimes.value">
+                     <el-form ref="lastOrderTime" placement="right" :model="lastOrderTime"> 
+                     <el-form-grid  size="xs">
+                      <el-select v-model="lastOrderTime.condition"   placeholder="请选择" class="is-gray">
+                      <el-option label="等于" value="equal"></el-option>
+                      <el-option label="不等于" value="notEqual"></el-option>
+                      <el-option label="大于" value="smaller"></el-option>
+                      <el-option label="大于等于" value="smallerEqual"></el-option>
+                      <el-option label="小于" value="larger"></el-option>
+                      <el-option label="小于等于" value="largerEqual"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                    <el-form-grid  size="sm">
+                    <el-form-item prop="CDATA" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                    <el-input placeholder="" type="text" v-model="lastOrderTime.CDATA"  :max="5" class="text-right"></el-input>
+                    </el-form-item>
+                    </el-form-grid>
+                     <el-form-grid >天</el-form-grid>
+                  </el-form-grid>
+                  <el-form-grid  size="xxs" v-if="lastOrderTimeindex !== lastOrderTimes.value.length - 1">
+                          <el-select v-model="lastOrderTime.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid >
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(lastOrderTimeindex,lastOrderTimeindexs,lastOrderTimes,item,index)"><i class="bui-delete"></i></a>
+                  <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'lastOrderTime')"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+            
+            <!-- 最早付款时间 -->
+            <el-form-item    v-if="first_pay_times.key === 'first_pay_time' && first_pay_times.value.length >0" :key="first_pay_timeindexs" v-for="(first_pay_times,first_pay_timeindexs) in item.value">
+                <el-form-item label="最早付款时间："  :label-width="labelWidth2" :key="first_pay_timeindex" v-for="(first_pay_time,first_pay_timeindex) in first_pay_times.value">
+                     <el-form ref="first_pay_time" placement="right" :model="first_pay_time">   
+                     <el-form-grid  size="xs">
+                      <el-select v-model="first_pay_time.condition"   placeholder="请选择" class="is-gray">
+                      <el-option label="等于" value="equal"></el-option>
+                      <el-option label="不等于" value="notEqual"></el-option>
+                      <el-option label="早于等于" value="smallerEqual"></el-option>
+                      <el-option label="晚于等于" value="largerEqual"></el-option>
+                      <el-option label="距离当前" value="earlierNow"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                    <el-form-grid  v-if="first_pay_time.condition =='equal'||first_pay_time.condition=='notEqual'||first_pay_time.condition=='smallerEqual'||first_pay_time.condition=='largerEqual'">
+                     <el-form-item prop="date" :rules="  {type: 'date', required: true, message: '请选择日期时间', trigger: 'change' }">
+                     <el-date-picker v-model="first_pay_time.date" type="date" :editable="false"    placeholder="选择日期"></el-date-picker>
+                   </el-form-item>
+                   </el-form-grid>
+                    <el-form-grid  v-if="first_pay_time.condition == 'earlierNow'">
+                    <el-form-grid  size="sm">
+                        <el-row>
+                            <el-col :span="11">
+                             <el-form-item prop="oldday" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                              <el-input type="text" v-model="first_pay_time.oldday" placeholder="" :max="5" class="text-right"></el-input>
+                            </el-form-item>
+                            </el-col>
+                            <el-col :span="2" class="text-center">~</el-col>
+                            <el-col :span="11">
+                            <el-form-item prop="newday" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                            <el-input placeholder="" type="text" v-model="first_pay_time.newday"  :max="5" class="text-right"></el-input>
+                    </el-form-item>
+                    </el-col>
+                  </el-row>
+                    </el-form-grid>
+                     <el-form-grid >天内</el-form-grid>
+                  </el-form-grid>
+                  <el-form-grid  size="xxs" v-if="first_pay_timeindex !== first_pay_times.value.length - 1">
+                          <el-select v-model="first_pay_time.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid >
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(first_pay_timeindex,first_pay_timeindexs,first_pay_times,item,index)"><i class="bui-delete"></i></a>
+                  <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'first_pay_time')"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+            
+            
+            <!-- 付款次数 -->
+            <el-form-item    v-if="pay_timess.key === 'pay_times' && pay_timess.value.length >0" :key="pay_timesindexs" v-for="(pay_timess,pay_timesindexs) in item.value">
+                <el-form-item label="付款次数："  :label-width="labelWidth2" :key="pay_timesindex" v-for="(pay_times,pay_timesindex) in pay_timess.value">
+                    <el-form ref="pay_times" placement="right" :model="pay_times">      
+					<el-form-grid  size="sm">
+                        <el-row>
+                            <el-col :span="11">
+                             <el-form-item prop="start" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                              <el-input type="text" v-model="pay_times.start" placeholder="" :max="5" class="text-right"></el-input>
+                            </el-form-item>
+                            </el-col>
+                            <el-col :span="2" class="text-center">~</el-col>
+                            <el-col :span="11">
+                            <el-form-item prop="end" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                            <el-input placeholder="" type="text" v-model="pay_times.end"  :max="5" class="text-right"></el-input>
+                        </el-form-item>
+                    </el-col>
+                  </el-row>
+                    </el-form-grid>
+                   <el-form-grid >
+                   次
+                  </el-form-grid>
+                 <el-form-grid  size="xxs" v-if="pay_timesindex !== pay_timess.value.length - 1">
+                          <el-select v-model="pay_times.relation" no-data-text="或者" class="is-gray">
+                            <el-option label="或者" value="and"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid >
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(pay_timesindex,pay_timesindexs,pay_timess,item,index)"><i class="bui-delete"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+            <!-- 付款总额 -->
+            <el-form-item    v-if="pay_amounts.key === 'pay_amount' && pay_amounts.value.length >0" :key="pay_amountindexs" v-for="(pay_amounts,pay_amountindexs) in item.value">
+                <el-form-item label="付款总额："  :label-width="labelWidth2" :key="pay_amountindex" v-for="(pay_amount,pay_amountindex) in pay_amounts.value">
+                    <el-form ref="pay_amount" placement="right" :model="pay_amount">        
+                   <el-form-grid  size="sm">
+                        <el-row>
+                            <el-col :span="11">
+                             <el-form-item prop="start" :rules=" { validator:commonMoneyReg, trigger: 'blur,change' }">
+                              <el-input type="text" v-model="pay_amount.start" placeholder="" :max="5" class="text-right"></el-input>
+                            </el-form-item>
+                            </el-col>
+                            <el-col :span="2" class="text-center">~</el-col>
+                            <el-col :span="11">
+                            <el-form-item prop="end" :rules=" { validator:commonMoneyReg, trigger: 'blur,change' }">
+                            <el-input placeholder="" type="text" v-model="pay_amount.end"  :max="5" class="text-right"></el-input>
+                        </el-form-item>
+                    </el-col>
+                  </el-row>
+                    </el-form-grid>
+                   <el-form-grid >
+                   元
+                  </el-form-grid>
+                  <el-form-grid  size="xxs" v-if="pay_amountindex !== pay_amounts.value.length - 1">
+                          <el-select v-model="pay_amount.relation" no-data-text="或者" class="is-gray">
+                            <el-option label="或者" value="and"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid >
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(pay_amountindex,pay_amountindexs,pay_amounts,item,index)"><i class="bui-delete"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+            <!-- 最后付款时间 -->
+            <el-form-item    v-if="last_pay_times.key === 'last_pay_time' && last_pay_times.value.length >0" :key="last_pay_timeindexs" v-for="(last_pay_times,last_pay_timeindexs) in item.value">
+                <el-form-item label="最后付款时间："  :label-width="labelWidth2" :key="last_pay_timeindex" v-for="(last_pay_time,last_pay_timeindex) in last_pay_times.value">
+                   <el-form ref="last_pay_time" placement="right" :model="last_pay_time">   
+                     <el-form-grid  size="xs">
+                      <el-select v-model="last_pay_time.condition"   placeholder="请选择" class="is-gray">
+                      <el-option label="等于" value="equal"></el-option>
+                      <el-option label="不等于" value="notEqual"></el-option>
+                      <el-option label="早于等于" value="smallerEqual"></el-option>
+                      <el-option label="晚于等于" value="largerEqual"></el-option>
+                      <el-option label="距离当前" value="earlierNow"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                    <el-form-grid  v-if="last_pay_time.condition =='equal'||last_pay_time.condition=='notEqual'||last_pay_time.condition=='smallerEqual'||last_pay_time.condition=='largerEqual'">
+                    <el-form-item prop="date" :rules="  {type: 'date', required: true, message: '请选择日期时间', trigger: 'change' }">
+                     <el-date-picker v-model="last_pay_time.date" type="date"  :editable="false"   placeholder="选择日期"></el-date-picker>
+                   </el-form-item>
+                   </el-form-grid>
+                    <el-form-grid  v-if="last_pay_time.condition == 'earlierNow'">
+                    <el-form-grid  size="sm">
+                        <el-row>
+                            <el-col :span="11">
+                             <el-form-item prop="oldday" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                              <el-input type="text" v-model="last_pay_time.oldday" placeholder="" :max="5" class="text-right"></el-input>
+                            </el-form-item>
+                            </el-col>
+                            <el-col :span="2" class="text-center">~</el-col>
+                            <el-col :span="11">
+                            <el-form-item prop="newday" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                            <el-input placeholder="" type="text" v-model="last_pay_time.newday"  :max="5" class="text-right"></el-input>
+                    </el-form-item>
+                    </el-col>
+                  </el-row>
+                    </el-form-grid>
+                     <el-form-grid >天内</el-form-grid>
+                  </el-form-grid>
+                  <el-form-grid  size="xxs" v-if="last_pay_timeindex !== last_pay_times.value.length - 1">
+                          <el-select v-model="last_pay_time.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid >
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(last_pay_timeindex,last_pay_timeindexs,last_pay_times,item,index)"><i class="bui-delete"></i></a>
+                  <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'last_pay_time')"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+            
+            <!-- 付款休眠天数 -->
+            <el-form-item    v-if="sleep_pay_dayss.key === 'sleep_pay_days' && sleep_pay_dayss.value.length >0" :key="sleep_pay_daysindexs" v-for="(sleep_pay_dayss,sleep_pay_daysindexs) in item.value">
+                <el-form-item label="付款休眠天数："  :label-width="labelWidth2" :key="sleep_pay_daysindex" v-for="(sleep_pay_days,sleep_pay_daysindex) in sleep_pay_dayss.value">
+                   <el-form ref="sleep_pay_days" placement="right" :model="sleep_pay_days"> 
+                     <el-form-grid  size="xs">
+                      <el-select v-model="sleep_pay_days.condition"   placeholder="请选择" class="is-gray">
+                      <el-option label="等于" value="equal"></el-option>
+                      <el-option label="不等于" value="notEqual"></el-option>
+                      <el-option label="大于" value="smaller"></el-option>
+                      <el-option label="大于等于" value="smallerEqual"></el-option>
+                      <el-option label="小于" value="larger"></el-option>
+                      <el-option label="小于等于" value="largerEqual"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                  <el-form-grid >
+                 <el-form-item prop="CDATA" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                  <el-input  type="text" class="text-right" th:v-model="sleep_pay_days.CDATA" ></el-input>
+                 </el-form-item>
+                  </el-form-grid>
+                   <el-form-grid >天</el-form-grid>
+                  <el-form-grid  size="xxs" v-if="sleep_pay_daysindex !== sleep_pay_dayss.value.length - 1">
+                          <el-select v-model="sleep_pay_days.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid >
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(sleep_pay_daysindex,sleep_pay_daysindexs,sleep_pay_dayss,item,index)"><i class="bui-delete"></i></a>
+                  <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'sleep_pay_days')"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+            <!-- 客户回购周期 -->
+            <el-form-item    v-if="count_units.key === 'count_unit' && count_units.value.length >0" :key="count_unitindexs" v-for="(count_units,count_unitindexs) in item.value">
+                <el-form-item label="客户回购周期："  :label-width="labelWidth2" :key="count_unitindex" v-for="(count_unit,count_unitindex) in count_units.value">
+                     <el-form ref="count_unit" placement="right" :model="count_unit">
+                     <el-form-grid  size="xs">
+                      <el-select v-model="count_unit.condition"   placeholder="请选择" class="is-gray">
+                      <el-option label="等于" value="equal"></el-option>
+                      <el-option label="不等于" value="notEqual"></el-option>
+                      <el-option label="大于" value="larger"></el-option>
+                      <el-option label="大于等于" value="largerEqual"></el-option>
+                      <el-option label="小于" value="smaller"></el-option>
+                      <el-option label="小于等于" value="smallerEqual"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                  <el-form-grid >
+                  <el-form-item prop="CDATA" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                  <el-input  type="text" class="text-right" th:v-model="count_unit.CDATA" ></el-input>
+                  </el-form-item>
+                  </el-form-grid>
+                  
+                  <el-form-grid  size="xxs" v-if="count_unitindex !== count_units.value.length - 1">
+                          <el-select v-model="count_unit.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid >
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(count_unitindex,count_unitindexs,count_units,item,index)"><i class="bui-delete"></i></a>
+                  <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'count_unit')"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item>
+            
+            
+            <!-- 成功次数 -->
+            <el-form-item    v-if="trade_timess.key === 'trade_times' && trade_timess.value.length >0" :key="trade_timesindexs" v-for="(trade_timess,trade_timesindexs) in item.value">
+                <el-form-item label="成功次数："  :label-width="labelWidth2" :key="trade_timesindex" v-for="(trade_times,trade_timesindex) in trade_timess.value">
+                   <el-form ref="trade_times" placement="right" :model="trade_times">   
+                   <el-form-grid  size="sm">
+                        <el-row>
+                            <el-col :span="11">
+                             <el-form-item prop="start" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                              <el-input type="text" v-model="trade_times.start" placeholder="" :max="5" class="text-right"></el-input>
+                            </el-form-item>
+                            </el-col>
+                            <el-col :span="2" class="text-center">~</el-col>
+                            <el-col :span="11">
+                            <el-form-item prop="end" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                            <el-input placeholder="" type="text" v-model="trade_times.end"  :max="5" class="text-right"></el-input>
+                        </el-form-item>
+                    </el-col>
+                  </el-row>
+                    </el-form-grid>
+                   <el-form-grid >
+                   次
+                  </el-form-grid>
+                    <el-form-grid  size="xxs" v-if="trade_timesindex !== trade_timess.value.length - 1">
+                          <el-select v-model="trade_times.relation" no-data-text="或者" class="is-gray">
+                            <el-option label="或者" value="and"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid >
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(trade_timesindex,trade_timesindexs,trade_timess,item,index)"><i class="bui-delete"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+            <!-- 成功总额 -->
+            <el-form-item    v-if="trade_amounts.key === 'trade_amount' && trade_amounts.value.length >0" :key="trade_amountindexs" v-for="(trade_amounts,trade_amountindexs) in item.value">
+                <el-form-item label="成功总额："  :label-width="labelWidth2" :key="trade_amountindex" v-for="(trade_amount,trade_amountindex) in trade_amounts.value">
+                     <el-form ref="trade_amount" placement="right" :model="trade_amount">
+                    <el-form-grid  size="sm">
+                        <el-row>
+                            <el-col :span="11">
+                             <el-form-item prop="start" :rules=" { validator:commonMoneyReg, trigger: 'blur,change' }">
+                              <el-input type="text" v-model="trade_amount.start" placeholder="" :max="5" class="text-right"></el-input>
+                            </el-form-item>
+                            </el-col>
+                            <el-col :span="2" class="text-center">~</el-col>
+                            <el-col :span="11">
+                            <el-form-item prop="end" :rules=" { validator:commonMoneyReg, trigger: 'blur,change' }">
+                            <el-input placeholder="" type="text" v-model="trade_amount.end"  :max="5" class="text-right"></el-input>
+                        </el-form-item>
+                    </el-col>
+                  </el-row>
+                    </el-form-grid>
+                   <el-form-grid >
+                   元
+                  </el-form-grid>
+                   <el-form-grid  size="xxs" v-if="trade_amountindex !== trade_amounts.value.length - 1">
+                          <el-select v-model="trade_amount.relation" no-data-text="或者" class="is-gray">
+                            <el-option label="或者" value="and"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid >
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(trade_amountindex,trade_amountindexs,trade_amounts,item,index)"><i class="bui-delete"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+            
+            <!-- 成功休眠天数 -->
+            <el-form-item    v-if="LastTradeTime_Nows.key === 'LastTradeTime_Now' && LastTradeTime_Nows.value.length >0" :key="LastTradeTime_Nowindexs" v-for="(LastTradeTime_Nows,LastTradeTime_Nowindexs) in item.value">
+                <el-form-item label="成功休眠天数："  :label-width="labelWidth2" :key="LastTradeTime_Nowindex" v-for="(LastTradeTime_Now,LastTradeTime_Nowindex) in LastTradeTime_Nows.value">
+                     <el-form ref="LastTradeTime_Now" placement="right" :model="LastTradeTime_Now"> 
+                     <el-form-grid  size="xs">
+                      <el-select v-model="LastTradeTime_Now.condition"   placeholder="请选择" class="is-gray">
+                      <el-option label="等于" value="equal"></el-option>
+                      <el-option label="不等于" value="notEqual"></el-option>
+                      <el-option label="大于" value="smaller"></el-option>
+                      <el-option label="大于等于" value="smallerEqual"></el-option>
+                      <el-option label="小于" value="larger"></el-option>
+                      <el-option label="小于等于" value="largerEqual"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                  <el-form-grid >
+                  <el-form-item prop="CDATA" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                  <el-input  type="text" class="text-right" th:v-model="LastTradeTime_Now.CDATA" ></el-input>
+                  </el-form-item>
+                  </el-form-grid>
+                   <el-form-grid >
+                    </el-form-grid>
+                  <el-form-grid  size="xxs" v-if="LastTradeTime_Nowindex !== LastTradeTime_Nows.value.length - 1">
+                          <el-select v-model="LastTradeTime_Now.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid >
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(LastTradeTime_Nowindex,LastTradeTime_Nowindexs,LastTradeTime_Nows,item,index)"><i class="bui-delete"></i></a>
+                  <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'LastTradeTime_Now')"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+            <!-- 客单价 -->
+            <el-form-item    v-if="price_units.key === 'price_unit' && price_units.value.length >0" :key="price_unitindexs" v-for="(price_units,price_unitindexs) in item.value">
+                <el-form-item label="客单价："  :label-width="labelWidth2" :key="price_unitindex" v-for="(price_unit,price_unitindex) in price_units.value">
+                    <el-form ref="price_unit" placement="right" :model="price_unit">
+                     <el-form-grid  size="sm">
+                        <el-row>
+                            <el-col :span="11">
+                             <el-form-item prop="start" :rules=" { validator:commonMoneyReg, trigger: 'blur,change' }">
+                              <el-input type="text" v-model="price_unit.start" placeholder="" :max="5" class="text-right"></el-input>
+                            </el-form-item>
+                            </el-col>
+                            <el-col :span="2" class="text-center">~</el-col>
+                            <el-col :span="11">
+                            <el-form-item prop="end" :rules=" { validator:commonMoneyReg, trigger: 'blur,change' }">
+                            <el-input placeholder="" type="text" v-model="price_unit.end"  :max="5" class="text-right"></el-input>
+                        </el-form-item>
+                    </el-col>
+                  </el-row>
+                    </el-form-grid>
+                   <el-form-grid >
+                   元
+                  </el-form-grid>
+                  <el-form-grid  size="xxs" v-if="price_unitindex !== price_units.value.length - 1">
+                          <el-select v-model="price_unit.relation" no-data-text="或者" class="is-gray">
+                            <el-option label="或者" value="and"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid >
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(price_unitindex,price_unitindexs,price_units,item,index)"><i class="bui-delete"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+            <!-- 客件数 -->
+            <el-form-item    v-if="item_units.key === 'item_unit' && item_units.value.length >0" :key="item_unitindexs" v-for="(item_units,item_unitindexs) in item.value">
+                <el-form-item label="客件数："  :label-width="labelWidth2" :key="item_unitindex" v-for="(item_unit,item_unitindex) in item_units.value">
+                     <el-form ref="item_unit" placement="right" :model="item_unit">
+                    <el-form-grid  size="sm">
+                        <el-row>
+                            <el-col :span="11">
+                             <el-form-item prop="start" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                              <el-input type="text" v-model="item_unit.start" placeholder="" :max="5" class="text-right"></el-input>
+                            </el-form-item>
+                            </el-col>
+                            <el-col :span="2" class="text-center">~</el-col>
+                            <el-col :span="11">
+                            <el-form-item prop="end" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                            <el-input placeholder="" type="text" v-model="item_unit.end"  :max="5" class="text-right"></el-input>
+                        </el-form-item>
+                    </el-col>
+                  </el-row>
+                    </el-form-grid>
+                   <el-form-grid >
+                   件
+                  </el-form-grid>
+                   <el-form-grid  size="xxs" v-if="item_unitindex !== item_units.value.length - 1">
+                          <el-select v-model="item_unit.relation" no-data-text="或者" class="is-gray">
+                            <el-option label="或者" value="and"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid >
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(item_unitindex,item_unitindexs,item_units,item,index)"><i class="bui-delete"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+            <!-- 退款次数 -->
+            <el-form-item    v-if="refund_timess.key === 'refund_times' && refund_timess.value.length >0" :key="refund_timesindexs" v-for="(refund_timess,refund_timesindexs) in item.value">
+                <el-form-item label="退款次数："  :label-width="labelWidth2" :key="refund_timesindex" v-for="(refund_times,refund_timesindex) in refund_timess.value">
+                   <el-form ref="refund_times" placement="right" :model="refund_times">
+                   <el-form-grid  size="sm">
+                        <el-row>
+                            <el-col :span="11">
+                             <el-form-item prop="start" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                              <el-input type="text" v-model="refund_times.start" placeholder="" :max="5" class="text-right"></el-input>
+                            </el-form-item>
+                            </el-col>
+                            <el-col :span="2" class="text-center">~</el-col>
+                            <el-col :span="11">
+                            <el-form-item prop="end" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                            <el-input placeholder="" type="text" v-model="refund_times.end"  :max="5" class="text-right"></el-input>
+                        </el-form-item>
+                    </el-col>
+                  </el-row>
+                    </el-form-grid>
+                   <el-form-grid >
+                   次
+                  </el-form-grid>
+                  <el-form-grid  size="xxs" v-if="refund_timesindex !== refund_timess.value.length - 1">
+                          <el-select v-model="refund_times.relation" no-data-text="或者" class="is-gray">
+                            <el-option label="或者" value="and"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid >
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(refund_timesindex,refund_timesindexs,refund_timess,item,index)"><i class="bui-delete"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+            <!-- 退款总额 -->
+            <el-form-item    v-if="refund_amounts.key === 'refund_amount' && refund_amounts.value.length >0" :key="refund_amountindexs" v-for="(refund_amounts,refund_amountindexs) in item.value">
+                <el-form-item label="退款总额："  :label-width="labelWidth2" :key="refund_amountindex" v-for="(refund_amount,refund_amountindex) in refund_amounts.value">
+                    <el-form ref="refund_amount" placement="right" :model="refund_amount">  
+                    <el-form-grid  size="sm">
+                        <el-row>
+                            <el-col :span="11">
+                             <el-form-item prop="start" :rules=" { validator:commonMoneyReg, trigger: 'blur,change' }">
+                              <el-input type="text" v-model="refund_amount.start" placeholder="" :max="5" class="text-right"></el-input>
+                            </el-form-item>
+                            </el-col>
+                            <el-col :span="2" class="text-center">~</el-col>
+                            <el-col :span="11">
+                            <el-form-item prop="end" :rules=" { validator:commonMoneyReg, trigger: 'blur,change' }">
+                            <el-input placeholder="" type="text" v-model="refund_amount.end"  :max="5" class="text-right"></el-input>
+                        </el-form-item>
+                    </el-col>
+                  </el-row>
+                    </el-form-grid>
+                   <el-form-grid >
+                   元
+                  </el-form-grid>
+                  <el-form-grid  size="xxs" v-if="refund_amountindex !== refund_amounts.value.length - 1">
+                          <el-select v-model="refund_amount.relation" no-data-text="或者" class="is-gray">
+                            <el-option label="或者" value="and"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid >
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(refund_amountindex,refund_amountindexs,refund_amounts,item,index)"><i class="bui-delete"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+             
+            <!-- 最小单次购买数量 -->
+            <el-form-item    v-if="min_single_buy_nums.key === 'min_single_buy_num' && min_single_buy_nums.value.length >0" :key="min_single_buy_numindexs" v-for="(min_single_buy_nums,min_single_buy_numindexs) in item.value">
+                <el-form-item label="最小单次购买数量："  :label-width="labelWidth2" :key="min_single_buy_numindex" v-for="(min_single_buy_num,min_single_buy_numindex) in min_single_buy_nums.value">
+                     <el-form ref="min_single_buy_num" placement="right" :model="min_single_buy_num">   
+                     <el-form-grid  size="xs">
+                      <el-select v-model="min_single_buy_num.condition"   placeholder="请选择" class="is-gray">
+                      <el-option label="等于" value="equal"></el-option>
+                      <el-option label="不等于" value="notEqual"></el-option>
+                      <el-option label="大于" value="larger"></el-option>
+                      <el-option label="大于等于" value="largerEqual"></el-option>
+                      <el-option label="小于" value="smaller"></el-option>
+                      <el-option label="小于等于" value="smallerEqual"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                  <el-form-grid >
+                 <el-form-item prop="CDATA" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                  <el-input  type="text" class="text-right"  th:v-model="min_single_buy_num.CDATA" ></el-input>
+                 </el-form-item>
+                  </el-form-grid>
+                   <el-form-grid >
+                   件
+                  </el-form-grid>
+                   <el-form-grid >
+                    </el-form-grid>
+                  <el-form-grid  size="xxs" v-if="min_single_buy_numindex !== min_single_buy_nums.value.length - 1">
+                          <el-select v-model="min_single_buy_num.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid >
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(min_single_buy_numindex,min_single_buy_numindexs,min_single_buy_nums,item,index)"><i class="bui-delete"></i></a>
+                  <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'min_single_buy_num')"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+            <!-- 最大单次购买数量 -->
+            <el-form-item    v-if="max_single_buy_nums.key === 'max_single_buy_num' && max_single_buy_nums.value.length >0" :key="max_single_buy_numindexs" v-for="(max_single_buy_nums,max_single_buy_numindexs) in item.value">
+                <el-form-item label="最大单次购买数量："  :label-width="labelWidth2" :key="max_single_buy_numindex" v-for="(max_single_buy_num,max_single_buy_numindex) in max_single_buy_nums.value">
+                     <el-form ref="max_single_buy_num" placement="right" :model="max_single_buy_num">
+                     <el-form-grid  size="xs">
+                      <el-select v-model="max_single_buy_num.condition"   placeholder="请选择" class="is-gray">
+                      <el-option label="等于" value="equal"></el-option>
+                      <el-option label="不等于" value="notEqual"></el-option>
+                      <el-option label="大于" value="larger"></el-option>
+                      <el-option label="大于等于" value="largerEqual"></el-option>
+                      <el-option label="小于" value="smaller"></el-option>
+                      <el-option label="小于等于" value="smallerEqual"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                  <el-form-grid >
+                 <el-form-item prop="CDATA" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                  <el-input  type="text" class="text-right"  th:v-model="max_single_buy_num.CDATA" ></el-input>
+                 </el-form-item>
+                  </el-form-grid>
+                   <el-form-grid >
+                   件
+                  </el-form-grid>
+                   <el-form-grid >
+                    </el-form-grid>
+                  <el-form-grid  size="xxs" v-if="max_single_buy_numindex !== max_single_buy_nums.value.length - 1">
+                          <el-select v-model="max_single_buy_num.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid >
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(max_single_buy_numindex,max_single_buy_numindexs,max_single_buy_nums,item,index)"><i class="bui-delete"></i></a>
+                 <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'max_single_buy_num')"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+            
+            <!-- 最小单次购买金额 -->
+            <el-form-item    v-if="min_single_buy_amounts.key === 'min_single_buy_amount' && min_single_buy_amounts.value.length >0" :key="min_single_buy_amountindexs" v-for="(min_single_buy_amounts,min_single_buy_amountindexs) in item.value">
+                <el-form-item label="最小单次购买金额："  :label-width="labelWidth2" :key="min_single_buy_amountindex" v-for="(min_single_buy_amount,min_single_buy_amountindex) in min_single_buy_amounts.value">
+                    <el-form ref="min_single_buy_amount" placement="right" :model="min_single_buy_amount">
+                     <el-form-grid  size="xs">
+                      <el-select v-model="min_single_buy_amount.condition"   placeholder="请选择" class="is-gray">
+                      <el-option label="等于" value="equal"></el-option>
+                      <el-option label="不等于" value="notEqual"></el-option>
+                      <el-option label="大于" value="larger"></el-option>
+                      <el-option label="大于等于" value="largerEqual"></el-option>
+                      <el-option label="小于" value="smaller"></el-option>
+                      <el-option label="小于等于" value="smallerEqual"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                  <el-form-grid >
+                 <el-form-item prop="CDATA" :rules=" { validator:commonMoneyReg, trigger: 'blur,change' }">
+                  <el-input  type="text" class="text-right"  th:v-model="min_single_buy_amount.CDATA" ></el-input>
+                 </el-form-item>
+                  </el-form-grid>
+                   <el-form-grid >
+                   元
+                  </el-form-grid>
+                   <el-form-grid >
+                    </el-form-grid>
+                  <el-form-grid  size="xxs" v-if="min_single_buy_amountindex !== min_single_buy_amounts.value.length - 1">
+                          <el-select v-model="min_single_buy_amount.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid >
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(min_single_buy_amountindex,min_single_buy_amountindexs,min_single_buy_amounts,item,index)"><i class="bui-delete"></i></a>
+                  <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'min_single_buy_amount')"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+            
+            <!-- 最大单次购买金额 -->
+            <el-form-item    v-if="max_single_buy_amounts.key === 'max_single_buy_amount' && max_single_buy_amounts.value.length >0" :key="max_single_buy_amountindexs" v-for="(max_single_buy_amounts,max_single_buy_amountindexs) in item.value">
+                <el-form-item label="最大单次购买金额："  :label-width="labelWidth2" :key="max_single_buy_amountindex" v-for="(max_single_buy_amount,max_single_buy_amountindex) in max_single_buy_amounts.value">
+                    <el-form ref="max_single_buy_amount" placement="right" :model="max_single_buy_amount">
+                     <el-form-grid  size="xs">
+                      <el-select v-model="max_single_buy_amount.condition"   placeholder="请选择" class="is-gray">
+                      <el-option label="等于" value="equal"></el-option>
+                      <el-option label="不等于" value="notEqual"></el-option>
+                      <el-option label="大于" value="larger"></el-option>
+                      <el-option label="大于等于" value="largerEqual"></el-option>
+                      <el-option label="小于" value="smaller"></el-option>
+                      <el-option label="小于等于" value="smallerEqual"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                  <el-form-grid >
+                  <el-form-item prop="CDATA" :rules=" { validator:commonMoneyReg, trigger: 'blur,change' }">
+                  <el-input  type="text" class="text-right"  th:v-model="max_single_buy_amount.CDATA" ></el-input>
+                  </el-form-item>
+                  </el-form-grid>
+                   <el-form-grid >
+                   元
+                  </el-form-grid>
+                  
+                  <el-form-grid  size="xxs" v-if="max_single_buy_amountindex !== max_single_buy_amounts.value.length - 1">
+                          <el-select v-model="max_single_buy_amount.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid >
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(max_single_buy_amountindex,max_single_buy_amountindexs,max_single_buy_amounts,item,index)"><i class="bui-delete"></i></a>
+                  <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'max_single_buy_amount')"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+            <!-- 累积购买数量 -->
+            <el-form-item    v-if="buy_total_nums.key === 'buy_total_num' && buy_total_nums.value.length >0" :key="buy_total_numindexs" v-for="(buy_total_nums,buy_total_numindexs) in item.value">
+                <el-form-item label="累积购买数量："  :label-width="labelWidth2" :key="buy_total_numindex" v-for="(buy_total_num,buy_total_numindex) in buy_total_nums.value">
+                     <el-form ref="buy_total_num" placement="right" :model="buy_total_num">
+                  <el-form-grid  size="sm">
+                        <el-row>
+                            <el-col :span="11">
+                             <el-form-item prop="start" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                              <el-input type="text" v-model="buy_total_num.start" placeholder="" :max="5" class="text-right"></el-input>
+                            </el-form-item>
+                            </el-col>
+                            <el-col :span="2" class="text-center">~</el-col>
+                            <el-col :span="11">
+                            <el-form-item prop="end" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                            <el-input placeholder="" type="text" v-model="buy_total_num.end"  :max="5" class="text-right"></el-input>
+                        </el-form-item>
+                    </el-col>
+                  </el-row>
+                    </el-form-grid>
+                   <el-form-grid >
+                   件
+                  </el-form-grid>
+                   
+                  <el-form-grid >
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(buy_total_numindex,buy_total_numindexs,buy_total_nums,item,index)"><i class="bui-delete"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+            <!-- 首次下单时间 -->
+            <el-form-item    v-if="first_order_times.key === 'first_order_time' && first_order_times.value.length >0" :key="first_order_timeindexs" v-for="(first_order_times,first_order_timeindexs) in item.value">
+                <el-form-item label="首次下单时间："  :label-width="labelWidth2" :key="first_order_timeindex" v-for="(first_order_time,first_order_timeindex) in first_order_times.value">
+                    <el-form ref="first_order_time" placement="right" :model="first_order_time">
+                     <el-form-grid  size="xs">
+                      <el-select v-model="first_order_time.condition"   placeholder="请选择" class="is-gray">
+                      <el-option label="等于" value="equal"></el-option>
+                      <el-option label="不等于" value="notEqual"></el-option>
+                      <el-option label="早于等于" value="smallerEqual"></el-option>
+                      <el-option label="晚于等于" value="largerEqual"></el-option>
+                      <el-option label="距离当前" value="earlierNow"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                    <el-form-grid  v-if="first_order_time.condition =='equal'||first_order_time.condition=='notEqual'||first_order_time.condition=='smallerEqual'||first_order_time.condition=='largerEqual'">
+                     <el-form-item prop="date" :rules="  {type: 'date',  required: true, message: '请选择日期时间', trigger: 'change' }">
+                     <el-date-picker v-model="first_order_time.date" type="date"  :editable="false"   placeholder="选择日期"></el-date-picker>
+                   </el-form-item>
+                   </el-form-grid>
+                    <el-form-grid  v-if="first_order_time.condition == 'earlierNow'">
+                    <el-form-grid  size="sm">
+                        <el-row>
+                            <el-col :span="11">
+                             <el-form-item prop="oldday" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                              <el-input type="text" v-model="first_order_time.oldday" placeholder="" :max="5" class="text-right"></el-input>
+                            </el-form-item>
+                            </el-col>
+                            <el-col :span="2" class="text-center">~</el-col>
+                            <el-col :span="11">
+                            <el-form-item prop="newday" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                            <el-input placeholder="" type="text" v-model="first_order_time.newday"  :max="5" class="text-right"></el-input>
+                    </el-form-item>
+                    </el-col>
+                  </el-row>
+                    </el-form-grid>
+                     <el-form-grid >天内</el-form-grid>
+                  </el-form-grid>
+                  <el-form-grid  size="xxs" v-if="first_order_timeindex !== first_order_times.value.length - 1">
+                          <el-select v-model="first_order_time.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid >
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(first_order_timeindex,first_order_timeindexs,first_order_times,item,index)"><i class="bui-delete"></i></a>
+                 <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'first_order_time')"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            
+            <!-- 最后成功交易时间 -->
+            <el-form-item    v-if="last_trade_times.key === 'last_trade_time' && last_trade_times.value.length >0" :key="last_trade_timeindexs" v-for="(last_trade_times,last_trade_timeindexs) in item.value">
+                <el-form-item label="最后成功交易时间："  :label-width="labelWidth2" :key="last_trade_timeindex" v-for="(last_trade_time,last_trade_timeindex) in last_trade_times.value">
+                    <el-form ref="last_trade_time" placement="right" :model="last_trade_time">
+                     <el-form-grid  size="xs">
+                      <el-select v-model="last_trade_time.condition"   placeholder="请选择" class="is-gray">
+                      <el-option label="等于" value="equal"></el-option>
+                      <el-option label="不等于" value="notEqual"></el-option>
+                      <el-option label="早于等于" value="smallerEqual"></el-option>
+                      <el-option label="晚于等于" value="largerEqual"></el-option>
+                      <el-option label="距离当前" value="earlierNow"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                    <el-form-grid  v-if="last_trade_time.condition =='equal'||last_trade_time.condition=='notEqual'||last_trade_time.condition=='smallerEqual'||last_trade_time.condition=='largerEqual'">
+                    <el-form-item prop="date" :rules="  {type: 'date',  required: true, message: '请选择日期时间', trigger: 'change' }">
+                     <el-date-picker v-model="last_trade_time.date" type="date" :editable="false"    placeholder="选择日期"></el-date-picker>
+                   </el-form-item>
+                   </el-form-grid>
+                    <el-form-grid  v-if="last_trade_time.condition == 'earlierNow'">
+                    <el-form-grid  size="sm">
+                        <el-row>
+                            <el-col :span="11">
+                             <el-form-item prop="oldday" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                              <el-input type="text" v-model="last_trade_time.oldday" placeholder="" :max="5" class="text-right"></el-input>
+                            </el-form-item>
+                            </el-col>
+                            <el-col :span="2" class="text-center">~</el-col>
+                            <el-col :span="11">
+                            <el-form-item prop="newday" :rules=" { validator:commonValueReg, trigger: 'blur,change' }">
+                            <el-input placeholder="" type="text" v-model="last_trade_time.newday"  :max="5" class="text-right"></el-input>
+                    </el-form-item>
+                    </el-col>
+                  </el-row>
+                    </el-form-grid>
+                     <el-form-grid >天内</el-form-grid>
+                  </el-form-grid>
+                  <el-form-grid  size="xxs" v-if="last_trade_timeindex !== last_trade_times.value.length - 1">
+                          <el-select v-model="last_trade_time.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid >
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(last_trade_timeindex,last_trade_timeindexs,last_trade_times,item,index)"><i class="bui-delete"></i></a>
+                  <a class="member-choose__delete"  @click="addSubdivisionCondition(item,'last_trade_time')"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item> 
+            </el-collapse-item>
+</th:block>

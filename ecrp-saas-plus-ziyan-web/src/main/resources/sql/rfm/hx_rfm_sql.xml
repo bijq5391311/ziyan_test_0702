@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<!-- 查询待处理的店铺会员rfm统计临时任务 -->
+	<sqlGroup name="vip.hxRfm">
+		<sql id="queryRfmCountTaskTempList" value =
+				"SELECT shop_code AS shopCode,sys_customer_id AS sysCustomerId,
+				GROUP_CONCAT(field SEPARATOR ';') AS fields,
+				GROUP_CONCAT(select_sql SEPARATOR ';') AS selectSqls from
+				kd_customer_rfm_count_temp WHERE status = 0 AND id &lt;= #{id}
+				GROUP BY sys_customer_id, shop_code
+			">
+		</sql>
+		<!-- 批量更新店铺会员RFM属性统计临时任务处理状态 -->
+		<sql id="batchUpdateRfmCountTempStatus" value="
+               UPDATE kd_customer_rfm_count_temp SET status = 1 WHERE 1=1 AND status = 0  AND id &gt; #{startId} AND id &lt;= #{endId} "></sql>
+	</sqlGroup>
+</sqlRoot>
+
+

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+    <sqlGroup name="zyConsumeValueLog">
+        <sql id="getCount" count="select count(1)" value="
+        select count(c.id) from zy_consume_value_log c
+        inner join kd_customer w on w.sys_customer_id = c.sys_customer_id
+        where w.kd_open_id = #{openId}">
+            <if test="state != null" value="and c.state = #{state}"/>
+        </sql>
+        <sql id="findList" value="
+        select c.generate_time generateTime,c.action action,c.consume_value grouthVale,c.remark remark
+        from zy_consume_value_log c
+        inner join kd_customer w on w.sys_customer_id = c.sys_customer_id
+        where w.kd_open_id = #{openId}">
+            <if test="state != null" value="and c.state = #{state}"/>
+            <if value="order by c.create_time desc "/>
+            <if test="pageStart != null and pageSize != null" value="limit #{pageStart},#{pageSize}"/>
+            <if test="limit != null" value="limit #{limit}"/>
+        </sql>
+    </sqlGroup>
+</sqlRoot> 

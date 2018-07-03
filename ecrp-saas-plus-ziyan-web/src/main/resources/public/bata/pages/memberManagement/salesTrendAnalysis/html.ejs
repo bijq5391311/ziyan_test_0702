@@ -1,0 +1,171 @@
+<% include ../../../include/layout/start.ejs %>
+<div id="example" v-cloak>
+  <div class="template-page">
+    <div class="tmp-page__content">
+      <el-form class="text-right padding-form">
+        <el-form-item class="no-margin">
+          <el-button type="primary" class="pull-left">导出报表</el-button>
+          <el-button type="text" @click="isOpen = !isOpen">
+            <span v-if="!isOpen">收起搜索<i class="el-icon-arrow-up el-icon--right"></i></span>
+            <span v-else>展开搜索<i class="el-icon-arrow-down el-icon--right"></i></span>
+          </el-button>
+          <el-button type="text" @click="getState"><i class="bui-note"></i>帮助说明</el-button>
+        </el-form-item>
+      </el-form>
+      <div class="rfm-instructions" :class="{ show: cookieState }">
+        <p>1.销售趋势分析用于反映某个时间内的销售数据的波动变化情况，常用于大促时销售数据变化的跟踪；</p>
+        <p>2.当付款时间为1天，数据按小时展示；当付款时间在（1天，1月）之间，数据按天展示；当付款时间大于1个月，数据按照月展示；</p>
+        <p>3.订单金额与商品件数不排除补差价商品。</p>
+      </div>
+
+      <el-form inline :class="{ hide: isOpen }" class="rfm-form" label-width="80px">
+        <el-form-item label="品牌：" class="no-margin">
+          <el-form-grid>
+            <el-select placeholder="选择品牌" clearable v-model="defaultSelect">
+              <el-option label="品牌1" value="1"></el-option>
+              <el-option label="品牌2" value="2"></el-option>
+              <el-option label="品牌3" value="3"></el-option>
+              <el-option label="品牌4" value="4"></el-option>
+              <el-option label="品牌5" value="5"></el-option>
+              <el-option label="品牌6" value="6"></el-option>
+            </el-select>
+          </el-form-grid>
+        </el-form-item>
+        <el-form-item label="渠道：" class="no-margin">
+          <el-form-grid>
+            <el-select placeholder="选择渠道" clearable v-model="defaultSelect1">
+              <el-option label="渠道1" value="1"></el-option>
+              <el-option label="渠道2" value="2"></el-option>
+              <el-option label="渠道3" value="3"></el-option>
+              <el-option label="渠道4" value="4"></el-option>
+              <el-option label="渠道5" value="5"></el-option>
+              <el-option label="渠道6" value="6"></el-option>
+            </el-select>
+          </el-form-grid>
+        </el-form-item>
+        <el-form-item label="店铺：" class="no-margin">
+          <el-form-grid>
+            <el-select placeholder="选择店铺" clearable v-model="defaultSelect2">
+              <el-option label="店铺1" value="1"></el-option>
+              <el-option label="店铺2" value="2"></el-option>
+              <el-option label="店铺3" value="3"></el-option>
+              <el-option label="店铺4" value="4"></el-option>
+              <el-option label="店铺5" value="5"></el-option>
+              <el-option label="店铺6" value="6"></el-option>
+            </el-select>
+          </el-form-grid>
+        </el-form-item>
+        <el-form-item label="时间段：" class="no-margin">
+          <el-form-grid size="xmd">
+            <el-date-picker type="daterange"
+                            placeholder="请选择时间范围" v-model="daterange">
+            </el-date-picker>
+          </el-form-grid>
+        </el-form-item>
+        <el-form-item label="新老客户：" class="no-margin">
+          <el-form-grid>
+            <el-select placeholder="新老客户" clearable v-model="defaultSelect3">
+              <el-option label="新客" value="1"></el-option>
+              <el-option label="老客" value="2"></el-option>
+              <el-option label="不限" value="3"></el-option>
+            </el-select>
+          </el-form-grid>
+        </el-form-item>
+        <el-form-item label="会员等级：" class="no-margin">
+          <el-form-grid>
+            <el-select placeholder="会员等级" clearable v-model="defaultSelect4">
+              <el-option label="会员等级1" value="1"></el-option>
+              <el-option label="会员等级2" value="2"></el-option>
+              <el-option label="会员等级3" value="3"></el-option>
+              <el-option label="会员等级4" value="4"></el-option>
+              <el-option label="会员等级5" value="5"></el-option>
+              <el-option label="会员等级6" value="6"></el-option>
+            </el-select>
+          </el-form-grid>
+          <el-form-grid>
+            <el-form-grid>
+              <el-button type="primary">搜索</el-button>
+              <el-button @click="resetFun">重置</el-button>
+            </el-form-grid>
+          </el-form-grid>
+        </el-form-item>
+      </el-form>
+
+      <div class="analysis-panel">
+        <div class="analysis-panel__title">
+          <span>销售趋势</span>
+        </div>
+        <div class="analysis-panel__body">
+          <div class="analysis-echarts">
+            <business-echarts :options="option" class="salesTrend-echart" auto-resize></business-echarts>
+          </div>
+          <el-form :inline="true" class="analysis-form text-center">
+            <el-form-item>
+              <el-form-grid>
+                <el-radio-group v-model="trendCompareRadio" class="spacing-button">
+                  <el-radio-button v-for="rad in trendCompareRadioData" :key="rad" :label="rad"></el-radio-button>
+                </el-radio-group>
+              </el-form-grid>
+            </el-form-item>
+          </el-form>
+        </div>
+      </div>
+      <el-table
+        :data="tableData"
+        border
+        style="width: 100%"
+        :default-sort = "{prop: 'date', order: 'descending'}"
+      >
+        <el-table-column
+          prop="date"
+          label="日期"
+          align="center"
+          sortable
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="turnover"
+          label="成交金额"
+          align="right"
+          sortable
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="orders"
+          label="成交订单数"
+          align="right"
+          sortable>
+        </el-table-column>
+        <el-table-column
+          prop="clients"
+          label="成交客户数"
+          align="right"
+          sortable>
+        </el-table-column>
+        <el-table-column
+          prop="goods"
+          label="销售商品数"
+          align="right"
+          sortable>
+        </el-table-column>
+        <el-table-column
+          prop="price"
+          label="客单价"
+          align="right"
+          sortable>
+        </el-table-column>
+      </el-table>
+      <el-pagination
+        class="template-table-pagination"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage4"
+        :page-sizes="[10, 20, 30, 50, 100]"
+        :page-size="10"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="100">
+      </el-pagination>
+    </div>
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

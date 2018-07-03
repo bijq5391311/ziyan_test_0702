@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="marketing.kdPointTradeNotify">
+	    <sql id="querykdPointTradeNotifyList" value="select * from kd_point_trade_notify where notify_type = 2 and state = 1  ">
+	        <if value="  limit #{pageIndex}, #{pageSize}"></if>
+	    </sql>
+	</sqlGroup>
+</sqlRoot> 

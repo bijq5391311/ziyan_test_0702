@@ -1,0 +1,275 @@
+<th:block th:include="../public/include/layout::layout(~{::content},~{::script})">
+	
+	
+	
+    <div th:fragment="content">
+   
+<!--       <link th:href="@{#{nui}+'pages/dataCompass/userinfo/page.css'}"  rel="stylesheet" type="text/css"/> -->
+         <link th:href="@{/static/database/kdgood/css/page.css}"  rel="stylesheet" type="text/css"/>
+         <link th:href="@{/static/database/kdgood/css/goodPage.css}"  rel="stylesheet" type="text/css"/>
+        <div id="app" v-cloak>
+       
+            <ns-designer-table-goods ref="goodsTable" @good-detail="goodDetail" @import-category="importCategory" @import-goods="importGoods"></ns-designer-table-goods>
+      
+              
+			<!-- 商品详情 -->
+			 <el-dialog title="商品详情" v-model="goodsVisible" :modal-append-to-body="false" :close-on-click-modal="false" size="small" :vetically=true >
+            <div class="goodsinfo">
+              <div class="goodsinfo-property">
+				 
+                <div v-if="pictureUrl && pictureUrl != ''" class="goodsinfo-property__photo tmp-table-cell">
+                  <img  :src="pictureUrl" width="110" height="120"/>
+                </div>
+               <div v-else class="goodsinfo-property__photo tmp-table-cell">
+                  <img  th:src="@{#{nui}+'images/defaultImage_detail.gif'}"  width="110" height="120"/>
+                </div>
+                
+                 
+                <div class="control-form tmp-table-cell" >
+                	
+	                <strong style="padding-left:42px">{{title}}</strong>
+	                
+                  <el-row class="control-form">
+                  
+<!--                   <el-col :span="12"> -->
+                  
+<!--                   <div class="control-item"> -->
+<!--                     <label class="control-label">商品名称：</label> -->
+                    
+<!--                     <div class="control-content"> -->
+<!--                     	<el-tooltip slot="label" effect="light" placement="top" :content="title" :disabled="!(title.length > 6)"> -->
+<!-- 					        <span v-text="(title.length > 6 ) ? title.substring(0,6) + '...' : title"></span> -->
+<!-- 					    </el-tooltip> -->
+<!--                     </div> -->
+<!--                   </div> -->
+                  
+<!--                   </el-col> -->
+                  
+                    <el-col :span="12">
+                  
+                  <div class="control-item">
+                    <label class="control-label">品牌名称：</label>
+                    
+                    <div class="control-content">
+                    	<el-tooltip slot="label" effect="light" placement="top" :content="brandName" :disabled="!(brandName.length > 6)">
+					        <span v-text="(brandName.length > 6 ) ? brandName.substring(0,6) + '...' : brandName"></span>
+					    </el-tooltip>
+                    </div>
+                  </div>
+                  
+                  </el-col>
+                  <el-col :span="12">
+                  
+                  <div class="control-item">
+                    <label class="control-label">商品编码：</label>
+                    <div class="control-content" >
+                    	<el-tooltip slot="label" effect="light" placement="top" :content="outerId" :disabled="!(outerId.length > 13)">
+					        <span v-text="(outerId.length > 13 ) ? outerId.substring(0,13) + '...' : outerId"></span>
+					    </el-tooltip>
+                    </div>
+                  </div>
+                  
+                  </el-col>
+                  <el-col :span="12">
+                  
+                  <div class="control-item">
+                    <label class="control-label">总销售量：</label>
+                    <div class="control-content">{{salesCount}}</div>
+                  </div>
+                  
+                  </el-col>
+                  <el-col :span="12">
+                  
+                  <div class="control-item">
+                    <label class="control-label">三十天内销量：</label>
+                    <div class="control-content" >{{thirtySalesCount}}</div>
+                  </div>
+                  
+                  </el-col>
+                  <el-col :span="12">
+                  
+                  
+                   <div class="control-item">
+                    <label class="control-label">商品分类：</label>
+                    <div class="control-content">
+                        <el-tooltip slot="label" effect="light" placement="top" :content="cateGory" :disabled="!(cateGory.length > 6)">
+					        <span v-text="(cateGory.length > 6 ) ? cateGory.substring(0,6) + '...' : cateGory"></span>
+					    </el-tooltip>
+					</div>
+                  </div>
+                 
+                 </el-col>
+                 </el-row>
+                 
+                </div>
+              </div>
+              <div class="goodsinfo-form">
+<!-- 			 <th:block th:insert=""></th:block> -->
+              </div>
+              
+				 <el-table
+                :data="sku"
+                class="template-table">
+                <el-table-column
+                  prop="sku_id"
+                  label="SKU编码"
+                  width="140">
+                  
+                </el-table-column>
+                <el-table-column
+                  prop="properties_name"
+                  label="SKU属性">
+                 
+                </el-table-column>
+              </el-table>
+              <!-- 其他店铺 列表展开收缩切换结构-->
+              <!-- <bus-toggles :max-height="90">
+                <ul class="tmp-choose__goods">
+                  <li  v-for="item in shopList">
+                    <span class="g-name">{{item.name}}</span> 
+                  </li>
+                </ul>
+              </bus-toggles> -->
+              <!-- /end 选择商品结果列表 列表展开收缩切换结构-->
+            </div>
+             <div slot="footer" class="dialog-footer">
+              <el-button @click="goodsVisible=false">取 消</el-button>
+              <el-button type="primary" @click="goodsVisible=false">确定</el-button>
+            </div>
+          </el-dialog>
+          
+          
+          <!-- 商品导入 -->
+			 <el-dialog ref="importDialog" title="导入商品"
+                 v-model="importVisible" :modal-append-to-body="false"
+                  :close-on-click-modal="false"  width="600" :vetically=true> 
+                    
+                    <el-form ref="form" placement="right" label-width="110px" :model="model" :rules="rules">
+                    	<el-form-item label="模板下载：">
+					      <el-form-grid size="xmd">
+					         <el-form-item>
+								<a class="el-button el-button--text" id="app-downloadTemplate" href="/database/kdgood/download" >
+								    <i class="fa fa-cloud-download">
+								        </i> 点击此处，下载一份模板</a>
+					        </el-form-item>
+					      </el-form-grid>
+					    </el-form-item>
+					    
+					    <el-form-item label="品牌：" required>
+							<el-form-grid size="xmd">
+								<el-form-item prop = "brandName" >
+									
+							
+								<el-select 
+						    		v-model="model.brandName" 
+						    		filterable  clearable
+						    		placeholder="请选择" :multiple="false">
+						    			
+						    		<el-option  v-for="item in brandList" :label=item.k  :value=item.v></el-option>
+						    			
+								</el-select>
+						 
+								</el-form-item>
+							</el-form-grid>
+						</el-form-item>
+						
+						 <el-form-item label="导入商品：" required>
+						      <el-form-grid size="xmd">
+						         <el-form-item>
+						        <el-upload
+						         ref="goodsFile"
+						          :limit-file-list="true"
+						          :on-success="onSuccess"
+						          :on-progress = "onProgress"
+						          :auto-upload="false"
+						        action="/database/kdgood/uploadExlFile" accept=".xlsx,.xls" name="KdGoods" >
+						        <el-button size="small" type="primary">选择文件</el-button>
+						        </el-upload>
+						        </el-form-item>
+						        
+						        <el-form-item>
+						        	<template block v-if="progressing == 1"> 
+						      			<img src="../../static/database/kdgood/image/loading.gif" /> 
+							   		</template>
+						        </el-form-item>
+						        
+						      </el-form-grid>
+							<el-form-grid block class="text-warning">
+								    <i class="bui-warn"></i>请注意!必须上传excel文件，后缀名为.xlsx或.xls；上传成功后可在"上传日志"查看导入详情。
+						    </el-form-grid>
+						</el-form-item>
+						
+					</el-form>
+					
+					 
+                     
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="cancelImportGoods">取 消</el-button>
+                        <el-button type="primary" @click="saveImportGoods">保存</el-button>
+                    </div>
+              </el-dialog>
+          
+          	<el-dialog ref="cateDialog" title="导入商品分类"
+                 v-model="cateVisible" :modal-append-to-body="false"
+                  :close-on-click-modal="false"  width="600" :vetically=true> 
+                    
+                     <el-form ref="cateForm" placement="right" label-width="110px" :model="model" :rules="rules">
+                     	<el-form-item label="模板下载：">
+					      <el-form-grid size="xmd">
+					         <el-form-item>
+								<a class="el-button el-button--text" id="app-downloadTemplate" href="/database/kdgood/download" >
+							    <i class="fa fa-cloud-download">
+					        	</i> 点击此处，下载一份模板</a>
+					        </el-form-item>
+					      </el-form-grid>
+					    </el-form-item>
+					    
+					    <el-form-item label="导入商品分类："  required>
+						      <el-form-grid size="xmd">
+						         <el-form-item >
+						        <el-upload
+						        required="true"
+						         ref="cateFile"
+						          :limit-file-list="true"
+						          :on-success="cateGoryOnSuccess"
+						          :on-progress = "onProgress"
+						          :auto-upload="false"
+						        action="/database/kdgood/uploadCateExlFile" accept=".xlsx,.xls" name="cateGory" >
+						        <el-button size="small" type="primary">选择文件</el-button>
+						        </el-upload>
+						        </el-form-item>
+						        
+						         <el-form-item>
+						        	<template block v-if="progressing == 1"> 
+						      			<img src="../../static/database/kdgood/image/loading.gif" /> 
+							   		</template>
+						        </el-form-item>
+						        
+						      </el-form-grid>
+							<el-form-grid block class="text-warning">
+								    <i class="bui-warn"></i>请注意!必须上传excel文件，后缀名为.xlsx或.xls；上传成功后可在"上传日志"查看导入详情。
+						    </el-form-grid>
+						</el-form-item>
+						
+						</el-form>
+						
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="cancelImportCate">取 消</el-button>
+                        <el-button type="primary" @click="saveImportCate">保存</el-button>
+                    </div>
+              </el-dialog>
+          	
+        </div> 
+        </div>
+        <th:block th:fragment="script">
+        <script defer="defer" type="text/javascript" th:insert="../public/ecrp/render/renderTemplate
+	            ::render('goods_table',
+	            'goods','')">
+         </script>
+        <script defer="defer" th:inline="javascript">
+            define("goodsList",["ns-designer-table-goods"])
+        </script>
+        <script defer="defer" th:src="@{/static/database/kdgood/js/goodList.js}"></script>
+       </th:block>
+    
+</th:block>

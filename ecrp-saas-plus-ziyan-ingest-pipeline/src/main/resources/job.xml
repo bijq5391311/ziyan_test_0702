@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd">
+ 		
+ 		<job id="job1"  xmlns="http://www.springframework.org/schema/batch">
+		    <step id="qgpcopyParam" next="qgpplayerload">
+		        <tasklet ref="qgpstep1">
+		        </tasklet>
+		    </step>
+		    <step id="qgpplayerload" next="qgpgameLoad">
+		        <tasklet ref="qgpgetStartTime">
+		        </tasklet>
+		    </step>
+			<step id="qgpgameLoad" next="qgptest1">
+		        <tasklet ref="qgpstep2">
+		        </tasklet>
+		    </step>
+			<step id="qgptest1">
+		        <tasklet ref="qgpsetStartTime">
+		        </tasklet>
+		    </step>
+		</job>
+</beans>

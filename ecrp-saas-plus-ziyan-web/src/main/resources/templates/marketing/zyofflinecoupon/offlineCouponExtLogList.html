@@ -1,0 +1,85 @@
+<th:block th:include="../public/include/layout::layout(~{::content},~{::script})">
+    <link rel="stylesheet" type="text/css" href="/static/marketing/css/page.css" />
+    <div th:fragment="content">
+        <div id="app" v-cloak>
+        	<div class="tmp-page__content" style="padding-bottom:0px;">
+		            <div class="activity-wrap">
+		            	<h4 class="activity-wrap__header">
+		            	</h4>
+		                <el-row class="activity-wrap__record">
+		                  	<el-col :span="6">
+		                  		<div  class="coupons" style="width:90%">
+		                  			<div  class="coupon-block" >
+									    <span style="height:80px" class="coupon-cor top"></span>
+									    <div  class="coupon-content">
+								            <div class="coupon-price">已发放量&nbsp;</div>
+								            <div class="coupon-word">
+								            	<div class="coupon-word__tip" style="height:9px;">&nbsp;</div>
+								                <div class="coupon-word__tip">现金券：{{favorCash.total}}</div>
+								                <div class="coupon-word__tip">折扣券：{{favorDiscount.total}}</div>
+								                <div class="coupon-word__tip" style="height:9px;">&nbsp;</div>
+								            </div>
+									    </div>
+								    </div>
+							    </div>
+
+		                  	</el-col>
+		                  	<el-col :span="6">
+		                  		<div  class="coupons" style="width:90%">
+		                  			<div  class="coupon-block" >
+									    <span style="height:80px" class="coupon-cor top"></span>
+									    <div  class="coupon-content">
+								            <div class="coupon-price">已核销量&nbsp;</div>
+								            <div class="coupon-word">
+								                <div class="coupon-word__tip" style="height:9px;">&nbsp;</div>
+								                <div class="coupon-word__tip">现金券：{{favorCash.verification}}</div>
+								                <div class="coupon-word__tip">折扣券：{{favorDiscount.verification}}</div>
+								                <div class="coupon-word__tip" style="height:9px;">&nbsp;</div>
+								            </div>
+									    </div>
+								    </div>
+							    </div>
+		                  	</el-col>
+		                  	<el-col :span="6">
+		                  		<div  class="coupons" style="width:90%">
+		                  			<div  class="coupon-block" >
+									    <span style="height:80px" class="coupon-cor top"></span>
+									    <div  class="coupon-content">
+								            <div class="coupon-price">未使用量&nbsp;</div>
+								            <div class="coupon-word">
+								            	<div class="coupon-word__tip" style="height:9px;">&nbsp;</div>
+								                <div class="coupon-word__tip">现金券：{{favorCash.unused}}</div>
+								                <div class="coupon-word__tip">折扣券：{{favorDiscount.unused}}</div>
+								                <div class="coupon-word__tip" style="height:9px;">&nbsp;</div>
+								            </div>
+									    </div>
+								    </div>
+							    </div>
+		                  	</el-col>
+		                  	<el-col :span="6">
+		                  		<div  class="coupons" style="width:90%">
+		                  			<div  class="coupon-block" >
+									    <span style="height:80px" class="coupon-cor top"></span>
+									    <div  class="coupon-content">
+								            <div class="coupon-price">类型统计&nbsp;</div>
+								            <div class="coupon-word">
+								            	<div class="coupon-word__tip" style="height:9px;">&nbsp;</div>
+								                <div class="coupon-word__tip">现金券：{{favorCash.typeCount}}种</div>
+								                <div class="coupon-word__tip">折扣券：{{favorDiscount.typeCount}}种</div>
+								                <div class="coupon-word__tip" style="height:9px;">&nbsp;</div>
+								            </div>
+									    </div>
+								    </div>
+							    </div>
+		                  	</el-col>
+		              </el-row>
+		            </div>
+		      </div>
+		      <div  ref="couponTable" is="offlineCouponListExt_table" :$handle-params=handlerParam></div> 
+         </div>
+     </div>
+
+    <th:block th:fragment="script" th:inline="javascript">
+        <script type="text/javascript" src="/static/plus/ziyan/marketing/js/offlineCouponExtLogList.jss"></script>
+    </th:block>
+</th:block>

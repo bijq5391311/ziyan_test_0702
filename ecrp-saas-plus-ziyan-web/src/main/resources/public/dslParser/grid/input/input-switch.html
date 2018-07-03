@@ -1,0 +1,26 @@
+<th:block th:fragment="render(item, preffix)">
+	<th:block th:include="../public/renderEngine3.0/form/inputFactory::formItem(${item}, ~{::inputFragment})">
+		<th:block th:fragment="inputFragment">
+			
+		</th:block>
+	</th:block>
+</th:block>
+
+
+ <th:block th:fragment="render(item, preffix)">
+ 	<th:block th:with="
+		label = ${input.text + '：'},
+		class = ${input.inline ? 'el-inline-block' : null},
+		name = ${input.name}
+	">
+		<el-form-item th:label="${label}" th:class = "${class}">
+			<el-form-grid size="xmd">
+				<el-form-item th:prop = "${name}">
+					<th:block th:with="control = ${item.control}">
+						<el-switch v-showRequired on-text="" off-text="" th:v-model="${preffix+item.name}" th:criteria="${item.criteria}" ></el-switch>
+					</th:block>
+				</el-form-item>
+			</el-form-grid>
+		</el-form-item>
+	</th:block>
+</th:block>

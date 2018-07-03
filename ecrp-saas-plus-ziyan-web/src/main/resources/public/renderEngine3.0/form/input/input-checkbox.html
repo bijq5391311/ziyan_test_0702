@@ -1,0 +1,25 @@
+
+<th:block th:fragment="render(item)">
+	<th:block th:include="../public/renderEngine3.0/form/inputFactory::formItem(${item}, ~{::inputFragment})">
+		<th:block th:fragment="inputFragment">
+			<th:block th:with="
+		    	control = ${item.get('control')},
+		    	url = ${control.get('url')},
+		    	useUrl = ${!#strings.isEmpty(url)},
+		    	useSPEL = ${useUrl && #strings.startsWith(url, '$')},
+		    	useAjax = ${useUrl && useSPEL == false},
+		    	options = ${useSPEL ? T(com.nascent.plugins.spring.boot.SpEL).getValue(#ctx, url) : control.options}
+		    ">
+				<el-checkbox-group v-showRequired th:v-model="${'model.'+item.get('name')}">
+					<el-checkbox th:each="item,iterStat : ${options}"
+		              th:attr = "
+		                ':label'= ${#strings.startsWith(item.v,'#') ? #strings.substringAfter(item.v,'#') : null },
+		                'label'= ${!#strings.startsWith(item.v,'#') ? item.v : null }
+		              "
+		            >[[${item.k}]]
+		          	</el-checkbox>
+				</el-checkbox-group>
+			</th:block>
+		</th:block>
+	</th:block>
+</th:block>

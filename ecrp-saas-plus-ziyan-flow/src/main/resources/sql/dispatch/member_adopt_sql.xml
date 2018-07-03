@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="dispatch.memberAdopt">
+		<sql id="generateEncryptionMobile"
+			value=" update kd_customer_shop set encryption_mobile=md5(md5(concat('tmall',mobile,#{signKey}))) where 1=1  ">
+			<if value="  and create_time >=#{createTime} "></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>

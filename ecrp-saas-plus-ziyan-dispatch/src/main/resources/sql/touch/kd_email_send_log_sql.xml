@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="touch.KdEmailSendLog">
+		<sql id="querySendEmailLog"
+			value="select kc.customer_name,kesl.employee_name,kesl.title_name,kesl.target,
+			kesl.source_model,kesl.send_name,kesl.send_addr,kesl.send_time,
+			kesl.send_status,kesl.sys_customer_id,kesl.email_content 
+			from kd_email_send_log kesl left join kd_customer kc on kc.sys_customer_id=kesl.sys_customer_id where 1=1" >
+			<bind name="target" value="#target == null ? null: ('%'+#target+'%')"></bind>
+			<if value=" and kesl.target like #{target}"></if>
+			<bind name="employee_name" value="#employee_name == null ? null : ('%'+#employee_name+'%')"></bind>
+			<if value=" and kesl.employee_name like #{employee_name}"></if>
+			<bind name="send_addr" value="#send_addr == null ? null : ('%'+#send_addr+'%')"></bind>
+			<if value=" and kesl.send_addr like #{send_addr}"></if>
+			<if value=" and kesl.source_model=#{source_model}"></if>
+			<if value=" and kesl.send_status=#{send_status}"></if>
+			<if value=" and kesl.send_time between #{send_time$GTE} and #{send_time$LTE}"></if>
+			<if value=" order by kesl.create_time desc"></if>
+		</sql>
+		<sql id="queryEmailSourceModel"
+			value="select code as v,name as k from kd_data_dictionary where type='emailDataType'" >
+		</sql>
+	</sqlGroup>
+</sqlRoot>

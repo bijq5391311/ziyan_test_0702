@@ -1,0 +1,218 @@
+<th:block th:include="../public/include/layout::layout(~{::content},~{::script})">
+     <div th:fragment="content" class="template-page-tab"> 
+       <link th:href="@{#{nui}+'pages/dataCompass/userinfo/page.css'}"  rel="stylesheet" type="text/css"/>  
+        <div id="app" v-cloak>
+        
+              <ns-designer-table-trade ref="tradeTable" @query-detail="tradeDetail" @query-express="queryExpress"></ns-designer-table-trade>
+             
+             <!-- 交易详情 -->
+             <ns-trade-detail ref="tradeDetail" ></ns-trade-detail>
+             <!-- 选择店铺 -->
+               <ns-shoplist-select ref="shopTree" @callback="shopCallback" url="/base/common/getSysBrandArray4Shop"></ns-shoplist-select>
+
+			<!-- 备注 -->
+			<el-dialog ref="remarkDialog" title="备注"
+                 v-model="remarkVisible" :modal-append-to-body="false" 
+                  :close-on-click-modal="false"  size="small" :vetically=true content-height="70px"> 
+                    <el-form ref="remarkForm" placement="right" label-width="110px" :model="model" :rules="rules">
+	                   	 <el-form-item label="备注：">
+							<el-form-grid size="xmd">
+								<el-form-item prop = "sellerMemo" >
+									
+							<el-input  type="textarea"
+								v-model = "model.sellerMemo" 
+								placeholder="请输入备注,限制300字">
+							</el-input>
+						 
+								</el-form-item>
+							</el-form-grid>
+						</el-form-item>
+						
+						<el-form-item label="备注旗帜："  class=" ">
+				          <el-form-grid>
+				          	<el-form-item prop = "remarkSign" >
+					            <el-radio-group v-model="model.remarkSign">
+					              <el-radio :label="0"><i class="bui-flag text-gray"></i></el-radio>
+					              <el-radio :label="1"><i class="bui-flag text-danger"></i></el-radio>
+					              <el-radio :label="2"><i class="bui-flag text-warning"></i></el-radio>
+					              <el-radio :label="3"><i class="bui-flag text-success"></i></el-radio>
+					              <el-radio :label="4"><i class="bui-flag text-info"></i></el-radio>
+					              <el-radio :label="5"><i class="bui-flag text-purple"></i></el-radio>
+					            </el-radio-group>
+				            </el-form-item>
+				          </el-form-grid>
+				        </el-form-item>
+					</el-form>
+                   	 
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="()=>{this.remarkVisible = false;}">取消</el-button>
+                        <el-button type="primary" @click="saveRemark">保存</el-button>
+                    </div>
+              </el-dialog>
+			
+			<!-- 发送短信 -->
+			<el-dialog ref="sendDialog" title="发送短信"
+                 v-model="sendSMSVisible" :modal-append-to-body="false" 
+                  :close-on-click-modal="false"  size="small" :vetically=true> 
+                   <el-form ref="form" placement="right" label-width="110px" :model="model" :rules="rules">
+	                   
+	                   <el-form-item label="接收人：" required>
+		                  <el-form-grid size="xlg" class="el-block-box">
+		                    <el-form-item prop = "receiver">
+		                    	<el-input disabled v-for="item in normalReceiver"   v-model="item.receiverName" style="width:auto;margin:5px;" ></el-input>
+		                   		<el-input disabled v-for="item in blackReceiver"   v-model="item.receiverName" style="width:auto;margin:5px;border:1px solid red" ></el-input>
+		                    </el-form-item>
+		                  </el-form-grid>
+		                  <div class="tmp-tips text-info"><i class="bui-info"></i> <span style="color:#FF4949">红色</span>边框内的用户为系统黑名单，不能够被发送！</div>
+		                </el-form-item>
+	                   
+	                   <el-form-item label="短信模板：" class = "el-inline-block" >
+							<el-form-grid size="xmd">
+								<el-form-item prop = "template_id" >
+									<ns-select 
+										ref="tempSelect"
+							    		v-model="model.template_id" 
+							    		url = "/base/common/getMarketingTemplateOptions?marketingManner=0&type=4"
+							    		filterable  clearable
+							    		placeholder="请选择" :multiple="false">
+									</ns-select>
+								</el-form-item>
+							</el-form-grid>
+						</el-form-item>
+						
+						 <template v-if="model.template_id != ''"> 
+						    <el-button type="primary" @click="deleteTemp">
+						     <i class="bui-delete"></i>删除模板
+						    </el-button> 
+						 </template>
+	                   
+	                   <el-form-item label="短信内容：" required>
+							<el-form-grid size="xlg">
+								<el-form-item prop = "content" >
+									
+									<el-input  type="textarea"
+										v-model = "model.content" 
+										placeholder="请输入短信内容">
+									</el-input>
+						 
+								</el-form-item>
+							</el-form-grid>
+							<div class="tmp-tips text-info"><i class="bui-info"></i>您已录入<span class="text-warning">{{contentLength}}</span>个字符(含店铺签名)，将被做为<span class="text-warning">{{smsQuantity}}</span>条短信发送，每条按 <span class="text-warning">{{smsOneLength}}</span>字计价。</div>
+							<div class="tmp-tips text-info"><i class="bui-info"></i> 内容含有网址请在后面添加网格</div>
+						</el-form-item>
+						
+						<el-form-item class="el-inline-block"> 
+						    <el-form-grid> 
+						     <el-form-item prop="smsTemplateUpdate"> 
+						      <el-checkbox v-model="model.smsTemplateUpdate" :true-value="1" :false-value="0">
+						    	   将短信内容保存到新模板
+						      </el-checkbox> 
+						     </el-form-item> 
+						    </el-form-grid> 
+						     <el-form-grid size="xmd"  v-if="model.smsTemplateUpdate == 1 && model.template_id == ''"> 
+						     <el-form-item prop="templateName"> 
+						      <el-input v-model="model.templateName" placeholder="请输入新短信模板名称，限制100字"></el-input> 
+						     </el-form-item> 
+						    </el-form-grid> 
+						  </el-form-item> 
+						
+						<el-form-item label="雁书通道：" required>
+							<el-form-grid size="xmd">
+								<el-form-item prop = "spId" >
+								
+								<ns-select 
+						    		v-model="model.spId" 
+						    		url = "/database/kdtrade/queryYsConfigInfoList"
+						    		filterable  clearable
+						    		placeholder="请选择" :multiple="false">
+								</ns-select>
+						 
+								</el-form-item>
+							</el-form-grid>
+						</el-form-item>
+						
+						<el-form-item label="短信签名：" required>
+							<el-form-grid size="xmd">
+								<el-form-item prop = "signatureName" >
+									<ns-select 
+						    		v-model="model.signatureName" 
+						    		url = "/base/common/getSmsSignatures"
+						    		filterable  clearable
+						    		placeholder="请选择" :multiple="false">
+								</ns-select>
+								
+						 
+								</el-form-item>
+							</el-form-grid>
+						</el-form-item>
+				</el-form>
+                    
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="()=>{this.sendSMSVisible = false;}">取消</el-button>
+                        <el-button type="primary" @click="sendSMS">确定</el-button>
+                    </div>
+              </el-dialog>
+          
+              
+            <!-- 物流详情 -->
+            <el-dialog title="物流详情" v-model="expressVisible" :modal-append-to-body="false" :close-on-click-modal="false" size="small" :vetically=true :response-limit=true>
+            <div class="goodsinfo">
+              <div class="goodsinfo-property">
+
+               
+                <div class="control-form tmp-table-cell" >
+                 
+                  <div >
+                    <label class="control-label"><strong>物流公司名称：{{expressCompanyName}}</strong></label>
+                     <label class="control-label"><strong>订单号：{{trackingNum}}</strong></label>
+                    <label class="control-label"><strong>状态：{{status}}</strong></label>
+                    </div>
+<!--                   <div class="control-item"> -->
+<!--                     <label class="control-label">状态：</label> -->
+<!--                     <div class="control-content">{{status}}</div> -->
+<!--                   </div> -->
+                  		    
+				   <el-table
+				   :show-header="false"
+                   :data="stepInfoVos"
+                   class="">
+                <el-table-column
+                  prop="stepTime"
+                  width="140">
+                  
+                </el-table-column>
+                <el-table-column
+                  prop="desc">
+                 
+                </el-table-column>
+              </el-table>
+                  
+                  
+                </div>
+              </div>
+              
+            </div>
+             <div slot="footer" class="dialog-footer">
+              <el-button @click="expressVisible=false">取消</el-button>
+              <el-button type="primary" @click="expressVisible=false">确定</el-button>
+            </div>
+          </el-dialog>
+            
+        </div>
+      </div>
+         
+         <th:block th:fragment="script">
+	        <script  type="text/javascript" th:insert="../public/ecrp/render/renderTemplate::render(
+	            'trade_table',
+	            'trade','moment')"></script>
+	        <script  th:inline="javascript">
+	              define("tradeList",["ns-designer-table-trade"]);
+	        </script>
+	        <script  type="text/javascript" th:src="@{/static/database/kdtrade/js/tradeList.js}"></script> 
+   		</th:block>
+</th:block>
+
+
+
+
+

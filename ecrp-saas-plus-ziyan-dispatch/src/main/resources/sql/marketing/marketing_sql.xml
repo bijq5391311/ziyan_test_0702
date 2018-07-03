@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+  <sqlGroup name="marketing.marketing">
+    <sql id="findMarketing"
+      value="select * from marketing where 1=1 and instance_id = #{instanceId} and node_id = #{nodeId}">
+    </sql>
+    <sql id="queryMarketingList"
+      value="select a.* from marketing a, mkt_flow_running_node b  where a.instance_id = b.InstanceID and a.node_id = b.NodeID and a.activities_id = #{activityId} ">
+    </sql>
+    <sql id="queryMarketingListByInstanceId"
+      value="select a.* from marketing a where a.instance_id = #{instanceId} ">
+    </sql>
+    <sql id="findMarketingByGuid" value="select * from marketing where guid = #{guid}">
+    </sql>
+    <sql id="findActivitiesInstanceRelation"
+      value="select * from activities_instance_relation where 1=1 and instance_id = #{instanceId}">
+    </sql>
+    <sql id="queryInstances"
+      value="select * from MKT_FLOW_RUNNING_PROCESS where Name = #{activityName}">
+    </sql>
+
+    <sql id="deleteByanalyNoid"
+      value=" delete from marketing_effect_detail where analysis_node_id = #{id}">
+    </sql>
+
+<!--     获取分析节点报告, 拼装sql.  -->
+    <sql id="getEffectUserListByTemp" value="SELECT trade.out_nick as buyerNick,kd_customer.customer_name as name,kd_customer.mobile as mobile, kd_customer.email as eamil,sum(trade.num) as itemNum,sum(trade.payment) as allPayment FROM kd_trade as trade #{filterItems} #{importFilter}">
+    	<if value="  INNER JOIN #{tempName} as temp on #{filter} INNER JOIN kd_customer "></if>
+    </sql>
+
+
+
+    <sql id="queryList" value ="select * from marketing where 1=1">
+      <if value = "and coupon_id = #{couponId}"></if>
+      <if value = "and marketing_manner = #{manner}"></if>
+    </sql>
+  </sqlGroup>
+</sqlRoot>

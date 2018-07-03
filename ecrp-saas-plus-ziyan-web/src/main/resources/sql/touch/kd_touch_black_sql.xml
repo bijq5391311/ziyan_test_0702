@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="touch.kdtouchblack">
+		<sql id="findList" value="select kd_touch_black.*,brand_name brandName,sys_department.`name` name from kd_touch_black
+		 join sys_brand on sys_brand.id=kd_touch_black.brand_id
+         join sys_department on kd_touch_black.department_code=sys_department.`code`  where 1=1 ">
+        <if value="and kd_touch_black.type = #{type}"></if>
+        <bind name="target" value="#target == null ? null : ('%'+#target+'%')"></bind>
+	    <if value = "and kd_touch_black.target like #{target}"></if>
+	    <if value="and kd_touch_black.source = #{source}"></if>
+	    <bind name="creator" value="#creator == null ? null : ('%'+#creator+'%')"></bind>
+	    <if value="and kd_touch_black.creator like #{creator}"></if>
+		<if value="and kd_touch_black.create_time &gt;= #{start_time}"></if>
+		<if value="and #{end_time} &gt;= kd_touch_black.create_time"></if>
+		<if value="order by kd_touch_black.create_time desc"></if>
+ 		</sql>
+ 		<sql id="batchDelete" value="delete from kd_touch_black where id=?"></sql>
+ 		
+ 		<sql id="deleteTouchBlack" value="delete from kd_touch_black where sys_customer_id = #{sys_customer_id} ">
+ 		
+ 			<if test="#brand_id != null" value=" and brand_id = #{brand_id}"></if>
+ 			
+ 		</sql>
+	</sqlGroup>
+</sqlRoot>

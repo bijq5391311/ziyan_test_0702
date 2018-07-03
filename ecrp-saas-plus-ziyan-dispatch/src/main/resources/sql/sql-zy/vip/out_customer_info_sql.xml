@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="vip.OutCustomerInfo">
+		<sql id="queryListBySyn" value="select * from out_customer_info where 1=1 and syn_status != 1">
+			<if value="and syn_status = #{synStatus}"></if>
+			<if value="and is_activate = #{isActivate}"></if>
+			<if value="limit  #{limit}"></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>

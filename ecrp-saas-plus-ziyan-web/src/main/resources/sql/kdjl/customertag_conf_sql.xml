@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="kdjl.CustomerTag">
+	
+		<sql id="changeStatus" value="update kdjl_customertag set Status = #{tatus } " >
+		   <if value = "and id = #{id}"></if>
+	    </sql>
+	    <sql id="validateNameID" value="select count(1) from kdjl_customertag where TagName = #{TagName} and id  !=   #{id}" >
+	    </sql>
+	    <sql>
+	        <if id="validateName" value="select count(1) from kdjl_customertag where TagName = #{TagName}" ></if>
+	    </sql>
+	   <sql id="queryKdjlCustomertagList" value="select kdjl_customertag.* from kdjl_customertag where 1=1" >
+	   	<if test="#shop_id != ''" value=" and  kdjl_customertag.shop_id in (${shop_id})"></if>
+	   	<if test="#shop_id == ''" value=" and  kdjl_customertag.shop_id = #{shop_id}"></if>
+	   	<bind name="TagName" value="#TagName == null ? null : ('%'+#TagName+'%')"></bind>
+	   	<if value="and TagName like #{TagName}"></if>
+	   	<if value="order by tagorder DESC"></if>
+	  </sql>
+	</sqlGroup>
+	
+</sqlRoot>

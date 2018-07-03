@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="database.KdGoodsCategory">
+		<sql id="queryList" value="select id,parent_cid,cid,name from kd_goods_category where 1=1">
+			<if value="and  group_id = #{group_id}"> </if>
+		</sql>
+		<sql id="loadGoodsCategoryByCid" value="">
+			<if value=" select group_concat(cate.name  separator ';') category 
+				from kd_goods_category cate where cate.cid in ${'cids'} "></if>
+		</sql>
+		
+<!-- 		<sql id="queryTreeList" value="select cid as id,parent_cid as parentId,name as label from kd_goods_category"></sql> -->
+		<sql id="queryTreeList" value="select count(distinct cid)   ,cid as id, parent_cid as parentId,name as label
+				 from kd_goods_category
+				group by cid"></sql>
+		
+		<sql id="queryParentCidPath" value = "select parent_cid_path from kd_goods_category where cid=#{cid}"></sql>
+	</sqlGroup>
+</sqlRoot>

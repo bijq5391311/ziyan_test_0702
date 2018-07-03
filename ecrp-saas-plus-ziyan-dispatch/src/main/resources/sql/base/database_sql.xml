@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+    <sqlGroup name="base.database">
+        <sql id="queryDataDictionaryByType"
+             value="select id ,name ,type,code,remark from kd_data_dictionary where 1=1">
+            <if value="and type = #{type}"></if>
+            <if value="and code = #{code}"></if>
+            <if value="order by order_num asc"></if>
+        </sql>
+
+
+        <sql id="queryDataDictionaryOptions"
+             value="select name as k,code as v from kd_data_dictionary where 1=1">
+            <if value=" and type = #{type}"></if>
+            <if value="order by order_num asc"></if>
+        </sql>
+        <sql id="queryGoodsById" value="select * from kd_goods where 1=1">
+            <if value="and id in (${ids})"></if>
+        </sql>
+
+        <sql id="queryGoods" value="select id,title from kd_goods where 1=1">
+            <if value="and id in (${ids})"></if>
+        </sql>
+
+        <sql id="queryGoodsSkuList"
+             value=" select sku_id as skuId ,quantity as stock,price as price from kd_goods_sku
+			 where outer_id = #{outerId}">
+        </sql>
+
+        <!-- 查询外部平台商品列表  -->
+        <sql id="queryKdItemList" value="select * from kd_item where 1=1">
+            <if value="and sys_item_id in (${sysItemIds})"></if>
+            <if value="and sys_item_id = #{sysItemId}"></if>
+        </sql>
+        <!-- 根据权限查询外部平台商品列表  -->
+        <sql id="queryKdItemListByAuth" value="select i.* from kd_item i
+		      inner join sys_shop_ext se on se.code = i.shop_code  where 1=1 ">
+            <bind name="title" value="#title == null ? null : ('%'+#title+'%')"></bind>
+            <bind name="outerId"
+                  value="#outerId == null ? null : ('%'+#outerId+'%')"></bind>
+            <if test="(#shopCode == null or #shopCode == '') and (#shopCodes == '' or #shopCodes == null)"
+                value="and i.shop_code in (${'shopCodesA'})"></if>
+            <if value="and i.shop_code in (${'shopCodes'})"></if>
+            <if value="and i.shop_code = #{shopCode}"></if>
+            <if value="and se.plat_from_type = #{platFromType}"></if>
+            <if test="#title != null and #title !='%%'" value=" and i.title like #{title}"></if>
+            <if test="#outerId!= null and #outerId !='%%'" value=" and i.outer_id like #{outerId}"></if>
+            <if value=" and i.price &gt;= #{minPrice}"></if>
+            <if value=" and i.price &lt;= #{maxPrice}"></if>
+            <if value=" and i.cid = #{cate}"></if>
+            <if value="order by i.create_time"></if>
+        </sql>
+
+        <sql id="queryItemListBySysShopAuth" value="select i.* from kd_item i
+		      inner join sys_shop s on s.code = i.shop_code  where 1=1 ">
+            <bind name="title" value="#title == null ? null : ('%'+#title+'%')"></bind>
+            <bind name="outerId"
+              value="#outerId == null ? null : ('%'+#outerId+'%')"></bind>
+            <if test="(#shopCode == null or #shopCode == '') and (#shopCodes == '' or #shopCodes == null)"
+              value="and i.shop_code in (${'shopCodesA'})"></if>
+            <if value="and i.shop_code in (${'shopCodes'})"></if>
+            <if value="and i.shop_code = #{shopCode}"></if>
+            <if test="#title != null and #title !='%%'" value=" and i.title like #{title}"></if>
+            <if test="#outerId!= null and #outerId !='%%'" value=" and i.outer_id like #{outerId}"></if>
+            <if value=" and i.price &gt;= #{minPrice}"></if>
+            <if value=" and i.price &lt;= #{maxPrice}"></if>
+            <if value=" and i.cid = #{cate}"></if>
+            <if value="order by i.create_time"></if>
+        </sql>
+        <!-- 查询外部平台商品sku -->
+        <sql id="queryKdSkuList"
+             value=" select sku_id as skuId ,quantity as stock,price as price from kd_sku where outer_id = #{outerId}">
+        </sql>
+
+        <sql id="queryKdOrderByTradeID"
+             value="select outer_id as out_id, order_status as ordStatus, pic_path as picPath, sku_properties as skuProperties, title,number,price,sys_item_id as sysItemId from kd_order where 1 = 1">
+            <if value=" and sys_trade_id = #{tradeId}"></if>
+        </sql>
+        <sql id="queryKdTradeByTradeID"
+             value="select out_trade_id as outTradeId,payment,created from kd_trade where 1 = 1">
+            <if value="and sys_trade_id = #{tradeId}"></if>
+        </sql>
+        <sql id="queryTradeByTradeIds"
+             value="select * from kd_trade where 1 = 1">
+            <if value="and sys_trade_id in (${tradeIds})"></if>
+        </sql>
+        <sql id="queryKdTradeExtByTradeID"
+             value="select sys_trade_id as sysTradeId, out_company_name as outCompanyName,out_sid as outSid, receiver_address as receiverAddress
+			         from kd_trade_ext where 1 = 1">
+            <if value=" and sys_trade_id = #{tradeId}"></if>
+        </sql>
+        <sql id="queryKdRefundByTradeID"
+             value="select tb_refund_id as refundId,tb_tid as tid, tb_created as created,
+                        tb_status as status,tb_reason as reason,tb_desc as desc,tb_refund_free as refundFree
+                   from kd_refund where 1 = 1">
+            <if value=" and tb_tid = #{tid}"></if>
+        </sql>
+        <sql id="queryGoodsBycode" value=" select * from kd_goods WHERE  find_in_set(outer_id,#{code})"></sql>
+        <!-- 商品分类 -->
+        <sql id="loadCategoryTree"
+             value="select cid as id,parent_cid as parentId,name as label,cid as code from kd_goods_category where 1 = 1">
+        </sql>
+        <!-- 同步淘宝店铺商品分类 -->
+        <sql id="querySellerCatTree" value="select cid as id ,parent_cid as parentId,name as label,cid as code 
+                from seller_cat where 1=1 ">
+            <if value="and shop_code in (${'shopCode'})"></if>
+        </sql>
+
+        <!-- 查找地区 -->
+        <sql id="queryAreaTree"
+             value="select tb_id as id,parent_id as parentId,tb_name as label, zip as code from area where 1=1">
+            <if value="and (tb_type=#{country} or tb_type=#{province})"></if>
+        </sql>
+        <sql id="queryTradeByPlatFromType" value="SELECT kt.shop_code as shopCode,kte.sys_trade_id as sysTradeId, kte.out_sid as outSid, kte.out_company_name as outCompanyName,kt.out_trade_id as outTradeId
+				FROM kd_trade kt
+				INNER JOIN sys_shop_ext sext ON kt.shop_code = sext.code
+				INNER JOIN kd_trade_ext kte ON kte.sys_trade_id=kt.sys_trade_id
+				AND (kte.out_state IS NULL OR kte.out_state NOT IN(3,4,6))
+				where kte.out_sid is not null  and kte.out_sid !=''">
+            <if value="and sext.plat_from_type=#{platFromType}"></if>
+            <if value="order by kt.consign_time desc"></if>
+        </sql>
+
+        <sql id="queryKdCustomerWeixin"
+             value="select open_id as openId,app_key as appKey  from kd_customer_weixin where 1=1 and sys_customer_id=#{sysCustomerId} and app_key=#{appKey}"></sql>
+        <sql id="querywxOpenIdBySysCustomerId" value="select open_id as openId from kd_customer_weixin where 1=1">
+            <if value="sys_customer_id=#{sysCustomerId}"></if>
+        </sql>
+
+        <sql id="countPayed" value="select count(*) from kd_trade where 1=1
+			and (trade_status = 'SELLER_CONSIGNED_PART' or trade_status = 'WAIT_SELLER_SEND_GOODS' or trade_status='WAIT_BUYER_CONFIRM_GOODS' or trade_status='TRADE_FINISHED')">
+            <if value="and out_nick = #{outNick}"></if>
+            <if value="and created &gt;= #{startTime}"></if>
+            <if value="and created &lt;= #{endTime}"></if>
+        </sql>
+        <sql id="queryOpendIdBySysCustomerId" value="select * from kd_customer_weixin where 1=1">
+            <if value="and sys_customer_id = #{sysCustomerId}"></if>
+        </sql>
+
+        <sql id="queryKdCustomerWeixinList"
+             value="select open_id as openId,app_key as appKey,sys_customer_id sysCustomerId,user_nick userNick  from kd_customer_weixin where 1=1 and app_key=#{appKey}">
+            <if value=" and sys_customer_id in (${'sysCustomerIds'})"></if>
+        </sql>
+        <!--查询近一年会员有付款的交易-->
+        <sql id="findNearlyOneYearTradesByCidAndBid" value="select sys_trade_id as sysTradeId, payment as payment, brand_id as brandId ,created as created
+		 from kd_trade where brand_id = #{brandId} and sys_customer_id=#{sysCustomerId} and
+		   pay_time is not null and created >= DATE_ADD(now(),INTERVAL -1 YEAR)"></sql>
+        <!--关怀模块的订单数据统计-->
+        <sql id="queryTradeDataCountByAuth"
+             value="select sum(case when trade_status = 'WAIT_BUYER_PAY' then 1 else 0 end) waitPayCount,
+			sum(case when
+				trade_status = 'WAIT_SELLER_SEND_GOODS' then 1 else 0 end) waitConsignCount,
+			sum(case when
+					trade_status = 'WAIT_BUYER_CONFIRM_GOODS' and te.out_state not in (3,4,6)
+				then 1 else 0 end) waitReceiveCount,
+			sum(case when
+					(trade_status = 'WAIT_BUYER_CONFIRM_GOODS' or trade_status = 'TRADE_BUYER_SIGNED') and te.out_state = 3
+				then 1 else 0 end) waitConfirmCount,
+			(select count(1) from kd_refund where tb_status = 'WAIT_SELLER_AGREE' or tb_status = 'WAIT_BUYER_RETURN_GOODS'
+			 	or tb_status = 'WAIT_SELLER_CONFIRM_GOODS') refundingCount,
+			sum(case when
+					trade_status = 'WAIT_BUYER_PAY' and (TO_DAYS(NOW()) - TO_DAYS(created)) >= 2
+				then 1 else 0 end) oneDayWillCloseCount,
+			sum(case when
+					trade_status = 'WAIT_SELLER_SEND_GOODS' and (TO_DAYS(NOW()) - TO_DAYS(pay_time)) >=3
+				then 1 else 0 end) delayedConsignCount,
+			sum(case when
+					trade_status = 'WAIT_BUYER_CONFIRM_GOODS' and te.out_state not in (3,4,6) and (TO_DAYS(NOW()) - TO_DAYS(te.out_time)) >=3
+				then 1 else 0 end) expressStopCount
+			from kd_trade t join kd_trade_ext te on t.sys_trade_id = te.sys_trade_id where 1=1">
+            <if value="and t.shop_code in (${'shopCodes'})"></if>
+        </sql>
+    </sqlGroup>
+</sqlRoot>

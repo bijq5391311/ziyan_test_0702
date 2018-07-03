@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+    <sqlGroup name="kdCustomerWeixin">
+        <sql id="getSysCustomerIdByOpenId" value="select sys_customer_id from kd_customer where kd_open_id = #{openId}"/>
+		<sql id="getSysCustomerIdByMobile" value="select sys_customer_id from kd_customer where mobile = #{mobile} limit 1"/>
+        <sql id="getCustomerInfoByOpenId" value="
+        select c.defeat_rate accountingForGrouthValue,
+        b.consume_total totalGrothValue,b.consume_total tradeGrouthValue,b.member_grade memberGrade,b.trade_total_score tradePoints,
+        count(if(e.state=0 and e.valid_time_end &gt;= now(),e.id,null)) notUseCouponNum,
+        count(if(e.state=0 and e.valid_time_end &lt; now(),e.id,null)) expiredCouponNum,
+        count(if(e.state=2,e.id,null)) usedCouponNum,
+        sum(l.limit_point) pointResetMsg
+        from kd_customer c
+        left join kd_customer_brand b on b.sys_customer_id = c.sys_customer_id
+        left join zy_coupon_customer_ext e on e.sys_customer_id = c.sys_customer_id
+        left join kd_point_remove_log l on l.sys_customer_id = c.sys_customer_id and l.state = 0
+        and l.limit_date &gt;= #{timeStart} and l.limit_date &lt; #{timeEnd}
+        where c.kd_open_id = #{openId}"/>
+
+    </sqlGroup>
+</sqlRoot>

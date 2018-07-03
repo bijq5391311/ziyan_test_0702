@@ -1,0 +1,702 @@
+<% include ../../../include/layout/start.ejs %>
+<div id="example" v-cloak>
+  <div class="template-page">
+<!--    <div class="template-page-location">
+      <el-breadcrumb separator=">">
+        <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+        <el-breadcrumb-item>智能营销</el-breadcrumb-item>
+        <el-breadcrumb-item>ump设置</el-breadcrumb-item>
+        <el-breadcrumb-item>淘系定向优惠</el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>-->
+    <div class="template-page-tab">
+      <!--      <div class="tmp-page__header">
+              <div class="tmp-page__menu">
+                <a class="tmp-page__menu-item is-active">会员数据</a>
+                <a class="tmp-page__menu-item">商品数据</a>
+                <a class="tmp-page__menu-item">商品数据</a>
+              </div>
+            </div>
+            <div class="tmp-page__content">
+              会员数据内容区域
+            </div>-->
+      <el-tabs v-model="activeName" type="card">
+        <el-tab-pane label="淘系定向优惠" name="first">
+          <el-row>
+            <el-col :span="24">
+              <bus-multi-filter @submit-search="submitSearch"
+                                @reset-search="resetSearch"
+                                @recover-search="recoverSearch"
+                                @clean-search="cleanSearch">
+                <!-- 按钮组 -->
+                <template slot="btns">
+                  <el-button type="primary" @click="handerlSmsDialogVisible"><i class="bui-add"></i>新增优惠活动</el-button>
+                </template>
+                <!-- end/按钮组 -->
+                <!-- 单条件表单 -->
+                <el-form slot="singleform" :inline="true" class="pull-right">
+                  <el-form-item>
+                    <el-input
+                      placeholder="请输入姓名"
+                      icon="search">
+                    </el-input>
+                  </el-form-item>
+                </el-form>
+                <!-- end/单条件表单 -->
+                <!-- 多条件表单 -->
+                <el-form label-width="80px" :inline="true">
+                  <el-form-item label="关键词：" class="el-inline-block">
+                    <el-form-grid size="xmd">
+                      <el-input placeholder="请输入关键词"></el-input>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-form-item label="起止时间：" class="el-inline-block">
+                    <el-form-grid size="xmd">
+                      <el-date-picker type="daterange" placeholder="选择日期范围"></el-date-picker>
+                    </el-form-grid>
+                  </el-form-item>
+                </el-form>
+                <!-- end/多条件表单 -->
+                <!-- 搜索结果 -->
+                <template slot="result">
+                  <el-tag v-for="(tag,index) in 10" :key="index" type="primary" :closable="true">tag</el-tag>
+                </template>
+                <!-- end/搜索结果 -->
+              </bus-multi-filter>
+              <el-table
+                :data="tableData"
+                :empty-text="tableEmptyTip"
+                class="template-table"
+                border
+                resizable>
+                <el-table-column
+                  prop="address"
+                  label="定向优惠名称">
+                </el-table-column>
+                <el-table-column
+                  prop="name"
+                  label="活动类型"
+                  align="center"
+                  width="100">
+                </el-table-column>
+                <el-table-column
+                  prop="province"
+                  label="店铺名称"
+                  width="180">
+                </el-table-column>
+                <el-table-column
+                  prop="date"
+                  label="起止时间"
+                  align="center"
+                  width="200">
+                </el-table-column>
+                <el-table-column
+                  prop="name"
+                  label="活动人群">
+                  <template scope="scope">
+                    <span>定向人群名称{{scope.row.name}}</span><a @click="addMemberVisible = true" class="tmp-addlink"><i
+                        class="bui-add-member"></i></a>
+
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  prop="name"
+                  label="活动状态"
+                  align="center"
+                  width="100">
+                </el-table-column>
+                <el-table-column
+                  label="操作"
+                  align="center"
+                  width="90">
+                  <template scope="scope">
+                    <div class="tmp-cell__buttons">
+                      <el-button type="text">详情</el-button>
+                      |
+                      <el-button type="text" @click="analysisVisible = true">分析</el-button>
+                    </div>
+                  </template>
+                </el-table-column>
+              </el-table>
+              <el-pagination
+                class="template-table-pagination"
+                :current-page="currentPage4"
+                :page-sizes="[10, 20, 30, 50, 100]"
+                :page-size="10"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="100">
+              </el-pagination>
+              <el-dialog title="新增优惠活动" v-model="favorDialogVisible" :close-on-click-modal="false"
+                         :modal-append-to-body="false" size="small" custom-class="has-tabs" vetically response-limit>
+                <el-tabs type="card">
+                  <el-tab-pane label="满就送礼">
+                    <el-form placement="right" :model="favorForm" :rules="rules" label-width="100px">
+                      <el-form-item label="活动名称：" required>
+                        <el-form-grid size="xmd">
+                          <el-form-item required prop="name">
+                            <el-input placeholder="活动名称必须在2-5个字符"></el-input>
+                          </el-form-item>
+                        </el-form-grid>
+                      </el-form-item>
+                      <el-form-item label="活动淘系店铺：">
+                        <el-form-grid size="xmd">
+                          <el-popover ref="droptreepopover"
+                                      v-model="shopDropTreeVisible"
+                                      :width="shopDroptreeWidth"
+                                      placement="bottom-start"
+                                      trigger="click"
+                                      popper-class="tmp-droptree-popover">
+                            <el-scrollbar
+                              wrap-class="tmp-droptree-scroll"
+                            >
+                              <el-input class="tmp-droptree-search" placeholder="输入关键字进行过滤"></el-input>
+                              <el-tree-extra :data="shopDropTreeList"
+                                             :expand-on-click-node="false"
+                                             show-checkbox
+                                             ref="shopDropTree"
+                                             @node-click="handleShopSelectValue"
+                                             class="tmp-droptree-tree"></el-tree-extra>
+                            </el-scrollbar>
+                            <div class="tmp-droptree-footer">
+                              <el-button size="mini" type="text" @click="shopDropTreeVisible = false">取消</el-button>
+                              <el-button type="primary" size="mini" @click="handleSaveShopSelect">保存</el-button>
+                            </div>
+                            <el-input slot="reference" ref="shopDropTreeInput" v-model="shopDropTreeValue" readonly
+                                      @click.native="handleShowShopDropTree" placeholder="请选择店铺"
+                                      class="tmp-droptree-input"></el-input>
+
+                          </el-popover>
+                        </el-form-grid>
+                        <el-form-grid class="text-warning" block>
+                          <i class="bui-warn"></i>注：下拉树组件请使用后台程序另外已封装好的业务组件ns-droptree.js
+                        </el-form-grid>
+                      </el-form-item>
+                      <el-form-item label="满送时间：">
+                        <el-form-grid size="xmd">
+                          <el-form-item>
+                            <el-date-picker
+                              v-model="favorForm.date1"
+                              type="daterange"
+                              placeholder="请选择活动时间">
+                            </el-date-picker>
+                          </el-form-item>
+                        </el-form-grid>
+                      </el-form-item>
+                      <el-form-item label="会员等级：">
+                        <el-form-grid size="xmd">
+                          <el-cascader :options="favorForm.levelOptions"
+                                       v-model="levelSelected">
+                          </el-cascader>
+                        </el-form-grid>
+                      </el-form-item>
+                      <el-form-item label="活动人群：">
+                        <el-form-grid>
+                          <el-radio-group v-model="favorForm.radio">
+                            <el-radio label="所有人"></el-radio>
+                            <el-radio label="定向人群"></el-radio>
+                          </el-radio-group>
+                        </el-form-grid>
+                      </el-form-item>
+                      <el-form-item label="活动商品：">
+                        <el-form-grid size="sm">
+                          <el-select v-model="favorForm.select">
+                            <el-option label="全店商品" value="all"></el-option>
+                            <el-option label="部分商品参与" value="part"></el-option>
+                          </el-select>
+                        </el-form-grid>
+
+                        <!-- 选择商品结果列表 列表展开收缩切换结构-->
+                        <bus-toggles :max-height="180" class="is-double">
+                          <el-row class="tmp-choose">
+                            <el-col :span="12">
+                              <div class="tmp-choose__title">
+                                <el-button type="primary"><i class="bui-select-goods"></i>选择商品</el-button>
+                                <span class="total">已选择20个商品</span></div>
+                              <ul class="tmp-choose__goods">
+                                <!-- <li>对不起，查阅不到相关数据！</li>-->
+                                <li>
+                                  <span class="g-name">法国原瓶进口 美圣世家仙马园波尔多干红葡萄酒750ml</span>
+                                  <i class="g-delete bui-delete"></i>
+                                </li>
+                                <li>
+                                  <span class="g-name">法国原瓶进口 美圣萄酒750ml</span>
+                                  <i class="g-delete bui-delete"></i>
+                                </li>
+                                <li>
+                                  <span class="g-name">法国圣世家仙马园波尔多干红葡萄酒750ml</span>
+                                  <i class="g-delete bui-delete"></i>
+                                </li>
+                                <li>
+                                  <span class="g-name">法国原瓶进口 美圣世家仙马园波尔多干红葡萄酒750ml</span>
+                                  <i class="g-delete bui-delete"></i>
+                                </li>
+                                <li>
+                                  <span class="g-name">法国原瓶进口 美圣萄酒750ml</span>
+                                  <i class="g-delete bui-delete"></i>
+                                </li>
+                                <li>
+                                  <span class="g-name">法国圣世家仙马园波尔多干红葡萄酒750ml</span>
+                                  <i class="g-delete bui-delete"></i>
+                                </li>
+                                <li>
+                                  <span class="g-name">法国原瓶进口 美圣世家仙马园波尔多干红l</span>
+                                  <i class="g-delete bui-delete"></i>
+                                </li>
+                                <li>
+                                  <span class="g-name">法国仙马园波尔多干红葡萄酒750ml</span>
+                                  <i class="g-delete bui-delete"></i>
+                                </li>
+                                <li>
+                                  <span class="g-name">法国原瓶进口 美圣世家仙马园美圣世家仙马园波尔多干红葡萄酒750ml美圣世家仙马园波尔多干红葡萄酒750ml波尔多干红葡萄酒750ml</span>
+                                  <i class="g-delete bui-delete"></i>
+                                </li>
+                                <li>
+                                  <span class="g-name">法国原瓶进口多干红葡萄酒750ml</span>
+                                  <i class="g-delete bui-delete"></i>
+                                </li>
+                                <li>
+                                  <span class="g-name">法国原瓶进口 美圣世家仙马园萄酒750ml</span>
+                                  <i class="g-delete bui-delete"></i>
+                                </li>
+                                <li>
+                                  <span class="g-name">法国仙马园波尔多干红葡萄酒750ml</span>
+                                  <i class="g-delete bui-delete"></i>
+                                </li>
+                              </ul>
+                            </el-col>
+                            <el-col :span="12">
+                              <div class="tmp-choose__title">
+                                <el-button type="primary"><i class="bui-select-condition"></i>选择条件</el-button>
+                                <span class="total">已选择20个条件</span></div>
+                              <ul class="tmp-choose__goods">
+                                <!-- <li>对不起，查阅不到相关数据！</li>-->
+                                <li>
+                                  <span class="g-name">商品单价超过一万元</span>
+                                  <i class="g-delete bui-delete"></i>
+                                </li>
+                                <li>
+                                  <span class="g-name">商品单价超过5000元</span>
+                                  <i class="g-delete bui-delete"></i>
+                                </li>
+                                <li>
+                                  <span class="g-name">商品单价超过5000元</span>
+                                  <i class="g-delete bui-delete"></i>
+                                </li>
+                              </ul>
+                            </el-col>
+                          </el-row>
+                        </bus-toggles>
+                        <!-- /end 选择商品结果列表 列表展开收缩切换结构-->
+                      </el-form-item>
+                      <el-form-item label="满送条件：">
+                        <el-form-grid size="xs">
+                          <el-select v-model="favorForm.radioRule">
+                            <el-option label="满钱送" value="pay"></el-option>
+                            <el-option label="满件送" value="number"></el-option>
+                          </el-select>
+                        </el-form-grid>
+                        <el-form-grid>买家付款满</el-form-grid>
+                        <el-form-grid size="sm">
+                          <el-input placeholder="请输入数字" class="text-right">
+                            <template slot="append">件</template>
+                          </el-input>
+                        </el-form-grid>
+                      </el-form-item>
+                      <el-form-item label="满送方式：">
+                        <div class="el-block-box is-gray-bg">
+                          <el-form-item class="mb-sm">
+                            <el-form-grid>
+                              <el-checkbox label="">打折</el-checkbox>
+                            </el-form-grid>
+                            <!--        <el-form-grid size="xxs" style="margin-left:3px;">
+                                      <el-select v-model="favorForm.radioCount" @change="changeCount">
+                                        <el-option label="打折" value="discount"></el-option>
+                                        <el-option label="满减" value="count"></el-option>
+                                      </el-select>
+                                    </el-form-grid>-->
+                            <el-form-grid>订单金额打</el-form-grid>
+                            <el-form-grid size="sm">
+                              <el-input placeholder="请输入数字" class="text-right">
+                                <template slot="append">折</template>
+                              </el-input>
+                            </el-form-grid>
+                          </el-form-item>
+                          <el-form-item class="mb-sm">
+                            <el-form-grid>
+                              <el-checkbox label="">满减</el-checkbox>
+                            </el-form-grid>
+                            <el-form-grid>订单金额减</el-form-grid>
+                            <el-form-grid size="sm">
+                              <el-input placeholder="请输入金额" class="text-right">
+                                <template slot="append">元</template>
+                              </el-input>
+                            </el-form-grid>
+                            <el-checkbox label="上不封顶"></el-checkbox>
+                            <el-form-grid class="text-info">
+                              <el-tooltip effect="light" placement="right" content="设置上不封顶,设置上不封顶设置上不封顶设置上不封顶设置上不封顶">
+                                <i class="bui-info"></i>
+                              </el-tooltip>
+                            </el-form-grid>
+                          </el-form-item>
+                          <el-form-item class="mb-sm">
+                            <el-form-grid>
+                              <el-checkbox label="">送礼物</el-checkbox>
+                            </el-form-grid>
+                            <el-form-grid>
+                              <el-button type="primary">添加礼物</el-button>
+                            </el-form-grid>
+                            <el-form-grid class="text-info"><i class="bui-info"></i>礼物必须发布在淘宝“其他>其他>赠品”类目下
+                            </el-form-grid>
+                          </el-form-item>
+                          <el-form-item>
+                            <el-form-grid>
+                              <el-checkbox label="">包邮</el-checkbox>
+                            </el-form-grid>
+                          </el-form-item>
+                        </div>
+                      </el-form-item>
+                      <el-form-item label="活动描述：">
+                        <el-form-grid block>
+                          <el-input type="textarea" placeholder="请输入内容"></el-input>
+                        </el-form-grid>
+                        <div class="tmp-tips text-warning"><i class="bui-warn"></i>授权或授权过期，定向优惠无法创建！请用主号登录授权 <a href="">点此授权</a>
+                        </div>
+                      </el-form-item>
+                    </el-form>
+                  </el-tab-pane>
+                  <el-tab-pane label="限时专享">
+                    <el-form placement="right" :model="favorForm" :rules="rules" label-width="100px">
+                      <el-form-item label="活动名称：" required>
+                        <el-form-grid size="xmd">
+                          <el-form-item required prop="name">
+                            <el-input placeholder="活动名称必须在2-5个字符"></el-input>
+                          </el-form-item>
+                        </el-form-grid>
+                      </el-form-item>
+                      <el-form-item label="活动淘系店铺：">
+                        <el-form-grid size="xmd">
+                          <el-input placeholder="请选择店铺"></el-input>
+                        </el-form-grid>
+                        <el-form-grid class="text-warning" block>
+                          <i class="bui-warn"></i>注：下拉树组件请使用后台程序另外已封装好的业务组件ns-droptree.js
+                        </el-form-grid>
+                      </el-form-item>
+                      <el-form-item label="专享限时：">
+                        <el-form-grid size="xmd">
+                          <el-form-item>
+                            <el-date-picker
+                              v-model="favorForm.date1"
+                              type="daterange"
+                              placeholder="请选择活动时间">
+                            </el-date-picker>
+                          </el-form-item>
+                        </el-form-grid>
+                      </el-form-item>
+                      <el-form-item label="会员等级：">
+                        <el-form-grid size="xmd">
+                          <el-cascader :options="favorForm.levelOptions"
+                                       v-model="levelSelected">
+                          </el-cascader>
+                        </el-form-grid>
+                      </el-form-item>
+                      <el-form-item label="活动人群：">
+                        <el-form-grid>
+                          <el-radio-group v-model="favorForm.radio">
+                            <el-radio label="所有人"></el-radio>
+                            <el-radio label="定向人群"></el-radio>
+                          </el-radio-group>
+                        </el-form-grid>
+                      </el-form-item>
+                      <el-form-item label="专享条件：">
+                        <el-form-grid>活动期间购买</el-form-grid>
+                        <el-form-grid size="sm">
+                          <el-select v-model="favorForm.select">
+                            <el-option label="全店商品" value="all"></el-option>
+                            <el-option label="部分商品参与" value="part"></el-option>
+                          </el-select>
+                        </el-form-grid>
+                      </el-form-item>
+                      <el-form-item label="专享方式：">
+                        <el-form-item>
+                          <el-checkbox label="送礼物"></el-checkbox>
+                          <el-button type="primary">添加礼物</el-button>
+                          <el-form-grid class="text-info"><i class="bui-info"></i>礼物必须发布在淘宝“其他>其他>赠品”类目下</el-form-grid>
+                        </el-form-item>
+                        <el-form-item>
+                          <el-checkbox label="包邮"></el-checkbox>
+                        </el-form-item>
+                      </el-form-item>
+                      <el-form-item label="活动描述：">
+                        <el-form-grid size="xlg">
+                          <el-input type="textarea" placeholder="请输入内容"></el-input>
+                        </el-form-grid>
+                        <div class="tmp-tips text-warning"><i class="bui-warn"></i>授权或授权过期，定向优惠无法创建！请用主号登录授权 <a href="">点此授权</a>
+                        </div>
+                      </el-form-item>
+                    </el-form>
+                  </el-tab-pane>
+                  <el-tab-pane label="单品特惠">
+                    <el-form placement="right" :model="favorForm" :rules="rules" label-width="100px">
+                      <el-form-item label="活动名称：" required>
+                        <el-form-grid size="xmd">
+                          <el-form-item required prop="name">
+                            <el-input placeholder="活动名称必须在2-5个字符"></el-input>
+                          </el-form-item>
+                        </el-form-grid>
+                      </el-form-item>
+                      <el-form-item label="活动淘系店铺：">
+                        <el-form-grid size="xmd">
+                          <el-input placeholder="请选择店铺"></el-input>
+                        </el-form-grid>
+                        <el-form-grid class="text-warning" block>
+                          <i class="bui-warn"></i>注：下拉树组件请使用后台程序另外已封装好的业务组件ns-droptree.js
+                        </el-form-grid>
+                      </el-form-item>
+                      <el-form-item label="特惠时间：">
+                        <el-form-grid size="xmd">
+                          <el-form-item>
+                            <el-date-picker
+                              v-model="favorForm.date1"
+                              type="daterange"
+                              placeholder="请选择活动时间">
+                            </el-date-picker>
+                          </el-form-item>
+                        </el-form-grid>
+                      </el-form-item>
+                      <el-form-item label="会员等级：">
+                        <el-form-grid size="xmd">
+                          <el-cascader :options="favorForm.levelOptions"
+                                       v-model="levelSelected">
+                          </el-cascader>
+                        </el-form-grid>
+                      </el-form-item>
+                      <el-form-item label="活动人群：">
+                        <el-form-grid>
+                          <el-radio-group v-model="favorForm.radio">
+                            <el-radio label="所有人"></el-radio>
+                            <el-radio label="定向人群"></el-radio>
+                          </el-radio-group>
+                        </el-form-grid>
+                      </el-form-item>
+                      <el-form-item label="特惠商品：">
+                        <el-form-grid>
+                          <el-button type="primary"><i class="bui-select-goods"></i>选择商品</el-button>
+                        </el-form-grid>
+                      </el-form-item>
+                      <el-form-item label="特惠方式：">
+                        <el-form-grid>下单时再打</el-form-grid>
+                        <el-form-grid size="sm">
+                          <el-input class="text-right">
+                            <template slot="append">折</template>
+                          </el-input>
+                        </el-form-grid>
+                        <div class="tmp-tips text-warning"><i class="bui-warn"></i>该优惠方式可与店铺优惠券一起使用</div>
+                      </el-form-item>
+                      <el-form-item label="活动描述：">
+                        <el-form-grid size="xlg">
+                          <el-input type="textarea" placeholder="请输入内容"></el-input>
+                        </el-form-grid>
+                        <div class="tmp-tips text-warning"><i class="bui-warn"></i>授权或授权过期，定向优惠无法创建！请用主号登录授权 <a href="">点此授权</a>
+                        </div>
+                      </el-form-item>
+                    </el-form>
+                  </el-tab-pane>
+                </el-tabs>
+                <div slot="footer" class="dialog-footer">
+                  <el-button @click="favorDialogVisible = false">取 消</el-button>
+                  <el-button type="primary" @click="">确 定</el-button>
+                </div>
+              </el-dialog>
+              <!-- 添加人群 弹窗结构 -->
+              <el-dialog title="新增优惠活动" v-model="addMemberVisible" :close-on-click-modal="false"
+                         :modal-append-to-body="false" size="small" custom-class="has-tabs" vetically response-limit>
+                <el-tabs type="card" v-model="addMemberName">
+                  <el-tab-pane label="添加定向客户" name="cus">
+                    <div class="template-table-bar">
+                      <el-form :inline="true">
+                        <el-form-item label="请选择会员分组：">
+                          <el-form-grid size="md">
+                            <el-popover ref="droptreepopover"
+                                        v-model="dropTreeVisible"
+                                        :width="droptreeWidth"
+                                        placement="bottom-start"
+                                        trigger="click"
+                                        popper-class="tmp-droptree-popover">
+                              <el-scrollbar
+                                wrap-class="tmp-droptree-scroll"
+                              >
+                                <el-input class="tmp-droptree-search" placeholder="输入关键字进行过滤"></el-input>
+                                <el-tree-extra :data="dropTreeList"
+                                               :expand-on-click-node="false"
+                                               @node-click="handleSelectValue"
+                                               class="tmp-droptree-tree"></el-tree-extra>
+                              </el-scrollbar>
+                              <el-input slot="reference" ref="droptreeinput" v-model="dropTreeValue" readonly
+                                        @click.native="handleShowDropTree" placeholder="请选择分组"
+                                        class="tmp-droptree-input" class="tmp-droptree-input"></el-input>
+
+                            </el-popover>
+                          </el-form-grid>
+                          <el-form-grid>
+                            <el-button type="primary"><i class="bui-weitongji"></i>统计人数</el-button>
+                            <el-button type="primary">添加</el-button>
+                          </el-form-grid>
+                          <div class="tmp-tips text-warning"><i class="bui-warn"></i>此处只统计分组人数，最终活动人数以活动参与人数为准。</div>
+                        </el-form-item>
+                      </el-form>
+                    </div>
+                    <el-table
+                      :data="tableData"
+                      class="template-table"
+                      border>
+                      <el-table-column
+                        prop="address"
+                        label="分组名称">
+                      </el-table-column>
+                      <el-table-column
+                        label="分组人数"
+                        align="right"
+                        width="100">
+                        <template scope="scope">21</template>
+                      </el-table-column>
+                      <el-table-column
+                        label="活动状态"
+                        align="center"
+                        width="100">
+                        <template scope="scope">
+                          <span class="text-success">提交成功</span><br/>
+                          <span class="text-danger">提交失败</span>
+                        </template>
+                      </el-table-column>
+                      <el-table-column
+                        label="操作"
+                        align="center"
+                        width="80">
+                        <template scope="scope">
+                          <div class="tmp-cell__buttons">
+                            <el-button type="text" class="is-gray">重新提交</el-button>
+                            <el-button type="text">重新提交</el-button>
+                          </div>
+                        </template>
+                      </el-table-column>
+                    </el-table>
+                  </el-tab-pane>
+                  <el-tab-pane label="定向客户详情" name="des">
+                    <div class="template-table-bar">
+                      <el-form :inline="true" class="pull-right">
+                        <el-form-item>
+                          <el-input
+                            placeholder="请输入淘宝昵称或姓名"
+                            icon="search">
+                          </el-input>
+                        </el-form-item>
+                      </el-form>
+                    </div>
+                    <el-table
+                      :data="tableData"
+                      class="template-table"
+                      border>
+                      <el-table-column
+                        prop="id"
+                        label="会员ID">
+                      </el-table-column>
+                      <el-table-column
+                        prop="name"
+                        label="淘宝昵称"
+                        width="100">
+                      </el-table-column>
+                      <el-table-column
+                        prop="name"
+                        label="姓名"
+                        width="100">
+                      </el-table-column>
+                      <el-table-column
+                        prop="date"
+                        label="参与时间"
+                        align="center"
+                        width="100">
+                      </el-table-column>
+                    </el-table>
+                  </el-tab-pane>
+                </el-tabs>
+                <div slot="footer" class="dialog-footer">
+                  <el-button @click="addMemberVisible = false">取 消</el-button>
+                  <el-button type="primary" @click="addMemberVisible = false">确 定</el-button>
+                </div>
+              </el-dialog>
+              <!-- /end 添加人群 弹窗结构 -->
+              <!-- 分析  弹窗结构 -->
+              <el-dialog title="新增优惠活动" v-model="analysisVisible" :close-on-click-modal="false"
+                         :modal-append-to-body="false" size="small" response-limit>
+
+                <el-table
+                  :data="tableData"
+                  :empty-text="tableEmptyTip"
+                  class="template-table"
+                  border
+                  resizable>
+                  <el-table-column
+                    prop="address"
+                    label="活动商品">
+                  </el-table-column>
+                  <el-table-column
+                    prop="name"
+                    label="总参与"
+                    align="right"
+                    width="100">
+                    <template scope="scope">4867人</template>
+                  </el-table-column>
+                  <el-table-column
+                    prop="name"
+                    label="总购买"
+                    align="right"
+                    width="100">
+                    <template scope="scope">48人</template>
+                  </el-table-column>
+                  <el-table-column
+                    prop="name"
+                    label="总购买商品"
+                    align="right">
+                    <template scope="scope">154件</template>
+                  </el-table-column>
+                  <el-table-column
+                    prop="name"
+                    label="总交易金额"
+                    align="right">
+                    <template scope="scope">￥414,323.00元</template>
+                  </el-table-column>
+                  <el-table-column
+                    prop="name"
+                    label="参与率"
+                    align="right"
+                    width="60">
+                    <template scope="scope">0.72%</template>
+                  </el-table-column>
+                  <el-table-column
+                    label="人均购买">
+                    <template scope="scope">1.41个/188.90元</template>
+                  </el-table-column>
+
+                </el-table>
+                <el-pagination
+                  class="template-table-pagination"
+                  :current-page="currentPage4"
+                  :page-sizes="[10, 20, 30, 50, 100]"
+                  :page-size="10"
+                  layout="total, sizes, prev, pager, next, jumper"
+                  :total="100">
+                </el-pagination>
+                <div slot="footer" class="dialog-footer">
+                  <el-button @click="analysisVisible = false">取 消</el-button>
+                  <el-button type="primary" @click="analysisVisible = false">确 定</el-button>
+                </div>
+              </el-dialog>
+              <!--/end分析 弹窗结构 -->
+            </el-col>
+          </el-row>
+        </el-tab-pane>
+      </el-tabs>
+    </div>
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

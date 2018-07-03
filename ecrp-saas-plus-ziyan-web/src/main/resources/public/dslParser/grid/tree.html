@@ -1,0 +1,35 @@
+<th:block th:fragment="render(tree)">
+	<th:block th:if="tree != null">
+		<th:block>
+		<div class="template-left-tree" >
+			<el-scrollbar ref="layoutLeftScroll"
+                            wrap-class="template-layout__scroll">
+					<ns-tree ref="tree" th:url="${tree.url}" 
+						node-key="id" 
+						class="template-tree-organize"
+						:expand-on-click-node = "false"
+						:highlight-current = "true"
+						th:attr="
+							':showCheckbox' = ${tree.showCheckbox},
+							':defaultExpandAll' = ${tree.expandAll}
+						"
+						:load = "load"
+						:filterNodeMethod = "filterNodeMethod"
+						:beforeAddNode = "beforeAddNode"
+						:saveNewData = "saveNewData"
+						:saveEditData = "saveEditData"
+						:beforeDeleteNode = "beforeDeleteNode"
+						:afterDeleteNode = "afterDeleteNode"
+						:setCustomIcon = "setCustomIcon"
+						@node-click = "nodeClick"
+						@check-change = "checkChange"
+						@node-expand = "nodeExpand"
+						@node-collapse = "nodeCollapse"
+						@current-change = "currentChange"
+						>
+					</ns-tree>
+				</el-scrollbar>
+			</div>
+		</th:block>
+	</th:block>
+</th:block>

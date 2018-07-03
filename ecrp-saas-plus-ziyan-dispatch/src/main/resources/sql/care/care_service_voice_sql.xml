@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="care.serviceVoice">
+	     <sql id="queryCount" value="select COUNT(0) as count from evaluate_info where role='buyer' ">
+	         <if value="and time BETWEEN #{startDate} and #{endDate}"></if>
+	         <if value="and result=#{result}"></if>
+	     </sql>
+	</sqlGroup>
+</sqlRoot>

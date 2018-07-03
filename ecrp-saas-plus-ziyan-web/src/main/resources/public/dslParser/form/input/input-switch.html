@@ -1,0 +1,7 @@
+<th:block th:fragment="render(item, preffix)">
+	<th:block th:include="../public/renderEngine3.0/form/inputFactory::formItem(${item}, ~{::inputFragment})">
+		<th:block th:fragment="inputFragment">
+			<el-switch v-showRequired on-text="" off-text="" th:v-model="${preffix+item.get('name')}" th:criteria="${item.get('criteria')}" ></el-switch>
+		</th:block>
+	</th:block>
+</th:block>

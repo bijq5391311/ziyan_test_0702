@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="care.CareEventRecord">
+		
+		<sql id="todayHaveSendMessageCount" 
+				value="select count(1) from care_event_record where (status = 1 or status = 3)">
+			<if value="and target = #{target}"></if>
+			<if value="and send_time >= #{sendTime}"></if>
+			<if value="and mark=#{mark}"></if>
+        </sql>
+	</sqlGroup>
+</sqlRoot>

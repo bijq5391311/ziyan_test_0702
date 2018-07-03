@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="affair.affairLog">
+		<sql id="loadAffairLogByEvaluateId"
+			value="select   update_time as updateTime ,operator ,content,extra,is_push as isPush  from kd_affair_handle_log   where affair_list_id =
+   (select id  FROM kd_affair_list where target = #{target} and type_large = #{typeTarge} and affair_no = #{affairNo})"></sql>
+	</sqlGroup>
+</sqlRoot>

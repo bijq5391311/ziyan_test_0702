@@ -1,0 +1,1 @@
+@charset "UTF-8";.el-back-top{position:fixed;z-index:200;cursor:pointer;display:none}.el-back-top i{color:#fff;font-size:24px;padding:8px 12px}.el-back-top__show{display:block}.el-back-top__inner{background-color:rgba(0,0,0,.6);border-radius:2px;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:all .2s ease-in-out}

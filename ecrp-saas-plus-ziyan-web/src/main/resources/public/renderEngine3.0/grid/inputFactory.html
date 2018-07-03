@@ -1,0 +1,119 @@
+<!--/* 
+	@param input 对象
+	@param nestedFragment Fragment对象
+ */-->
+<th:block th:fragment="formItem(input, nestedFragment)">
+	<th:block th:with="
+		label = ${input.get('text') + '：'},
+		class = ${#bools.isTrue(input.get('inline')) ? 'el-inline-block' : null},
+		name = ${input.get('name')}
+	">
+		<el-form-item th:label="${label}" th:class = "${class}">
+			<el-form-grid size="xmd">
+				<el-form-item th:prop = "${name}" >
+					<th:block th:insert="${nestedFragment}"></th:block> <!--/* 被嵌入的模版 */-->
+				</el-form-item>
+			</el-form-grid>
+		</el-form-item>
+	</th:block>
+</th:block>
+
+<th:block th:fragment="renderInputTemplate(dslJSON, context)">
+	<th:block th:with="
+		regions = ${dslJSON.getJSONArray('regions')}
+	">
+		<th:block th:each="region,stat : ${regions}">
+			<th:block th:each="input, stat : ${region.getJSONArray('inputs')}">
+				<th:block th:insert="../public/renderEngine3.0/grid/inputFactory::createInput(${input})"></th:block>
+			</th:block>
+		</th:block>
+	</th:block>
+</th:block>
+
+<th:block th:fragment="createInput(input)">
+	<th:block th:with="
+		type = ${input.get('type')}
+	">
+		<th:block th:switch="${type}">
+			<!--/* 文本标签 */-->
+			<th:block th:case="'label'"> 
+				<th:block th:insert="../public/renderEngine3.0/grid/input/input-label::render(${input})"></th:block>
+			</th:block>
+		
+			<!--/* 单行文本 */-->
+			<th:block th:case="'text'"> 
+				<th:block th:insert="../public/renderEngine3.0/grid/input/input-text::render(${input})"></th:block>
+			</th:block>
+			
+			<!--/* 多行文本 */-->
+			<th:block th:case="'textarea'"> 
+				<th:block th:insert="../public/renderEngine3.0/grid/input/input-textarea::render(${input})"></th:block>
+			</th:block>
+			
+			<!--/* 数字 */-->
+			<th:block th:case="'number'"> 
+				<th:block th:insert="../public/renderEngine3.0/grid/input/input-number::render(${input})"></th:block>
+			</th:block>
+			
+			<!--/* 单选框 */-->
+			<th:block th:case="'radio'"> 
+				<th:block th:insert="../public/renderEngine3.0/grid/input/input-radio::render(${input})"></th:block>
+			</th:block>
+			
+			<!--/* 复选框 */-->
+			<th:block th:case="'checkbox'"> 
+				<th:block th:insert="../public/renderEngine3.0/grid/input/input-checkbox::render(${input})"></th:block>
+			</th:block>
+			
+	      <!--/* 下拉树 */-->
+	      <th:block th:case="'droptree'"> 
+	        <th:block th:insert="../public/renderEngine3.0/grid/input/input-tree::render(${input})"></th:block>
+	      </th:block>
+			
+			<!--/* 开关按钮 */-->
+			<th:block th:case="'switch'"> 
+				<th:block th:insert="../public/renderEngine3.0/grid/input/input-switch::render(${input})"></th:block>
+			</th:block>
+			
+			<!--/* 下拉列表 */-->
+			<th:block th:case="'droplist'"> 
+				<th:block th:insert="../public/renderEngine3.0/grid/input/input-droplist::render(${input})"></th:block>
+			</th:block>
+			
+			<!--/* 文件上传 */-->
+			<th:block th:case="'file'"> 
+				<th:block th:insert="../public/renderEngine3.0/grid/input/input-file::render(${input})"></th:block>
+			</th:block>
+			
+			<!--/* 隐藏 */-->
+			<th:block th:case="'hidden'"> 
+				<th:block th:insert="../public/renderEngine3.0/grid/input/input-hidden::render(${input})"></th:block>
+			</th:block>
+			
+			<!--/* 密码 */-->
+			<th:block th:case="'password'"> 
+				<th:block th:insert="../public/renderEngine3.0/grid/input/input-password::render(${input})"></th:block>
+			</th:block>
+			
+			<!--/* 多行文本 */-->
+			<th:block th:case="'textarea'"> 
+				<th:block th:insert="../public/renderEngine3.0/grid/input/input-textarea::render(${input})"></th:block>
+			</th:block>
+			
+			<!--/* 日期 */-->
+			<th:block th:case="'date'"> 
+				<th:block th:insert="../public/renderEngine3.0/grid/input/input-datetime::render(${input})"></th:block>
+			</th:block>
+			
+			<!--/* 日期时间 */-->
+			<th:block th:case="'datetime'"> 
+				<th:block th:insert="../public/renderEngine3.0/grid/input/input-datetime::render(${input})"></th:block>
+			</th:block>
+			
+			<!--/* 自定义 */-->
+			<th:block th:case="'custom'"> 
+				<th:block th:insert="../public/renderEngine3.0/grid/input/input-custom::render(${input})"></th:block>
+			</th:block>
+		</th:block>
+	</th:block>
+</th:block>

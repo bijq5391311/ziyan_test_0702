@@ -1,0 +1,9 @@
+<th:block th:fragment="render(item)">
+	<th:block th:include="../public/renderEngine3.0/form/inputFactory::formItem(${item}, ~{::inputFragment})">
+		<th:block th:fragment="inputFragment">
+			<el-input v-showRequired type="number" class="text-right"
+				th:v-model.number = "${'model.'+item.get('name')}">
+			</el-input>
+		</th:block>
+	</th:block>
+</th:block>

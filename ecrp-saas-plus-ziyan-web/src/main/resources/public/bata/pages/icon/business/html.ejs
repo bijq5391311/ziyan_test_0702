@@ -1,0 +1,36 @@
+<% include ../../../include/layout/start.ejs %>
+<div id="example">
+  <div class="template-page" v-cloak>
+<!--    <div class="template-page-location">
+      <el-breadcrumb separator=">">
+        <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+        <el-breadcrumb-item>ECRP Business 图标</el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>-->
+
+    <div class="template-page-tab">
+      <el-tabs v-model="activeName" type="card">
+        <el-tab-pane name="first" label="图标">
+          <el-row>
+            <el-col :span="24">
+              <div>
+                <h4>图标使用说明：</h4>
+                <p>图标使用时需要对其添加类名class="bui-iconname",其中“bui-”区间为固定引用，“iconname”则为对应图标的命名。具体类名可查看如下列表</p>
+              </div>
+              <ul class="icon-list">
+                <li v-for="icon in icons" :key="icon.classname">
+                    <span>
+                      <i :class="'bui-' + icon.classname"></i>
+                      {{'bui-' + icon.classname}}
+                      <b>{{icon.name}}</b>
+                    </span>
+                </li>
+              </ul>
+            </el-col>
+          </el-row>
+        </el-tab-pane>
+      </el-tabs>
+    </div>
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

@@ -1,0 +1,24 @@
+<th:block th:fragment="render(form)" th:inline="javascript">
+	(function(){
+		var templates =[#th:block th:insert="../public/renderEngine4.0/form/template::renderRegion(${form.regions}, 'model')"][/th:block];
+		var template = `<el-form ref="form" placement="right" label-width="120px" :model="model" :rules="rules">`;
+		Object.keys(templates).map(region => {
+			template = template + templates[region];
+		})
+		template = template + "</el-form>";
+		return {
+			template: template,
+			data: function() {
+				return {
+					model: [(${form.modelJS})],
+					nameMap: {},
+					rules: {}
+				};
+			}
+		}
+	})();
+</th:block>
+
+<th:block th:fragment="renderRegion(regions, preffix)">
+	<th:block th:insert="../public/renderEngine4.0/form/template::renderRegion(${regions}, ${preffix})"></th:block>
+</th:block>

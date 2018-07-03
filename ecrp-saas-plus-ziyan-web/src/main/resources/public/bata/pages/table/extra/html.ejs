@@ -1,0 +1,429 @@
+<% include ../../../include/layout/start.ejs %>
+<div id="example" v-cloak>
+  <div class="template-page">
+    <div class="template-page-tab">
+      <el-tabs v-model="activeName" type="card">
+        <el-tab-pane label="高级表格筛选组件应用" name="first">
+          <div>
+            <h3>1、默认用法 </h3>
+            <p>（1）列展示通过column-param配置</p>
+            <p>（2）显示搜索工具栏toolbar;工具栏对应插槽放置搜索结构：
+            <p style="text-indent: 2em;">①按钮组：slot="toolbarBtns" -
+              此用法下，不使用按钮组slot，而使用第（3）描述的由toolbar-btns-info配置出按钮组</p>
+            <p style="text-indent: 2em;">②单条件表单：slot="toolbarSingleform"</p>
+            <p style="text-indent: 2em;">③多条件表单：slot="toolbarMultiform"（此项不做配置时，“更多滤选”不显示）</p>
+            <p style="text-indent: 2em;">③滤选结果：slot="toolbarResult"</p>
+            <p>
+              （3）由toolbar-btns-info配置出的搜索工具栏按钮组,且当超出5个时，会应用“更多”显示第4个之后的按钮（自定义slot="toolbarBtns"不默认出现在此结构，需要自行判断按钮组效果）</p>
+            <p>（4）配置pagination</p>
+            <bus-table :data="tableData"
+                       :pagination="paginationParam"
+                       :table-param="tableParam"
+                       :column-param="fields"
+                       :column-btns-param="btnParam"
+                       toolbar
+                       :toolbar-btns-info="toolbarBtnsInfo"
+                       @selection-change="onSelectionChange"
+                       @page-size-change="onPageSizeChange"
+                       @current-page-change="onCurrentPageChange"
+                       @submit-search="submitSearch"
+                       @reset-search="resetSearch"
+                       @recover-search="recoverSearch"
+                       @clean-search="cleanSearch">
+              <!-- 单条件表单 -->
+              <el-form slot="toolbarSingleform" :inline="true">
+                <el-form-item>
+                  <el-input
+                    placeholder="请输入姓名"
+                    icon="search"
+                    v-model="multipleForm.user"
+                    :on-icon-click="filterSubmit">
+                  </el-input>
+                </el-form-item>
+              </el-form>
+              <!-- end/单条件表单 -->
+              <!-- 多条件表单 -->
+              <el-form slot="toolbarMultiform" :model="multipleForm" :inline="true" label-width="80px">
+                <el-form-item label="关键词：">
+                  <el-form-grid size="xmd">
+                    <el-input placeholder="请输入关键词" v-model="multipleForm.user"></el-input>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="交易来源：">
+                  <el-form-grid size="xmd">
+                    <el-select placeholder="请选择交易来源" v-model="multipleForm.source">
+                      <el-option label="区域一" value="shanghai"></el-option>
+                      <el-option label="区域二" value="beijing"></el-option>
+                    </el-select>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="件数：" class="el-inline-block">
+                  <el-form-grid size="xmd">
+                    <el-row>
+                      <el-col :span="11">
+                        <el-input class="text-right"></el-input>
+                      </el-col>
+                      <el-col :span="2" class="text-center">~</el-col>
+                      <el-col :span="11">
+                        <el-input class="text-right"></el-input>
+                      </el-col>
+                    </el-row>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="交易金额：" class="el-inline-block">
+                  <el-form-grid size="xmd">
+                    <el-row>
+                      <el-col :span="11">
+                        <el-input placeholder="" class="text-right" v-model="multipleForm.trade.start"></el-input>
+                      </el-col>
+                      <el-col :span="2" class="text-center">~</el-col>
+                      <el-col :span="11">
+                        <el-input placeholder="" class="text-right" v-model="multipleForm.trade.end"></el-input>
+                      </el-col>
+                    </el-row>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="商品编码：" class="el-inline-block">
+                  <el-form-grid size="xmd">
+                    <el-input placeholder=""></el-input>
+                  </el-form-grid>
+                  </el-form-grid >
+                </el-form-item>
+                <el-form-item label="原始编号：" class="el-inline-block">
+                  <el-form-grid size="xmd">
+                    <el-input placeholder=""></el-input>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="收货人：" class="el-inline-block">
+                  <el-form-grid size="xmd">
+                    <el-input placeholder="" v-model="multipleForm.province"></el-input>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="手机号码：" class="el-inline-block">
+                  <el-form-grid size="xmd">
+                    <el-input placeholder=""></el-input>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="下单时间：" class="el-inline-block">
+                  <el-form-grid size="xmd">
+                    <el-date-picker type="daterange" placeholder="选择日期范围" v-model="multipleForm.date"
+                                    format="yyyy-MM-dd"></el-date-picker>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="付款时间：" class="el-inline-block">
+                  <el-form-grid size="xmd">
+                    <el-date-picker type="daterange" placeholder="选择日期范围" v-model="multipleForm.date"
+                                    format="yyyy-MM-dd"></el-date-picker>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="快递公司：" class="el-inline-block">
+                  <el-form-grid size="xmd">
+                    <el-select placeholder="请选择" v-model="multipleForm.logistics">
+                      <el-option label="区域一" value="shanghai"></el-option>
+                      <el-option label="区域二" value="beijing"></el-option>
+                    </el-select>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="物流状态：" class="el-inline-block">
+                  <el-form-grid size="xmd">
+                    <el-select placeholder="请选择"
+                               v-model="multipleForm.logistics">
+                      <el-option label="区域一" value="shanghai"></el-option>
+                      <el-option label="区域二" value="beijing"></el-option>
+                    </el-select>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="地址：">
+                  <el-form-grid size="xmd">
+                    <el-select placeholder="省/市/区"
+                               v-model="multipleForm.address">
+                      <el-option label="区域一" value="shanghai"></el-option>
+                      <el-option label="区域二" value="beijing"></el-option>
+                    </el-select>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="订单状态：">
+                  <el-form-grid size="xmd">
+                    <el-select placeholder="请选择"
+                               v-model="multipleForm.address">
+                      <el-option label="区域一" value="shanghai"></el-option>
+                      <el-option label="区域二" value="beijing"></el-option>
+                    </el-select>
+                  </el-form-grid>
+                </el-form-item>
+              </el-form>
+              <!-- end/多条件表单 -->
+              <!-- 搜索结果 -->
+              <template slot="toolbarResult">
+                <el-tag v-for="(tag,index) in 10" :key="index" type="primary" :closable="true">tag</el-tag>
+              </template>
+              <!-- end/搜索结果 -->
+            </bus-table>
+
+          </div>
+          <div>
+
+            <h3>2、其他用法 一</h3>
+            <p>（1）自定义配置列标签</p>
+            <p>（2）操作列的方法采用methods，不在数据中配置</p>
+            <p>（3）table-param配置：①表格无border②显示表头</p>
+            <p>（4）搜索工具栏配置：①:toolbar-grid="[8, 16]"</p>
+            <p>（5）配置pagination</p>
+            <bus-table :data="tableData"
+                       toolbar
+                       :pagination="paginationParam2"
+                       :table-param="tableParam2"
+                       :toolbar-grid="[8, 16]"
+                       :column-btns-param="btnParam2"
+                       @column-btns-methods="columnBtnsMethods"
+                       @selection-change="onSelectionChange"
+                       @page-size-change="onPageSizeChange"
+                       @current-page-change="onCurrentPageChange"
+                       @submit-search="submitSearch"
+                       @reset-search="resetSearch"
+                       @clean-search="cleanSearch"
+                       @recover-search="recoverSearch">
+
+              <!-- 按钮组 -->
+              <template slot="toolbarBtns">
+                <el-button type="primary">新增数据</el-button>
+                <el-button type="primary">批量删除</el-button>
+              </template>
+              <!-- end/按钮组 -->
+
+              <!-- 单条件表单 -->
+              <el-form slot="toolbarSingleform" :inline="true">
+                <el-form-item label="状态：">
+                  <el-radio-group v-model="formRadio">
+                    <el-radio label="全部"></el-radio>
+                    <el-radio label="关闭" disabled></el-radio>
+                    <el-radio label="开启"></el-radio>
+                  </el-radio-group>
+                </el-form-item>
+                <el-form-item>
+                  <el-input
+                    placeholder="请输入姓名"
+                    icon="search"
+                    v-model="multipleForm.user"
+                    :on-icon-click="filterSubmit">
+                  </el-input>
+                </el-form-item>
+              </el-form>
+              <!-- end/单条件表单 -->
+
+              <!-- 多条件表单 -->
+              <el-form slot="toolbarMultiform" :model="multipleForm" label-width="80px" inline>
+                <el-form-item label="关键词：">
+                  <el-form-grid size="xmd">
+                    <el-input placeholder="请输入关键词" v-model="multipleForm.user"></el-input>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="交易来源：">
+                  <el-form-grid size="xmd">
+                    <el-select placeholder="请选择交易来源" v-model="multipleForm.source">
+                      <el-option label="区域一" value="shanghai"></el-option>
+                      <el-option label="区域二" value="beijing"></el-option>
+                    </el-select>
+                  </el-form-grid>
+                </el-form-item>
+              </el-form>
+              <!-- end/多条件表单 -->
+              <!-- 搜索结果 -->
+              <template slot="toolbarResult">
+                <el-tag v-for="(tag,index) in 10" :key="index" type="primary" :closable="true">tag</el-tag>
+              </template>
+              <!-- end/搜索结果 -->
+              <!-- 自定义列结构 -->
+              <el-table-column
+                prop="date"
+                label="日期100"
+                align="center"
+                width="100">
+              </el-table-column>
+              <el-table-column
+                prop="date"
+                label="日期100"
+                align="center"
+                width="100">
+              </el-table-column>
+              <el-table-column
+                prop="date"
+                align="center"
+                label="日期时间160"
+                width="160">
+                <template scope="scope">
+                  {{scope.row.date}} 12:32:53
+                </template>
+              </el-table-column>
+              <el-table-column
+                prop="date"
+                label="时间80"
+                align="center">
+                <template scope="scope">12:32:53</template>
+                label="日期"
+                width="100">
+              </el-table-column>
+              <div slot="append" style="width:400px; text-align:center;">slot="append" 插入至表格最后一行之后的内容</div>
+            </bus-table>
+          </div>
+          <div>
+
+            <h3>3、其他用法 二</h3>
+            <p>（1）列展示通过配置列标签</p>
+            <p>（2）操作列的方法采用methods，不在数据中配置</p>
+            <p>（3）table-param配置：①表格无border②不显示表头</p>
+            <p>（4）搜索工具栏：①不配置多条件筛选②单条件筛选添加左侧单选按钮组③配置左右栅格数量toolbar-grid</p>
+            <p>（5）不配置页码pagination</p>
+            <bus-table :data="tableData"
+                       toolbar
+                       :toolbar-grid="[9, 15]"
+                       :table-param="tableParam3"
+                       :column-btns-param="btnParam3"
+                       @column-btns-methods="columnBtnsMethods"
+                       @selection-change="onSelectionChange"
+                       @page-size-change="onPageSizeChange"
+                       @current-page-change="onCurrentPageChange">
+
+              <!-- 按钮组 -->
+              <template slot="toolbarBtns">
+                <el-button type="primary">新增数据</el-button>
+                <el-button type="primary">批量删除</el-button>
+              </template>
+              <!-- end/按钮组 -->
+
+              <!-- 单条件表单 -->
+              <el-form slot="toolbarSingleform" :inline="true">
+                <el-form-item label="状态：">
+                  <el-radio-group v-model="formRadio">
+                    <el-radio label="全部"></el-radio>
+                    <el-radio label="关闭" disabled></el-radio>
+                    <el-radio label="开启"></el-radio>
+                  </el-radio-group>
+                </el-form-item>
+                <el-form-item>
+                  <el-input
+                    placeholder="请输入姓名"
+                    icon="search"
+                    v-model="multipleForm.user"
+                    :on-icon-click="filterSubmit">
+                  </el-input>
+                </el-form-item>
+              </el-form>
+              <!-- end/单条件表单 -->
+              <!-- 自定义列结构 -->
+              <el-table-column
+                prop="date"
+                label="日期100"
+                align="center"
+                width="100">
+              </el-table-column>
+              <el-table-column
+                prop="date"
+                label="日期100"
+                align="center"
+                width="100">
+              </el-table-column>
+              <el-table-column
+                prop="date"
+                align="center"
+                label="日期时间160"
+                width="160">
+                <template scope="scope">
+                  {{scope.row.date}} 12:32:53
+                </template>
+              </el-table-column>
+              <el-table-column
+                prop="date"
+                label="时间80"
+                align="center">
+                <template scope="scope">12:32:53</template>
+                label="日期"
+                width="100">
+              </el-table-column>
+            </bus-table>
+          </div>
+          <div>
+
+            <h3>3、其他用法 三</h3>
+            <p>（1）搜索工具栏三等分</p>
+            <p>（2）操作列的方法采用methods，不在数据中配置</p>
+            <p>（3）table-param配置：①表格无border②不显示表头</p>
+            <p>（4）搜索工具栏：①不配置多条件筛选②单条件筛选添加左侧单选按钮组③配置左右栅格数量toolbar-grid</p>
+            <p>（5）不配置页码pagination</p>
+            <bus-table :data="tableData"
+                       toolbar
+                       :toolbar-trisect="true"
+                       :table-param="tableParam3"
+                       :column-btns-param="btnParam"
+                       @column-btns-methods="columnBtnsMethods"
+                       @selection-change="onSelectionChange"
+                       @page-size-change="onPageSizeChange"
+                       @current-page-change="onCurrentPageChange">
+
+              <!-- 按钮组 -->
+              <template slot="toolbarBtns">
+                <el-button type="primary">新增数据</el-button>
+                <el-button type="primary">批量删除</el-button>
+              </template>
+              <!-- end/按钮组 -->
+
+              <!-- 工具栏中间结构 -->
+              <div slot="toolbarMiddle" class="tmp-analysistab-select text-center">
+                <el-radio-group v-model="analysiesSelect">
+                  <el-radio-button label="表格"><i class="bui-biaoge"></i>表格</el-radio-button>
+                  <el-radio-button label="曲线图"><i class="bui-zhuzhuangtu"></i>曲线图</el-radio-button>
+                  <el-radio-button label="柱状图"><i class="bui-bingzhuangtu"></i>柱状图</el-radio-button>
+                </el-radio-group>
+              </div>
+              <!-- end/工具栏中间结构 -->
+              <!-- 单条件表单 -->
+              <el-form slot="toolbarSingleform" :inline="true">
+                <el-form-item>
+                  <el-input
+                    placeholder="请输入姓名"
+                    icon="search"
+                    v-model="multipleForm.user"
+                    :on-icon-click="filterSubmit">
+                  </el-input>
+                </el-form-item>
+              </el-form>
+              <!-- end/单条件表单 -->
+              <!-- 自定义列结构 -->
+              <el-table-column
+                prop="date"
+                label="日期100"
+                align="center"
+                width="100">
+              </el-table-column>
+              <el-table-column
+                prop="date"
+                label="日期100"
+                align="center"
+                width="100">
+              </el-table-column>
+              <el-table-column
+                prop="date"
+                align="center"
+                label="日期时间160"
+                width="160">
+                <template scope="scope">
+                  {{scope.row.date}} 12:32:53
+                </template>
+              </el-table-column>
+              <el-table-column
+                prop="date"
+                label="时间80"
+                align="center">
+                <template scope="scope">12:32:53</template>
+                label="日期"
+                width="100">
+              </el-table-column>
+            </bus-table>
+          </div>
+
+        </el-tab-pane>
+      </el-tabs>
+    </div>
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="database.KdItem">
+		<sql id="queryItemByGoodId" value="select s.name from sys_s
+			inner join kd_item k on k.shop_code=s.code
+			where k.sys_goods_id= #{sys_goods_id}">
+		</sql>
+		<sql id="queryItemDetail" value="select s.*,i.* from kd_item i 
+			inner join kd_sku s on i.sys_item_id = s.sys_item_id 
+			where i.sys_item_id=#{sys_item_id}">
+		</sql>
+	</sqlGroup>
+</sqlRoot>

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="care.CareUrge">
+		<!-- 分页查询 -->
+		<sql id="queryList" value="select u1.id id1,u1.guid,u1.create_time,u1.update_time,u1.`status` status1,u1.urge_title,u1.run_time,u1.trade_start_time,u1.trade_end_time,u1.type,
+		                         u2.id id2,u2.state state2, u2.step step2,u2.`status` status2,su.user_name as userName,d.name as deptName, subd.subdivision_name,
+								 case when u1.status=1 then 0 when u1.status=0 or u1.status=2 then 1 else 1 end as open1,
+								 case when u2.status=1 then 0 when u2.status=0 or u2.status=2 then 1 else 1 end as open2
+		 						 from care_urge u1
+		 						 left join care_urge u2 on (u1.guid = u2.guid and u1.id != u2.id)
+		 						 left join sys_user su on u1.user_id=su.id 
+		 			             left join sys_department d on u1.department_code = d.code
+		 			             left join subdivision subd on subd.id= u1.subdivision_id
+		 						 where u1.step!=2 ">
+		 	<bind name="urgeTitle" value="#urgeTitle == null ? null : ('%'+ #urgeTitle +'%')"></bind>
+		 	<if test="true" value="and (u1.department_code like ${'deptCode%'}  or u1.is_share=1) "></if>
+		 	<if  test="#urgeTitle != null and #urgeTitle != '%%'" value="and u1.urge_title like #{urgeTitle}"></if>
+			<if value="order by u1.update_time desc"></if>
+		</sql>
+
+		<!--校验催付主题是否存在-->
+		<sql id="isUrgeTitleExist" value="select count(id) count from care_urge u where state=1 and step=1 ">
+			<if value="and group_id=#{groupId} "></if>
+			<if value="and urge_title=#{urgeTitle} "></if>
+			<if value="and id!=#{id} "></if>
+		</sql>
+		
+		 <!--催付历史列表  -->
+        <sql id="queryUrgeHistoryList" 
+            value="select ur.id as urgeId,ur.create_time as urgeTime,ur.sys_trade_id as tradeId, t.sys_customer_id as sysCustomerId,
+            ur.send_result as remark, t.pay_time as payTime,ur.is_send_success as sendStatus,t.created as orderTime,
+            t.receiver_name as receiverName,t.receiver_mobile as receiverMobile,t.out_nick as outNick,su.user_name as urgeUserName
+             from care_urge_record ur 
+                inner join kd_trade t on ur.sys_trade_id=t.sys_trade_id 
+                left join care_urge u on u.id = ur.urge_id
+                left join sys_user su on su.id = ur.user_id
+            where 1=1">
+            <bind name="outNick" value="#outNick == null ? null : ('%'+#outNick+'%')"></bind>
+            <bind name="urgeTitle" value="#urgeTitle == null ? null : ('%'+urgeTitle+'%')"></bind>
+            <bind name="tradeId" value="#tradeId == null ? null : ('%'+tradeId+'%')"></bind>
+            <if test="#tradeId != null and #tradeId != '%%'" value="and ur.sys_trade_id like #{tradeId}"></if>
+            <if value="and t.trade_status = #{tradeStatus}"></if>
+            <if value="and ur.is_send_success = #{sendStatus}"></if>
+            <if value="and t.shop_code in (${'shopCodes'})"></if>
+            <if value="and ur.create_time &gt;= #{startTime}"></if>
+            <if value="and ur.create_time &lt;= #{endTime}"></if>
+             <if  test="#outNick != null and #outNick != '%%'" value="and t.out_nick like #{outNick}"></if>
+             <if value="and ur.urge_type=#{urgeType}"></if>
+             <if test="#urgeTitle != null and #urgeTitle != '%%'"  value="and u.urge_title like #{urgeTitle}"></if>
+             <if value="order by ur.create_time desc"></if>
+        </sql>
+        <!--更新超时的实时催付  -->
+        <sql id="updateOverTimeUrge" value="update care_urge set status=0,urge_result='实时催付超时' 
+                     where trade_start_time &gt; '2010-10-10 00:00:00'
+                 and trade_end_time &lt; #{date} 
+                 and status=1 and type=1 ">
+       </sql>
+       
+       <sql id="queryUrgeByShopCode" value="select u.*
+                from care_urge u 
+                    join care_auto_shop s on u.id = s.target_id
+                where 1=1 and u.status = 1 and u.state = 1 and s.state = 1 and s.type=#{type}">
+            <if value="and s.shop_code=#{shopCode}"></if>
+            <if value="and u.step = #{step}"></if>
+            <if test="#step == 2" value="and u.type =1"></if>
+            <if value="order by last_scan_notify_time "></if>
+       </sql>
+       
+       <sql id="queryDetailsById" value="select u.*,s.subdivision_name as subdivisionName,
+                 y.sp_name as spName,g.grade_name as gradeName,ss.name as shopName from care_urge u
+                 left join subdivision s on u.subdivision_id = s.id
+                 left join grade_rule_detail g on g.id = u.grade_rule_detail_id
+                 left join care_auto_shop cs on u.id = cs.target_id 
+                 left join sys_shop ss on ss.code = cs.shop_code
+                 left join kd_ys_config_info y on u.sp_id = y.id where 1=1" >
+            <if value="and u.id=#{id}"></if>
+       </sql>
+       
+       <!-- 查询手动催付列表 -->
+       <sql id="queryManualUrgeList" 
+       value="select * from kd_trade t inner join kd_trade_ext te
+        on te.sys_trade_id = t.sys_trade_id
+        where 1=1 and t.trade_status='WAIT_BUYER_PAY'">
+            <bind name="outNick" value="@com.nascent.plugins.taobao.StringUtils@isEmpty(#outNick) ? null : '%'+#outNick+'%'"></bind>
+            <bind name="phone" value="@com.nascent.plugins.taobao.StringUtils@isEmpty(#phone) ?  null : '%'+#phone+'%'"></bind>
+            <bind name="tradeId" value="@com.nascent.plugins.taobao.StringUtils@isEmpty(#tradeId) ?  null : '%'+#tradeId+'%'"></bind>
+            <!-- <if value="and t.shop_code in (${'shopCodes'})"></if> -->
+            <if value="and t.is_hidden = #{isHidden}"></if>
+            <if value="and t.payment &gt;= #{minPayment}"></if>
+            <if value="and t.payment &lt;= #{maxPayment}"></if>
+            <if value="and t.sys_trade_id like #{tradeId}"></if>
+            <if value="and t.out_nick like #{outNick}"></if>
+            <if value="and t.receiver_phone like #{phone}"></if>
+            <if value="and t.remark_sign = #{remarkSign}"></if>
+            <if value="and t.shop_code in (${'shopCode'})"></if>
+            <if value="and t.created &gt;= #{startTime}"></if>
+            <if value="and t.created &lt;= #{endTime}"></if>
+            <if test="#urgeTimes >= 1" value="and te.urge_times &gt;= #{urgeTimes}"></if>
+            <if test="#urgeTimes == 0" value="and te.urge_times = #{urgeTimes}"></if>
+            <if value="and t.state = #{state}"></if>
+            <if value="order by t.created asc"></if>
+       </sql>
+       
+       <sql id="countUrgeData" value="select count(t.sys_trade_id) as tradeCount,count(distinct t.`sys_customer_id`) as customerCount, sum(t.payment) as paymentSum from care_urge u 
+                    inner join care_urge_record ur on  u.id = ur.urge_id
+                    inner join  kd_trade t on ur.sys_trade_id = t.sys_trade_id
+                    where 1=1 and u.id=#{urgeId}">
+              <if value="and t.trade_status !=#{waitPay}"></if>
+              <if value="and t.trade_status !=#{tradeClose}"></if>
+       </sql>
+       <!--  获取某个时间段得付款订单数-->
+       <sql id="countPayIntervaltime" 
+       value="select round(timestampdiff(second,t.created,t.pay_time)) as intervalTime,count(*) as tradeCount
+           from kd_trade t 
+           where t.pay_time is not null and t.sys_trade_id not in (select tc.sys_trade_id from `care_urge_record` tc
+           where tc.is_send_success=0) and t.created &lt;= t.`pay_time`">
+		   <if value="and shop_code in (${'shopCodes'})"></if>
+		   <if value="and t.created &gt;= #{startTime}"></if>
+		   <if value="and t.created &lt;= #{endTime}"></if>
+	       <if value="group by intervaltime order by intervaltime"></if>
+       </sql>
+       
+        <sql id="countAvgPayTime" value="select  cast(ifnull(avg(timestampdiff(second,t.created,t.pay_time)/60),0) as unsigned) avgTime
+					from kd_trade t where t.pay_time is not null  and t.sys_trade_id not in
+				   (select tc.sys_trade_id from `care_urge_record` tc  where tc.is_send_success=0)
+					and t.created &lt;= t.`pay_time`" >
+			<if value="and shop_code in (${'shopCodes'})"></if>
+           <if value="and t.created &gt;= #{startTime}"></if>
+           <if value="and t.created &lt;= #{endTime}"></if>
+		</sql>
+		
+		<sql id="queryExpediteCount" count="select Count(0)" value="select  date_format(c.create_time,'%Y-%m-%d') as time,ifnull((select sum(payment) from kd_trade where kd_trade.out_trade_id=k.out_trade_id),0) as payment,
+				ifnull((select sum(payment) from kd_trade where kd_trade.out_trade_id=k.out_trade_id and kd_trade.trade_status not in('TRADE_NO_CREATE_PAY','WAIT_BUYER_PAY')),0) as repayment,
+				(ifnull((select sum(payment) from kd_trade where kd_trade.out_trade_id=k.out_trade_id and kd_trade.trade_status not in('TRADE_NO_CREATE_PAY','WAIT_BUYER_PAY')),0)
+				/ifnull((select sum(payment) from kd_trade where kd_trade.out_trade_id=k.out_trade_id),1)) as ratioPayment,
+				(select Count(0) from kd_trade where kd_trade.out_trade_id=k.out_trade_id) as payNum,
+				(select Count(0) from kd_trade where kd_trade.out_trade_id=k.out_trade_id and kd_trade.trade_status not in('TRADE_NO_CREATE_PAY','WAIT_BUYER_PAY')) as repayNum,
+				(ifnull((select Count(0) from kd_trade where kd_trade.out_trade_id=k.out_trade_id and kd_trade.trade_status not in('TRADE_NO_CREATE_PAY','WAIT_BUYER_PAY')),0)
+				/ifnull((select Count(0) from kd_trade where kd_trade.out_trade_id=k.out_trade_id),1)) as ratioNum,
+				(select Count(DISTINCT sys_customer_id) from kd_trade where kd_trade.out_trade_id=k.out_trade_id) as num,
+				(select Count(DISTINCT sys_customer_id) from kd_trade where kd_trade.out_trade_id=k.out_trade_id and kd_trade.trade_status not in('TRADE_NO_CREATE_PAY','WAIT_BUYER_PAY')) as renum
+				 from kd_trade k,care_urge_record c where k.out_trade_id = c.out_trade_id">
+			 <if value=" and c.shop_code=#{shopCode}"></if>
+			 <if value=" and urge_type=#{urgeType}"></if>
+             <if value=" group by time"></if>
+             <if value=" HAVING time BETWEEN #{startTime} AND #{endTime}"></if>
+         </sql>
+
+        <sql id="countUrgeByAuthorize" value="select count(1) from care_urge where 1=1">
+            <if test="true" value="and (department_code like ${'deptCode%'}  or is_share=1)"></if>
+            <if value="and state =#{state}"></if>
+            <if value="and step =#{step}"></if>
+        </sql>
+	</sqlGroup>
+</sqlRoot>

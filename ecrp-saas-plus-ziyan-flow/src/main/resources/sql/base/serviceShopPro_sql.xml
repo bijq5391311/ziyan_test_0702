@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="base.KdServiceShopPro">
+		<sql id="getInfobyServiceName" value="select  k.* ,  max(k.last_scan_time) as lastScanTime  from   kd_service_shop_pro  k  where  state = 1  and  status = 1 ">
+		    <if value=" and service_name =  #{service_name} "></if>
+		     <if value=" and brand_id =  #{brand_id} "></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>

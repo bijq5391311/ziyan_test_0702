@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="database.KdDataDictionary">
+		<sql id="batchDelete" value="delete from kd_data_dictionary where id = ?">
+		</sql>
+	</sqlGroup>
+</sqlRoot>

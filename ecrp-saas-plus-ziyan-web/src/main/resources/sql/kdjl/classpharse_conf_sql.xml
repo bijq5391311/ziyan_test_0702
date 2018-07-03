@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="kdjl.Classpharse">
+	
+		<sql id="batchdelete" value="" >
+	    	<if value="delete from kdjl_classquickphrase where id = ?"></if>
+	    </sql>
+	    <sql id="queryPharsenName" value="select count(1) from kdjl_classquickphrasetype where typeName=#{typeName} and state=1 and mark=#{mark} and parentid=#{parentid}">
+	    </sql>
+	   <sql id="queryPharse" value="select count(1) from kdjl_classquickphrase where state = 1 and  replyContent = #{replyContent} and typeid = #{typeid} and mark = #{mark}"></sql>
+	   <sql id="queryTeamClasspharseTree" value="select id as id,parentID as parentId,`typeName` as label,'false' as checked,'true' as showEdit,
+		     if(parentId=0,'false','true') as showDelete,if(level=0,'false','true') as showAdd
+		       from  kdjl_classquickphrasetype where state=1 and mark=0">
+		</sql>
+		<sql id="queryPersionClasspharseTree" value="select id as id,parentID as parentId,`typeName` as label,'false' as checked,'true' as showEdit,
+		     if(parentId=0,'false','true') as showDelete,if(level=0,'false','true') as showAdd
+		       from  kdjl_classquickphrasetype where state=1 and mark=1">
+		</sql>
+		
+		 <sql id="queryTeamClasspharseTree4droplist" value="select id as id,parentID as parentId,`typeName` as label,'false' as checked,'true' as showEdit,
+		     if(parentId=0,'false','true') as showDelete,if(level=0,'false','true') as showAdd,if(parentId=0,true,false) as disabled 
+		       from  kdjl_classquickphrasetype where state=1 and mark=0">
+		</sql>
+		<sql id="queryPersionClasspharseTree4droplist" value="select id as id,parentID as parentId,`typeName` as label,'false' as checked,'true' as showEdit,
+		     if(parentId=0,'false','true') as showDelete,if(level=0,'false','true') as showAdd,if(parentId=0,true,false) as disabled 
+		       from  kdjl_classquickphrasetype where state=1 and mark=1">
+		</sql>
+		
+		<sql id="queryparseandtype" value="select kcp.*,kcqt.typeName typename 
+			from kdjl_classquickphrase kcp left
+			 join kdjl_classquickphrasetype kcqt on kcp.typeid=kcqt.id	
+			 where kcp.state=1
+			 
+			">
+			<bind name="replyContent" value="#replyContent == null ? null : ('%'+#replyContent+'%')"></bind>
+			<if value="and kcp.replyContent like #{replyContent}"></if>
+			<if value="and kcp.typeid in (${typeid})"></if>
+			<if value="and kcp.mark=#{mark}"></if>
+			<if test="#shop_ids != ''" value = "and kcp.shop_id in (${shop_ids})"></if>
+			<if test="#shop_ids == ''" value = "and kcp.shop_id =#{shop_ids}"></if>
+			
+			<if value="order by kcp.create_time desc"></if>
+		</sql>
+		<sql id="batchdeteleType" value="">
+		<if value="delete from kdjl_classquickphrasetype where id = ?"></if>
+		</sql>
+		
+	<sql id="queryShopForPharse" value="select sse.id ,sse.access_token AS accessToken , sse.app_key AS appKey,sse.plat_from_type AS platFromType,sse.uid AS uid,
+		      sse.name,sse.app_secret AS appSecret from sys_shop_ext sse left join  sys_position_shop sps on 
+		sse.code = sps.shop_code left join sys_user_department sud on sud.position_code = sps.position_code
+		left join sys_user su on su.id = sud.user_id where sse.state=1 and su.id=#{id} and su.group_id=#{group_id} and sse.plat_from_type =1"></sql>
+		
+	<sql id="deletePharseByTypeid" value="">
+		<if value="delete from kdjl_classquickphrase where typeid = #{typeid}"></if>
+	</sql>	
+	<sql id="updataTypeByID" value="update kdjl_classquickphrase set typeid = #{typeid} where 1=1 ">
+		<if value="and id in (${ids})"></if>
+	</sql>	
+	<sql id="KdjlClassquickphrase" value="select * from  kdjl_classquickphrase where 1=1 ">
+		<if value="and id in (${ids})"></if>
+	</sql>	
+	</sqlGroup>
+	
+</sqlRoot>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="touch.KdYsSmsLog">
+ 		<sql id="querySmsYs" value="SELECT DATE_FORMAT(t.send_time,'%Y-%m-%d') date,SUM(t.number) SourceCount,
+				sum(case when t.type='22' then number end) as a,
+				sum(case when t.type='20' then number end) as b,
+				sum(case when t.type='5' then number end) as c,
+				sum(case when t.type='6' then number end) as d,
+ 				sum(case when t.type='11' then number end) as e,
+				sum(case when t.type='901' then number end) as f,
+				sum(case when t.type='902' then number end) as x,
+				sum(case when t.type='17' then number end) as g,
+ 				sum(case when t.type='19' then number end) as h,
+				sum(case when t.type='15' then number end) as i,
+				sum(case when t.type='906' then number end) as j,
+ 				sum(case when t.type='8' then number end) as k
+				from kd_ys_sms_count t,kd_ys_config_info y WHERE t.sp_id=y.id and t.state = 1 ">
+ 			<if test="#sp_id != null" value="and t.sp_id = #{sp_id}"></if>
+ 			<if test="#starTime != null" value="and t.send_time between #{starTime} and #{endTime}"></if> 
+ 			<if value="  group by DATE_FORMAT(t.send_time,'%Y-%m-%d')   order by DATE_FORMAT(t.send_time,'%Y-%m-%d') ASC "></if>
+ 			<if value="limit #{start}, #{length}"></if> 
+ 		</sql>
+ 		<sql id="querySmsYsCount" value="select count(1) 
+				from kd_ys_sms_count t,kd_ys_config_info y WHERE t.sp_id=y.id and t.state = 1 ">
+ 			<if test="#sp_id != null" value="and t.sp_id = #{sp_id}"></if>
+ 			<if test="#starTime != null" value="and t.send_time between #{starTime} and #{endTime}"></if> 
+ 			<if   value=" order by t.create_time desc"></if> 
+ 			
+ 		
+ 		</sql>
+ 		
+	</sqlGroup>
+</sqlRoot>

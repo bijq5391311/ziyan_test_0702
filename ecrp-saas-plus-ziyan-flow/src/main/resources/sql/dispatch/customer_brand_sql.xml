@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="dispatch.customerBrand">
+		<sql id="updateCustomerBrand" value="update kd_customer_brand set member_grade = #{memberGrade}, update_time = #{updateTime}   ">
+		   <if value="  where  sys_customer_id =   #{sysCustomerId} "></if>
+		</sql>
+		<sql id="queryCustomerBrand" value=" select DISTINCT(sys_customer_id), trade_from as tradeFrom ,sys_trade_id as sysTradeId ,out_trade_id as outTradeId,shop_code as shopCode ,out_nick as outNick from kd_trade where  end_time is not null and  state = 1">
+			<if value="  and end_time    &gt;=  #{startTime} "></if>
+			<if value="  and end_time  &lt;=    #{endTime} "></if>
+		    <if value="  and brand_id =    #{brandId} "></if>
+		</sql>
+		<sql id="loadCustomerBrandbyCusId" value="select   is_right_black as isRightblack,is_touch_black as isTouchBlack, member_grade as memberGrade , group_id as groupId, brand_id as brandId  from   kd_customer_brand where  state = 1  ">
+		    <if value="  and  sys_customer_id =   #{sysCustomerId} "></if>
+		</sql>
+		<sql id="queryMemberGrade" value="select member_grade as memberGrade from kd_customer_brand where 1=1">
+		    <if value="and sys_customer_id  =  #{sysCustomerId}"></if>
+		    <if value="and brand_id = #{brandId}"></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>

@@ -1,0 +1,177 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:cache="http://www.springframework.org/schema/cache"
+	xsi:schemaLocation="http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+
+    http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache-3.2.xsd
+
+    http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd">
+	<import resource="config.xml" />
+
+	<!-- 配置文件依赖 -->
+	<context:property-placeholder file-encoding="utf-8" location="classpath:bas.properties" />
+
+	<!-- 自动扫描web包 ,将带有注解的类 纳入spring容器 -->
+	<context:component-scan base-package="com.nascent"></context:component-scan>
+	<!-- <resources mapping="/images/**" location="/images/" /> -->
+	<bean id="sqlAuth" class="com.nascent.plugins.sqlauth.XmlSqlAuthHandler"></bean>
+
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<property name="driverClass" value="${jdbc.driver}" />
+		<property name="jdbcUrl" value="${jdbc.url}" />
+		<property name="user" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<property name="initialPoolSize" value="1" />
+		<property name="testConnectionOnCheckin" value="false"/>
+    	<property name="testConnectionOnCheckout" value="true"/>
+    	<property name="preferredTestQuery" value="SELECT 1"/>
+	</bean>
+
+	<bean id="RepositoryService"
+		class="com.nascent.plugins.spring.support.RepositoryServiceImpl">
+		<constructor-arg>
+			<map>
+				<entry key="" value-ref="dataSource"></entry>
+			</map>
+		</constructor-arg>
+	</bean>
+
+	<bean id="sqlContext" class="com.nascent.plugins.spring.SqlContext">
+		<constructor-arg name="scanner">
+			<bean id="pluginLoader" class="com.nascent.plugins.spring.support.ClassScanner">
+				<property name="includeJars">
+					<list>
+						<value>*ecrp-saas*</value>
+					</list>
+				</property>
+				<property name="classPatterns">
+					<list>
+						<value>com/nascent/ecrpsaas/*</value>
+						<value>com\nascent\ecrpsaas\*</value>
+						<value>com.nascent.ecrpsaas*</value>
+					</list>
+				</property>
+				<property name="parsers">
+					<list>
+						<bean class="com.nascent.plugins.spring.support.TableBindParser" />
+					</list>
+				</property>
+			</bean>
+		</constructor-arg>
+		<constructor-arg name="lazyProxy" value="true" />
+	</bean>
+
+	<bean id="txManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+
+	<cache:annotation-driven />
+	<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager"
+		p:cache-manager-ref="ehcacheManager" />
+	<bean id="ehcacheManager"
+		class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"
+		p:config-location="classpath:cache.xml" p:shared="true" />
+		
+		
+	<!-- activeMq开始 -->
+	<!-- 真正可以产生Connection的ConnectionFactory，由对应的 JMS服务厂商提供 -->
+	<bean id="targetConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+		<property name="brokerURL" value="${brokerURL}" />
+		<property name="userName" value="${userName}"></property>
+		<property name="password" value="${password}"></property>
+	</bean>
+	<!-- activeMq的连接池 -->
+	<bean id="pooledConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory">
+		<property name="connectionFactory" ref="targetConnectionFactory" />
+		<!-- 连接池的最大连接数 -->
+		<property name="maxConnections" value="${maxConnections}" />
+	</bean>
+	<!-- spring 创建activeMq工厂 -->
+	<bean id="connectionFactory"
+		class="org.springframework.jms.connection.SingleConnectionFactory">
+		<property name="targetConnectionFactory" ref="pooledConnectionFactory" />
+	</bean>
+	<!-- 创建生产这者 -->
+	<!-- Spring提供的JMS工具类，它可以进行消息发送、接收等 -->
+	<bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<!-- 这个connectionFactory对应的是我们定义的Spring提供的那个ConnectionFactory对象 -->
+		<property name="connectionFactory" ref="connectionFactory" />
+	</bean>
+	<!--这个是外卖队列监听目的地，点对点的 -->
+	<bean id="takeAwayMessage" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg>
+			<value>${takeAwayConsumerQueue}</value>
+		</constructor-arg>
+	</bean>
+	<!-- 中台消息队列监听目的地-->
+	<bean id="takeCenterMessage" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg>
+			<value>${takeCenterConsumerQueue}</value>
+		</constructor-arg>
+	</bean>
+	<!-- 中台退货消息队列监听目的地 -->
+	<bean id="takeCenterRtMessage" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg>
+			<value>${takeCenterRtConsumerQueue}</value>
+		</constructor-arg>
+	</bean>
+	<!-- 生产者信息队列地址 -->
+	<bean id="takeAwayProduceQueue" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg>
+			<value>${takeAwayProduceQueue}</value>
+		</constructor-arg>
+	</bean>
+	<bean id="takeCenterProduceQueue" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg>
+			<value>${takeCenterProduceQueue}</value>
+		</constructor-arg>
+	</bean>
+	<bean id="takeCenterRtProduceQueue" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg>
+			<value>${takeCenterRtProduceQueue}</value>
+		</constructor-arg>
+	</bean>
+	<!-- 消息测试地址 -->
+	<bean id="test" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg>
+			<value>${test}</value>
+		</constructor-arg>
+	</bean>
+	<!--   测试监听 -->
+  <!-- 	<bean id="testListener" class="com.nascent.ecrpsaas.plus.activeMq.TestMqConsumerListener" />
+	<bean id="jmsContainer4" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="connectionFactory" />
+		<property name="destination" ref="test" />
+		<property name="messageListener" ref="testListener" />
+	</bean>  -->
+	
+	<!-- *********************生产者队列消息配置结束************************ -->
+	<!--  外卖消息监听器 -->
+   <!--  <bean id="TakeAwayMqConsumerListener" class="com.nascent.ecrpsaas.plus.activeMq.TakeAwayMqConsumerListener" />
+	<bean id="jmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="connectionFactory" />
+		<property name="destination" ref="takeAwayMessage" />
+		<property name="messageListener" ref="TakeAwayMqConsumerListener" />
+	</bean>
+	
+  	<bean id="TakeCenterMqConsumerListener" class="com.nascent.ecrpsaas.plus.activeMq.TakeCenterMqConsumerListener" />
+ 	<bean id="jmsContainer2" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="connectionFactory" />
+		<property name="destination" ref="takeCenterMessage" />
+		<property name="messageListener" ref="TakeCenterMqConsumerListener" />
+	</bean> 
+	
+	<bean id="TakeCenterReturnMqConsumerLister" class="com.nascent.ecrpsaas.plus.activeMq.TakeCenterReturnMqConsumerLister" />
+	<bean id="jmsContainer3" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="connectionFactory" />
+		<property name="destination" ref="takeCenterRtMessage" />
+		<property name="messageListener" ref="TakeCenterReturnMqConsumerLister" />
+	</bean>  -->
+</beans>

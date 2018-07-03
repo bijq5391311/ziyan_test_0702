@@ -1,0 +1,136 @@
+<th:block
+	th:include="../public/include/layout::layout(~{::content},~{::script})">
+	<div th:fragment="content">
+
+		<div id="vipgraderule" v-cloak>
+
+			<div class="template-page-tab">
+				<el-tabs v-model="activeName" type="card"
+					@tab-click="clickbrandTab(activeName)"> <el-tab-pane
+					:label="graderule.brand_name" :key="indexOfGrade"
+					:name="String(indexOfGrade)"
+					v-for="(graderule,indexOfGrade) in graderules"> <el-row>
+				<el-col :span="24"> <el-form label-width="110px"
+					class="institution-form" ref="gradeForm" :model="graderule"
+					placement="right"> <el-form-item label="ECRP会员体系："
+					required> <el-form-grid> <el-switch
+					on-text="开" off-text="关" :width="44" :on-value="1" :off-value="0"
+					v-model="graderule.status"></el-switch> </el-form-grid> </el-form-item> 
+				<el-form-item label="是否排除黑名单：">
+				 <el-form-grid>
+				<el-switch on-text="开" off-text="关" :width="44" :on-value="1"
+					:off-value="0" th:v-model="graderule.is_include_black"></el-switch>
+				</el-form-grid> </el-form-item> 
+			
+				<!-- 等级明细 -->
+				<div class="institution-rating">
+					<div class="rating-drag">
+						<div class="rating-drag__bar">
+							<busdraggable class="rating-header" v-model="ratingDataSort"
+								@end="ratingSortSave(ratingDataSort,indexOfGrade)">
+							<div class="rating-header__item"
+								:name="graderuledetail.grade_name"
+								v-for="(graderuledetail,indexDetial) in graderule.graderuledetaillist"
+								@click="clickTab(indexDetial,graderuledetail.grade_name)"
+								:key="indexDetial"
+								:class="{'is-active': ratingTabsValue === graderuledetail.grade_name}">
+								<span class="rating-title"> <span class="rating-edit"
+									v-show="graderuledetail.show"> <el-input
+											class="institution-form__edit-input" style="width: 120px;"
+											ref="ratingNameInput" v-model="ratingNameInputValue"
+											:value="graderuledetail.grade_name"
+											@keyup.enter.native="handleRatingConfirm(indexDetial,graderuledetail.grade_name,indexDetial,indexOfGrade)"
+											@blur="handleRatingConfirm(indexDetial,graderuledetail.grade_name,indexDetial,indexOfGrade)">
+										</el-input>
+								</span> <span class="rating-name" v-show="!graderuledetail.show"><label :class="{'is-move': !options.disabled}">{{graderuledetail.grade_name}}</label><span
+										class="rating-icon"  v-show="!graderuledetail.show&&showBtn"
+										@click="handleRatingEdit(indexDetial,indexOfGrade)"><i 
+											class="el-icon-edit"></i></span></span>
+								</span> <span class="rating-icon"  v-show="!graderuledetail.show&&showBtn" 
+									@click="removeRatingTab(graderuledetail.grade_name)"><i
+									class="el-icon-close"></i></span>
+							</div>
+							</busdraggable>
+
+							<el-form-grid class="rating-input"> <el-input
+								class="institution-form__edit-input" v-if="ratingInputVisible"
+								v-model="ratingInputValue" ref="saveTagInput"
+								@keyup.enter.native="handleInputConfirm(indexOfGrade)"
+								@blur="handleInputConfirm(indexOfGrade)">
+							</el-input> 
+							
+							<el-button v-else class="institution-form__edit-button"   v-show="!ratingInputVisible&&showBtn" 
+								@click="showRatingInput(indexOfGrade)">
+							<i class="bui-add"></i>新增会员等级</el-button>
+					   <el-button type="primary"  v-show="!showBtn" @click="showEditBtn" >编辑 </el-button>
+				     </el-form-grid>
+                       <el-form-grid class="rating-input">
+                        <i v-show="showBtn" class="check-btn bui-success-fill" @click="saveEdit"></i>
+                        <i v-show="showBtn" class="close-btn bui-error-fill" @click="hideEditBtn"></i>
+                      </el-form-grid>
+						</div>
+					</div>
+					<el-tabs type="border-card" v-model="ratingTabsValue"
+						closable @tab-remove="removeRatingTab"
+						class="institution-rating__tabs" @tab-click="clickTab">
+					<el-tab-pane
+						v-for="(graderuledetail,indexDetial) in graderule.graderuledetaillist"
+						:key="indexDetial" :name="graderuledetail.grade_name">
+
+					<div class="institution-rating__property">
+					<el-form label-width="110px"
+					class="institution-form" ref="graderuledetail" :model="graderuledetail"
+					placement="right">
+						<el-form-item label="享受的折扣：" required> <el-form-grid
+							size="xxs">
+							<el-form-item prop="discount" :rules=" { validator: commonMoneyReg, trigger: 'blur,change' }"> 
+							<el-input type="text"
+							class="text-right" v-model="graderuledetail.discount"
+							:value="graderuledetail.discount"></el-input>
+							</el-form-item> </el-form-grid> <el-form-grid>折</el-form-grid>
+						</el-form-item>
+						<el-form-item label="积分奖励：" required> <el-form-grid
+							size="xxs"> <el-select
+							v-model="graderuledetail.send_reward_type" placeholder="请选择"
+							class="is-gray"> <el-option label="多送" :value="0"></el-option>
+						<el-option label="倍送" :value="1"></el-option> </el-select> </el-form-grid> <el-form-grid
+							size="xs"> <el-input type="text"
+							class="text-right" v-model="graderuledetail.reward_points"
+							:value="graderuledetail.reward_points" :maxlength="3"
+							@keyup.native="ToDecimal('reward_points',graderuledetail.reward_points,indexDetial,indexOfGrade,0)"></el-input>
+						</el-form-grid> 
+						<el-form-grid class="text-info"><i class="bui-info"></i>会员生日月送积分规则</el-form-grid></el-form-item>
+						</el-form-item>
+						
+						<el-form-item label="消费值累计满：" required> <el-form-grid
+							size="xxs">
+							<el-form-item prop="zy_consume" :rules=" { validator:zyConsume, trigger: 'blur,change' }"> 
+							<el-input type="text"
+							class="text-right" v-model="graderuledetail.zy_consume"
+							:value="graderuledetail.zy_consume"></el-input>
+							</el-form-item> </el-form-grid> <el-form-grid>个</el-form-grid>
+						</el-form-item>
+						</el-form>
+					</div>
+					</el-tab-pane> </el-tabs>
+
+				</div>
+
+				<el-form-item> <el-form-grid> <el-button
+					type="primary" @click="saveData(indexOfGrade)">保存</el-button> </el-form-grid> </el-form-item> </el-form> </el-col> </el-row>
+				</el-tab-pane> </el-tabs>
+			</div>
+
+
+
+
+		</div>
+
+	</div>
+	<th:block th:fragment="script">
+		<link rel="stylesheet" type="text/css"
+			href="/static/plus/ziyan/vip/css/page.css" />
+		<script type="text/javascript"
+			th:src="@{/static/plus/ziyan/vip/js/graderule.js}"></script>
+	</th:block>
+</th:block>

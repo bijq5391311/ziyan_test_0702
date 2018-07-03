@@ -1,0 +1,65 @@
+<% include ../../../include/layout/start.ejs %>
+<style>
+  .demo-space .el-button {
+    margin-bottom: 3px;
+  }
+</style>
+<div id="example" v-cloak>
+  <div class="template-page">
+    <div class="template-page-location">
+      <el-breadcrumb separator=">">
+        <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+        <el-breadcrumb-item>表单</el-breadcrumb-item>
+        <el-breadcrumb-item>按钮</el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>
+    <div class="template-page-tab">
+      <el-tabs v-model="activeName2" type="card">
+        <el-tab-pane label="按钮与图标应用" name="first">
+          <el-row>
+            <el-col :span="24">
+              <h5>基本用法：</h5>
+              <el-button>默认按钮</el-button>
+
+              <el-button type="primary">主要按钮</el-button>
+              <el-button type="text">文字按钮</el-button>
+              <el-tooltip content="Top center" effect="light" placement="right" transition="el-zoom-in-left"
+                          popper-options="{ boundariesElement: container}">
+                <el-button>Dark</el-button>
+              </el-tooltip>
+            </el-col>
+            <el-col :span="24">
+              <h5>按钮大小：</h5>
+              <el-button type="primary" size="large">大型按钮</el-button>
+              <el-button type="primary">正常按钮</el-button>
+              <el-button type="primary" size="small">小型按钮</el-button>
+              <el-button type="primary" size="mini">超小按钮</el-button>
+            </el-col>
+            <el-col :span="24" class="demo-space">
+              <h5>按钮与图标组合：</h5>
+              <el-button type="primary"><i class="bui-add"></i>新增数据</el-button>
+              <el-button type="primary"><i class="bui-delete"></i>批量删除</el-button>
+              <el-button type="primary"><i class="bui-edit"></i>批量备注</el-button>
+              <el-button type="primary"><i class="bui-send"></i> 发送</el-button>
+              <el-button type="primary"><i class="bui-export"></i>导出</el-button>
+              <el-button type="primary"><i class="bui-import"></i>导入</el-button>
+              <el-button type="primary"><i class="bui-weitongji"></i>统计人数</el-button>
+              <el-button type="primary"><i class="bui-select-goods"></i>选择商品</el-button>
+              <el-button type="primary"><i class="bui-select-shops"></i>选择店铺</el-button>
+              <el-button type="primary"><i class="bui-shop-setting"></i>店铺设置</el-button>
+              <el-button type="primary"><i class="bui-backlist"></i>添加黑名单</el-button>
+              <el-button type="primary"><i class="bui-bind"></i>关联商品</el-button>
+              <el-button type="primary"><i class="bui-unbind"></i>解除关联</el-button>
+            </el-col>
+            <el-col :span="24">
+              <h5>只有图标按钮：主要用于操作</h5>
+              <el-button type="icon"><i class="bui-add"></i></el-button>
+              <el-button type="icon"><i class="bui-delete"></i></el-button>
+            </el-col>
+          </el-row>
+        </el-tab-pane>
+      </el-tabs>
+    </div>
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="database.KdSku">
+		<sql id="queryItemSku" value="select * from kd_sku where 1=1 ">
+		<if test="#sys_item_id != 0" value="and sys_item_id=#{sys_item_id}"></if>
+		<if value="and sku_id=#{sku_id}"></if>
+		</sql>
+		
+	</sqlGroup>
+</sqlRoot>

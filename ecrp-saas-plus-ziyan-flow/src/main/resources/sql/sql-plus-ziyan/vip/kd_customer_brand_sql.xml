@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="vip.customerBrand">
+		<sql id="queryCustomerBrandList" value=" select * from kd_customer_brand where state = 1  ">
+            <if value = " limit #{pageIndex},#{pageSize}"></if>   
+            </sql>
+	</sqlGroup>
+</sqlRoot> 

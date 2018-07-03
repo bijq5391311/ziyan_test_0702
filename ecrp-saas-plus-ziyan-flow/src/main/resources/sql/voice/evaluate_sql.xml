@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="voice.EvaluateInfo">
+			<sql id="queryList"
+			value=" 
+SELECT  e.id,e.mark, e.goods_image  AS  goodsImage,  e.rated_nick as ratedNick,e.item_url as itemUrl, e.brand_name as brandName, s.plat_from_type AS platFromType,e.item_title as itemTitle,e.outer_id as outerId ,  e.content,e.result,e.time, ka.affair_no AS affairNo , 
+                         e.sys_customer_id  AS sysCustomerId, s.name ,e.out_trade_id AS  outTradeId ,er.explainer_nick  as explainerNick , er.explain_content as explainContent from evaluate_info e left JOIN sys_shop_ext  s ON  e.shop_code = s.code 
+                        left JOIN kd_affair_list   ka ON e.id = ka.target and ka.type_large =  (select id from  kd_affair_type  where code = 'PJ') left JOIN evaluate_explain_record er  ON e.id = er.evaluate_id WHERE e.state = 1 and e.category_status =0   ">
+			<if  value=" and e.time    &gt;=  #{startTime}"></if>
+			<if  value=" and    e.time &lt;=    #{endTime}"></if>
+			 <bind name="itemTitle" value="@com.nascent.plugins.taobao.StringUtils@isEmpty(#itemTitle) ? null : '%'+#itemTitle+'%'"></bind>
+			<if   value=" and e.item_title like #{itemTitle}"></if>
+			 <bind name="content" value="@com.nascent.plugins.taobao.StringUtils@isEmpty(#content) ? null : '%'+#content+'%'"></bind>
+			<if  value=" and  e.content like  #{content}"></if>
+			 <bind name="explainerNick" value="@com.nascent.plugins.taobao.StringUtils@isEmpty(#explainerNick) ? null : '%'+#explainerNick+'%'"></bind>
+			<if   value=" and  er.explainer_nick like  #{explainerNick}"></if>
+
+			<if value=" and  e.sys_order_id  = #{orderID}"></if>
+			<if value=" and  ka.affair_no  = #{affairId}"></if>
+			<if value=" and  e.outer_id =  #{goodCode}"></if>
+			 <bind name="explainContent" value="@com.nascent.plugins.taobao.StringUtils@isEmpty(#explainContent) ? null : '%'+#explainContent+'%'"></bind>
+			<if  value=" and  er.explain_content like  #{explainContent}"></if>
+			<if value=" and  e.shop_code in  (${'shopCode'})"></if>
+			<if value=" and  e.shop_code in  (${'shopCodes'})"></if>
+			<if value=" and char_length(e.content)  &gt;=   #{minWordcount}"></if>
+			<if value=" and char_length(e.content) &lt;=   #{maxWordcount}"></if>
+		   <bind name="excludeKeywords" value="@com.nascent.plugins.taobao.StringUtils@isEmpty(#excludeKeywords) ? null : '%'+#excludeKeywords+'%'"></bind>
+			<if value=" and e.content not like  #{excludeKeywords}"></if>
+		  <bind name="goodsKeywords" value="@com.nascent.plugins.taobao.StringUtils@isEmpty(#goodsKeywords) ? null : '%'+#goodsKeywords+'%'"></bind>
+			<if value=" and e.content  like  #{goodsKeywords}"></if>
+		  <bind name="filterKeywords" value="@com.nascent.plugins.taobao.StringUtils@isEmpty(#filterKeywords) ? null : '%'+#filterKeywords+'%'"></bind>
+			<if value=" and e.content  like  #{'filterKeywords'}"></if>
+		</sql>
+	
+		<sql id="batchSort"
+			value="update evaluate_info set category_status = 1  where id = ? ">
+		</sql>
+       	<sql id="batchUpdateSort"
+			value="update evaluate_info set category_status = 0  where id = ? ">
+		</sql>
+		<sql id="sort"
+			value="update evaluate_info set category_status = 1 where id = ? ">
+		</sql>
+     <sql id="queryEvluateInfoList" value="select *  from evaluate_info where sys_trade_id = 0  ">
+	        <if value="  limit #{pageIndex}, #{pageSize}"></if>
+	    </sql>
+		
+	</sqlGroup>
+	<sqlGroup name="voice.EvaluateTransaction">
+		<sql id="queryList"
+			value="select i.item_url as itemUrl, i.content ,i.create_time as evaluateTime, i.item_title as itemTitle, i.result,
+                i.out_nick as outNick, i.category_status as categoryStatus from evaluate_info i inner join evaluate_transaction t on i.id = t.evaluate_id where i.state = 1">
+			<if value=" and t.processor_id = #{processorId}">
+			</if>
+		</sql>
+	</sqlGroup>
+	<sqlGroup name="voice.EvaluateSortRecord">
+		<sql id="queryList"
+			value="select i.item_url as itemUrl, i.content ,i.create_time as evaluateTime, i.item_title as itemTitle, result,
+                i.out_nick as outNick, sr.sorter_nick as sorterNick, sr.create_time as sortTime from evaluate_info i inner join evaluate_sort_record sr on i.id = sr.evaluate_id where i.category_status !=b'0'">
+		</sql>
+	</sqlGroup>
+	<sqlGroup name="voice.EvaluateTag">
+		<sql id="queryList"
+			value="select id, tag_name as tagName, goods_keywords as goodsKeywords, filter_keywords as filterKeywords,
+	        exclude_keywords as excludeKeywords, order_no as orderNo from evaluate_tag where 1 = 1 and state = 1">
+	            <bind name="goodsKeywords" value="@com.nascent.plugins.taobao.StringUtils@isEmpty(#goodsKeywords) ? null : '%'+#goodsKeywords+'%'"></bind>
+			<if value="and goods_keywords like #{goodsKeywords}"></if>
+			    <bind name="filterKeywords" value="@com.nascent.plugins.taobao.StringUtils@isEmpty(#filterKeywords) ? null : '%'+#filterKeywords+'%'"></bind>
+			<if value="and filter_keywords like  #{filterKeywords} "></if>
+			    <bind name="excludeKeywords" value="@com.nascent.plugins.taobao.StringUtils@isEmpty(#excludeKeywords) ? null : '%'+#excludeKeywords+'%'"></bind>
+				<if value=" and exclude_keywords like #{excludeKeywords}"></if>
+			<if value="  order by create_time desc   "></if>
+		</sql>
+		
+		<sql id = "queryTagsOption" value = "select tag_name  AS k , id AS v from evaluate_tag where state = 1 "></sql>
+	</sqlGroup>
+	
+	
+	<sqlGroup name="voice.EvaluateCategory">
+		<!-- <sql id="findTreeList" value="select id as id , parent_id as parentId 
+			,name as label, true as showAdd, true as showEdit, true as showDelete from 
+			evaluate_category where state = 1"> </sql> -->
+	</sqlGroup>
+	insert evaluate_sort_record( ) value(?)
+</sqlRoot>

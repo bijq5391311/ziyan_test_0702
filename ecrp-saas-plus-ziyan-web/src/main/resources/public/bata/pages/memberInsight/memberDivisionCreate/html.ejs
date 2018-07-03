@@ -1,0 +1,1172 @@
+<% include ../../../include/layout/start.ejs %>
+<div id="example" v-cloak>
+  <div class="template-page">
+    <div class="template-page-location">
+      <el-breadcrumb separator=">">
+        <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+        <el-breadcrumb-item>会员洞察</el-breadcrumb-item>
+        <el-breadcrumb-item>会员分群</el-breadcrumb-item>
+        <el-breadcrumb-item>会员划分</el-breadcrumb-item>
+        <el-breadcrumb-item>新建分组</el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>
+
+    <div class="template-page-tab">
+      <el-tabs v-model="activeName" type="card">
+        <el-tab-pane label="新建分组" name="first">
+          <div class="template-layout">
+            <el-form>
+              <el-row>
+                <el-col :span="12">
+                  <el-form-item lable="1"></el-form-item>
+                </el-col>
+                <el-col :span="12">
+                  <el-form-item lable="3"></el-form-item>
+                </el-col>
+              </el-row>
+            </el-form>
+            <div class="template-layout-left">
+              <el-scrollbar ref="layoutLeftScroll" outsider
+                            wrap-class="template-layout__scroll">
+                <el-collapse class="member-property" v-model="memberProperty" accordion>
+                  <el-collapse-item name="base">
+                    <template slot="title">
+                      会员基本属性
+                      <el-badge :value="5"></el-badge>
+                    </template>
+                    <div class="member-property-list">
+                      <a class="is-disabled">短信营销次数</a>
+                      <a href="#base" @click="setPropertyChoose('base')" class="is-selected">偏好</a>
+                      <a href="#base" @click="setPropertyChoose('base')">最后短信营销时间</a>
+                      <a href="#base" @click="setPropertyChoose('base')">最后邮件营销时间</a>
+                      <a href="#base" @click="setPropertyChoose('base')">短信营销休眠时间</a>
+                      <a href="#base" @click="setPropertyChoose('base')">邮件营销休眠时间</a>
+                      <a href="#base" @click="setPropertyChoose('base')">营销次数</a>
+                      <a href="#base" @click="setPropertyChoose('base')" class="is-selected">偏好</a>
+                      <a href="#base" @click="setPropertyChoose('base')">最后短信营销时间</a>
+                      <a href="#base" @click="setPropertyChoose('base')">最后邮件营销时间</a>
+                      <a href="#base" @click="setPropertyChoose('base')">短信营销休眠时间</a>
+                      <a href="#base" @click="setPropertyChoose('base')">邮件营销休眠时间</a>
+                      <a href="#base" @click="setPropertyChoose('base')">营销次数</a>
+                    </div>
+                  </el-collapse-item>
+                  <el-collapse-item name="custom">
+                    <template slot="title">
+                      会员自定义属性
+                      <el-badge :value="12"></el-badge>
+                    </template>
+                    <div class="member-property-list">
+                      <a class="is-disabled">性别</a>
+                      <a href="#custom" @click="setPropertyChoose('custom')" class="is-selected">偏好</a>
+                      <a href="#custom" @click="setPropertyChoose('custom')">会员等级</a>
+                      <a href="#custom" @click="setPropertyChoose('custom')">地址</a>
+                    </div>
+                  </el-collapse-item>
+                  <el-collapse-item name="rfm">
+                    <template slot="title">
+                      RFM模型属性
+                      <el-badge :value="3"></el-badge>
+                    </template>
+                    <div class="member-property-list">
+                      <a href="#rfm" @click="setPropertyChoose('rfm')" class="is-disabled">短信营销次数</a>
+                      <a href="#rfm" @click="setPropertyChoose('rfm')" class="is-selected">偏好</a>
+                      <a href="#rfm" @click="setPropertyChoose('rfm')">最后短信营销时间</a>
+                      <a href="#rfm" @click="setPropertyChoose('rfm')">最后邮件营销时间</a>
+                      <a class="is-disabled">短信营销休眠时间</a>
+                      <a href="#rfm" @click="setPropertyChoose('rfm')">邮件营销休眠时间</a>
+                      <a href="#rfm" @click="setPropertyChoose('rfm')">营销次数</a>
+                    </div>
+                  </el-collapse-item>
+                  <el-collapse-item name="trade">
+                    <template slot="title">
+                      交易属性
+                      <el-badge :value="45"></el-badge>
+                    </template>
+                    <div class="member-property-list">
+                      <a class="is-disabled">短信营销次数</a>
+                      <a href="#trade" @click="setPropertyChoose('trade'), goodsFilterDialog = true"
+                         class="is-selected">订单商品筛选</a>
+                    </div>
+                  </el-collapse-item>
+                  <el-collapse-item name="market">
+                    <template slot="title">
+                      营销属性
+                      <el-badge :value="8"></el-badge>
+                    </template>
+                    <div class="member-property-list">
+                      <a class="is-disabled">短信营销次数</a>
+                      <a href="#market" @click="setPropertyChoose('market')" class="is-selected">偏好</a>
+                      <a href="#market" @click="setPropertyChoose('market')">最后短信营销时间</a>
+                      <a class="is-disabled">最后邮件营销时间</a>
+                      <a href="#market" @click="setPropertyChoose('market')">短信营销休眠时间</a>
+                      <a href="#market" @click="setPropertyChoose('market')">邮件营销休眠时间</a>
+                      <a class="is-selected">营销次数</a>
+                    </div>
+                  </el-collapse-item>
+                </el-collapse>
+              </el-scrollbar>
+            </div>
+            <div class="template-layout-right">
+              <el-row>
+                <el-col :span="24">
+                  <el-form>
+                    <el-form-item label="会员分组名称：" label-width="120px" class="mb-md">
+                      <el-form-grid size="xmd">
+                        <el-input type="text" placeholder="输入会员分组名称"></el-input>
+                      </el-form-grid>
+                      <el-form-grid>
+                        <el-button type="primary">保存</el-button>
+                        <el-button type="primary"><i class="bui-xiaoguofenxi"></i>属性分析</el-button>
+                        <el-button type="primary"><i class="bui-weitongji"></i>统计人数</el-button>
+                      </el-form-grid>
+                    </el-form-item>
+                    <el-scrollbar ref="memberChooseScroll" outsider
+                                  wrap-class="member-choose__scroll">
+                      <el-collapse class="member-choose" v-model="memberChoose" ref="memberChoose"
+                                   @change="handleChooseChange">
+                        <el-collapse-item title="RFM模型属性" id="rfm" ref="rfm" name="rfm">
+                          <el-form-item label="性别：" label-width="100px">
+                            <el-form-grid>
+                              <el-radio-group v-model="sex">
+                                <el-radio label="nan">男</el-radio>
+                                <el-radio label="nv">女</el-radio>
+                              </el-radio-group>
+                            </el-form-grid>
+                            <el-form-grid>
+                              <a class="member-choose__delete"><i class="bui-delete"></i></a>
+                              <a class="member-choose__delete"><i class="bui-add"></i></a>
+                            </el-form-grid>
+                          </el-form-item>
+                          <el-form-item label="会员等级：" label-width="100px">
+                            <el-form-grid size="xs">
+                              <el-select v-model="levelrule" placeholder="请选择" class="is-gray">
+                                <el-option label="等于" value="equal"></el-option>
+                                <el-option label="不等于" value="unequal"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="md">
+                              <el-cascader :options="levelOptions"
+                                           v-model="levelSelected">
+                              </el-cascader>
+                            </el-form-grid>
+                            <el-form-grid>
+                              <a class="member-choose__delete"><i class="bui-delete"></i></a>
+                              <a class="member-choose__delete"><i class="bui-add"></i></a>
+                            </el-form-grid>
+                          </el-form-item>
+                          <el-form-item label="短信退订会员：" label-width="100px">
+                            <el-form-grid>
+                              <el-radio-group v-model="unsub">
+                                <el-radio label="yse">是</el-radio>
+                                <el-radio label="no">否</el-radio>
+                              </el-radio-group>
+                            </el-form-grid>
+                            <el-form-grid>
+                              <a class="member-choose__delete"><i class="bui-delete"></i></a>
+                              <a class="member-choose__delete"><i class="bui-add"></i></a>
+                            </el-form-grid>
+                          </el-form-item>
+                          <el-form-item label="最近关怀时间：" label-width="100px">
+                            <el-form-grid size="md">
+                              <el-select v-model="dates" placeholder="请选择">
+                                <el-option label="最后付款关怀时间" value="d1"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="xs">
+                              <el-select v-model="levelrule" placeholder="请选择" class="is-gray">
+                                <el-option label="等于" value="equal"></el-option>
+                                <el-option label="不等于" value="unequal"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="sm">
+                              <el-date-picker
+                                v-model="date1"
+                                type="date"
+                                placeholder="选择日期">
+                              </el-date-picker>
+                            </el-form-grid>
+                            <el-form-grid>
+                              <a class="member-choose__delete"><i class="bui-delete"></i></a>
+                              <a class="member-choose__delete"><i class="bui-add"></i></a>
+                            </el-form-grid>
+                          </el-form-item>
+                        </el-collapse-item>
+                        <el-collapse-item title="会员基本信息" id="base" ref="base" name="base">
+                          <el-form-item label="性别：" label-width="100px">
+                            <el-form-grid>
+                              <el-radio-group v-model="sex">
+                                <el-radio label="nan">男</el-radio>
+                                <el-radio label="nv">女</el-radio>
+                              </el-radio-group>
+                            </el-form-grid>
+                            <el-form-grid>
+                              <a class="member-choose__delete"><i class="bui-delete"></i></a>
+                              <a class="member-choose__delete"><i class="bui-add"></i></a>
+                            </el-form-grid>
+                          </el-form-item>
+                          <el-form-item label="会员等级：" label-width="100px">
+                            <el-form-grid size="xs">
+                              <el-select v-model="levelrule" placeholder="请选择" class="is-gray">
+                                <el-option label="等于" value="equal"></el-option>
+                                <el-option label="不等于" value="unequal"></el-option>
+                                <el-option label="大于等于" value="uppequal"></el-option>
+                                <el-option label="小于等于" value="lowequal"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="md">
+                              <el-cascader :options="levelOptions"
+                                           v-model="levelSelected">
+                              </el-cascader>
+                            </el-form-grid>
+                            <el-form-grid size="xxs">
+                              <el-select v-model="levelchance" placeholder="请选择" class="is-gray">
+                                <el-option label="并且" value="and"></el-option>
+                                <el-option label="或者" value="or"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid>
+                              <a class="member-choose__delete"><i class="bui-delete"></i></a>
+                            </el-form-grid>
+                          </el-form-item>
+                          <el-form-item label="会员等级：" label-width="100px">
+                            <el-form-grid size="xs">
+                              <el-select v-model="levelrule" placeholder="请选择" class="is-gray">
+                                <el-option label="等于" value="equal"></el-option>
+                                <el-option label="不等于" value="unequal"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="md">
+                              <el-cascader :options="levelOptions"
+                                           v-model="levelSelected">
+                              </el-cascader>
+                            </el-form-grid>
+                            <el-form-grid size="xxs">
+                              <el-select v-model="levelchance" placeholder="请选择" class="is-gray">
+                                <el-option label="并且" value="and"></el-option>
+                                <el-option label="或者" value="or"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid>
+                              <a class="member-choose__delete"><i class="bui-delete"></i></a>
+                            </el-form-grid>
+                          </el-form-item>
+                          <el-form-item label="会员等级：" label-width="100px">
+                            <el-form-grid size="xs">
+                              <el-select v-model="levelrule" placeholder="请选择" class="is-gray">
+                                <el-option label="等于" value="equal"></el-option>
+                                <el-option label="不等于" value="unequal"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="md">
+                              <el-cascader :options="levelOptions"
+                                           v-model="levelSelected">
+                              </el-cascader>
+                            </el-form-grid>
+                            <el-form-grid>
+                              <a class="member-choose__delete"><i class="bui-delete"></i></a>
+                              <a class="member-choose__delete"><i class="bui-add"></i></a>
+                            </el-form-grid>
+                          </el-form-item>
+
+                          <el-form-item label="最近关怀时间：" label-width="100px">
+                            <el-form-grid size="md">
+                              <el-select v-model="dates" placeholder="请选择">
+                                <el-option label="最后付款关怀时间" value="d1"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="xs">
+                              <el-select v-model="levelrule" placeholder="请选择" class="is-gray">
+                                <el-option label="等于" value="equal"></el-option>
+                                <el-option label="不等于" value="unequal"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="sm">
+                              <el-date-picker
+                                v-model="date1"
+                                type="date"
+                                placeholder="选择日期">
+                              </el-date-picker>
+                            </el-form-grid>
+                            <el-form-grid size="xxs">
+                              <el-select v-model="levelchance" placeholder="请选择" class="is-gray">
+                                <el-option label="并且" value="and"></el-option>
+                                <el-option label="或者" value="or"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid>
+                              <a class="member-choose__delete"><i class="bui-delete"></i></a>
+                            </el-form-grid>
+                          </el-form-item>
+                          <el-form-item label="最近关怀时间：" label-width="100px">
+                            <el-form-grid size="md">
+                              <el-select v-model="dates" placeholder="请选择">
+                                <el-option label="最后付款关怀时间" value="d1"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="xs">
+                              <el-select v-model="levelrule" placeholder="请选择" class="is-gray">
+                                <el-option label="等于" value="equal"></el-option>
+                                <el-option label="不等于" value="unequal"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="sm">
+                              <el-date-picker
+                                v-model="date1"
+                                type="date"
+                                placeholder="选择日期">
+                              </el-date-picker>
+                            </el-form-grid>
+                            <el-form-grid>
+                              <a class="member-choose__delete"><i class="bui-delete"></i></a>
+                            </el-form-grid>
+                          </el-form-item>
+                        </el-collapse-item>
+                        <el-collapse-item title="会员自定义属性" id="custom" name="custom">
+
+                          <el-form-item label="性别：" label-width="100px">
+                            <el-form-grid>
+                              <el-radio-group v-model="sex">
+                                <el-radio label="nan">男</el-radio>
+                                <el-radio label="nv">女</el-radio>
+                              </el-radio-group>
+                            </el-form-grid>
+                            <el-form-grid>
+                              <a class="member-choose__delete"><i class="bui-delete"></i></a>
+                            </el-form-grid>
+                          </el-form-item>
+                          <el-form-item label="会员等级：" label-width="100px">
+                            <el-form-grid size="xs">
+                              <el-select v-model="levelrule" placeholder="请选择" class="is-gray">
+                                <el-option label="等于" value="equal"></el-option>
+                                <el-option label="不等于" value="unequal"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="sm">
+                              <el-select v-model="level" placeholder="请选择">
+                                <el-option label="普通会员" value="level1"></el-option>
+                                <el-option label="高级会员" value="level2"></el-option>
+                                <el-option label="VIP会员" value="level3"></el-option>
+                                <el-option label="至尊VIP" value="level4"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="xxs">
+                              <el-select v-model="levelchance" placeholder="请选择" class="is-gray">
+                                <el-option label="并且" value="and"></el-option>
+                                <el-option label="或者" value="or"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid>
+                              <a class="member-choose__delete"><i class="bui-delete"></i></a>
+                            </el-form-grid>
+                          </el-form-item>
+                          <el-form-item label="会员等级：" label-width="100px">
+                            <el-form-grid size="xs">
+                              <el-select v-model="levelrule" placeholder="请选择" class="is-gray">
+                                <el-option label="等于" value="equal"></el-option>
+                                <el-option label="不等于" value="unequal"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="sm">
+                              <el-select v-model="level" placeholder="请选择">
+                                <el-option label="普通会员" value="level1"></el-option>
+                                <el-option label="高级会员" value="level2"></el-option>
+                                <el-option label="VIP会员" value="level3"></el-option>
+                                <el-option label="至尊VIP" value="level4"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="xxs">
+                              <el-select v-model="levelchance" placeholder="请选择" class="is-gray">
+                                <el-option label="并且" value="and"></el-option>
+                                <el-option label="或者" value="or"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid>
+                              <a class="member-choose__delete"><i class="bui-delete"></i></a>
+                            </el-form-grid>
+                          </el-form-item>
+                          <el-form-item label="会员等级：" label-width="100px">
+                            <el-form-grid size="xs">
+                              <el-select v-model="levelrule" placeholder="请选择" class="is-gray">
+                                <el-option label="等于" value="equal"></el-option>
+                                <el-option label="不等于" value="unequal"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="sm">
+                              <el-select v-model="level" placeholder="请选择">
+                                <el-option label="普通会员" value="level1"></el-option>
+                                <el-option label="高级会员" value="level2"></el-option>
+                                <el-option label="VIP会员" value="level3"></el-option>
+                                <el-option label="至尊VIP" value="level4"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid>
+                              <a class="member-choose__delete"><i class="bui-delete"></i></a>
+                            </el-form-grid>
+                          </el-form-item>
+
+                          <el-form-item label="最近关怀时间：" label-width="100px">
+                            <el-form-grid size="md">
+                              <el-select v-model="dates" placeholder="请选择">
+                                <el-option label="最后付款关怀时间" value="d1"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="xs">
+                              <el-select v-model="levelrule" placeholder="请选择" class="is-gray">
+                                <el-option label="等于" value="equal"></el-option>
+                                <el-option label="不等于" value="unequal"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="sm">
+                              <el-date-picker
+                                v-model="date1"
+                                type="date"
+                                placeholder="选择日期">
+                              </el-date-picker>
+                            </el-form-grid>
+                            <el-form-grid size="xxs">
+                              <el-select v-model="levelchance" placeholder="请选择" class="is-gray">
+                                <el-option label="并且" value="and"></el-option>
+                                <el-option label="或者" value="or"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid>
+                              <a class="member-choose__delete"><i class="bui-delete"></i></a>
+                            </el-form-grid>
+                          </el-form-item>
+                          <el-form-item label="最近关怀时间：" label-width="100px">
+                            <el-form-grid size="md">
+                              <el-select v-model="dates" placeholder="请选择">
+                                <el-option label="最后付款关怀时间" value="d1"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="xs">
+                              <el-select v-model="levelrule" placeholder="请选择" class="is-gray">
+                                <el-option label="等于" value="equal"></el-option>
+                                <el-option label="不等于" value="unequal"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="sm">
+                              <el-date-picker
+                                v-model="date1"
+                                type="date"
+                                placeholder="选择日期">
+                              </el-date-picker>
+                            </el-form-grid>
+                            <el-form-grid>
+                              <a class="member-choose__delete"><i class="bui-delete"></i></a>
+                              <a class="member-choose__delete"><i class="bui-add"></i></a>
+                            </el-form-grid>
+                          </el-form-item>
+                        </el-collapse-item>
+                        <el-collapse-item title="交易属性" id="trade" name="trade">
+
+                          <el-form-item label="性别：" label-width="100px">
+                            <el-form-grid>
+                              <el-radio-group v-model="sex">
+                                <el-radio label="nan">男</el-radio>
+                                <el-radio label="nv">女</el-radio>
+                              </el-radio-group>
+                            </el-form-grid>
+                            <el-form-grid>
+                              <a class="member-choose__delete"><i class="bui-delete"></i></a>
+                            </el-form-grid>
+                          </el-form-item>
+                          <el-form-item label="会员等级：" label-width="100px">
+                            <el-form-grid size="xs">
+                              <el-select v-model="levelrule" placeholder="请选择" class="is-gray">
+                                <el-option label="等于" value="equal"></el-option>
+                                <el-option label="不等于" value="unequal"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="sm">
+                              <el-select v-model="level" placeholder="请选择">
+                                <el-option label="普通会员" value="level1"></el-option>
+                                <el-option label="高级会员" value="level2"></el-option>
+                                <el-option label="VIP会员" value="level3"></el-option>
+                                <el-option label="至尊VIP" value="level4"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="xxs">
+                              <el-select v-model="levelchance" placeholder="请选择" class="is-gray">
+                                <el-option label="并且" value="and"></el-option>
+                                <el-option label="或者" value="or"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid>
+                              <a class="member-choose__delete"><i class="bui-delete"></i></a>
+                            </el-form-grid>
+                          </el-form-item>
+                          <el-form-item label="会员等级：" label-width="100px">
+                            <el-form-grid size="xs">
+                              <el-select v-model="levelrule" placeholder="请选择" class="is-gray">
+                                <el-option label="等于" value="equal"></el-option>
+                                <el-option label="不等于" value="unequal"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="sm">
+                              <el-select v-model="level" placeholder="请选择">
+                                <el-option label="普通会员" value="level1"></el-option>
+                                <el-option label="高级会员" value="level2"></el-option>
+                                <el-option label="VIP会员" value="level3"></el-option>
+                                <el-option label="至尊VIP" value="level4"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="xxs">
+                              <el-select v-model="levelchance" placeholder="请选择" class="is-gray">
+                                <el-option label="并且" value="and"></el-option>
+                                <el-option label="或者" value="or"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid>
+                              <a class="member-choose__delete"><i class="bui-delete"></i></a>
+                            </el-form-grid>
+                          </el-form-item>
+                          <el-form-item label="会员等级：" label-width="100px">
+                            <el-form-grid size="xs">
+                              <el-select v-model="levelrule" placeholder="请选择" class="is-gray">
+                                <el-option label="等于" value="equal"></el-option>
+                                <el-option label="不等于" value="unequal"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="sm">
+                              <el-select v-model="level" placeholder="请选择">
+                                <el-option label="普通会员" value="level1"></el-option>
+                                <el-option label="高级会员" value="level2"></el-option>
+                                <el-option label="VIP会员" value="level3"></el-option>
+                                <el-option label="至尊VIP" value="level4"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid>
+                              <a class="member-choose__delete"><i class="bui-delete"></i></a>
+                            </el-form-grid>
+                          </el-form-item>
+
+                          <el-form-item label="最近关怀时间：" label-width="100px">
+                            <el-form-grid size="md">
+                              <el-select v-model="dates" placeholder="请选择">
+                                <el-option label="最后付款关怀时间" value="d1"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="xs">
+                              <el-select v-model="levelrule" placeholder="请选择" class="is-gray">
+                                <el-option label="等于" value="equal"></el-option>
+                                <el-option label="不等于" value="unequal"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="sm">
+                              <el-date-picker
+                                v-model="date1"
+                                type="date"
+                                placeholder="选择日期">
+                              </el-date-picker>
+                            </el-form-grid>
+                            <el-form-grid size="xxs">
+                              <el-select v-model="levelchance" placeholder="请选择" class="is-gray">
+                                <el-option label="并且" value="and"></el-option>
+                                <el-option label="或者" value="or"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid>
+                              <a class="member-choose__delete"><i class="bui-delete"></i></a>
+                            </el-form-grid>
+                          </el-form-item>
+                          <el-form-item label="最近关怀时间：" label-width="100px">
+                            <el-form-grid size="md">
+                              <el-select v-model="dates" placeholder="请选择">
+                                <el-option label="最后付款关怀时间" value="d1"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="xs">
+                              <el-select v-model="levelrule" placeholder="请选择" class="is-gray">
+                                <el-option label="等于" value="equal"></el-option>
+                                <el-option label="不等于" value="unequal"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="sm">
+                              <el-date-picker
+                                v-model="date1"
+                                type="date"
+                                placeholder="选择日期">
+                              </el-date-picker>
+                            </el-form-grid>
+                            <el-form-grid>
+                              <a class="member-choose__delete"><i class="bui-delete"></i></a>
+                              <a class="member-choose__delete"><i class="bui-add"></i></a>
+                            </el-form-grid>
+                          </el-form-item>
+                        </el-collapse-item>
+                        <el-collapse-item title="营销属性" id="market" name="market">
+
+                          <el-form-item label="性别：" label-width="100px">
+                            <el-form-grid>
+                              <el-radio-group v-model="sex">
+                                <el-radio label="nan">男</el-radio>
+                                <el-radio label="nv">女</el-radio>
+                              </el-radio-group>
+                            </el-form-grid>
+                            <el-form-grid>
+                              <a class="member-choose__delete"><i class="bui-delete"></i></a>
+                            </el-form-grid>
+                          </el-form-item>
+                          <el-form-item label="会员等级：" label-width="100px">
+                            <el-form-grid size="xs">
+                              <el-select v-model="levelrule" placeholder="请选择" class="is-gray">
+                                <el-option label="等于" value="equal"></el-option>
+                                <el-option label="不等于" value="unequal"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="sm">
+                              <el-select v-model="level" placeholder="请选择">
+                                <el-option label="普通会员" value="level1"></el-option>
+                                <el-option label="高级会员" value="level2"></el-option>
+                                <el-option label="VIP会员" value="level3"></el-option>
+                                <el-option label="至尊VIP" value="level4"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="xxs">
+                              <el-select v-model="levelchance" placeholder="请选择" class="is-gray">
+                                <el-option label="并且" value="and"></el-option>
+                                <el-option label="或者" value="or"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid>
+                              <a class="member-choose__delete"><i class="bui-delete"></i></a>
+                            </el-form-grid>
+                          </el-form-item>
+                          <el-form-item label="会员等级：" label-width="100px">
+                            <el-form-grid size="xs">
+                              <el-select v-model="levelrule" placeholder="请选择" class="is-gray">
+                                <el-option label="等于" value="equal"></el-option>
+                                <el-option label="不等于" value="unequal"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="sm">
+                              <el-select v-model="level" placeholder="请选择">
+                                <el-option label="普通会员" value="level1"></el-option>
+                                <el-option label="高级会员" value="level2"></el-option>
+                                <el-option label="VIP会员" value="level3"></el-option>
+                                <el-option label="至尊VIP" value="level4"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="xxs">
+                              <el-select v-model="levelchance" placeholder="请选择" class="is-gray">
+                                <el-option label="并且" value="and"></el-option>
+                                <el-option label="或者" value="or"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid>
+                              <a class="member-choose__delete"><i class="bui-delete"></i></a>
+                            </el-form-grid>
+                          </el-form-item>
+                          <el-form-item label="会员等级：" label-width="100px">
+                            <el-form-grid size="xs">
+                              <el-select v-model="levelrule" placeholder="请选择" class="is-gray">
+                                <el-option label="等于" value="equal"></el-option>
+                                <el-option label="不等于" value="unequal"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="sm">
+                              <el-select v-model="level" placeholder="请选择">
+                                <el-option label="普通会员" value="level1"></el-option>
+                                <el-option label="高级会员" value="level2"></el-option>
+                                <el-option label="VIP会员" value="level3"></el-option>
+                                <el-option label="至尊VIP" value="level4"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid>
+                              <a class="member-choose__delete"><i class="bui-delete"></i></a>
+                            </el-form-grid>
+                          </el-form-item>
+
+                          <el-form-item label="最近关怀时间：" label-width="100px">
+                            <el-form-grid size="md">
+                              <el-select v-model="dates" placeholder="请选择">
+                                <el-option label="最后付款关怀时间" value="d1"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="xs">
+                              <el-select v-model="levelrule" placeholder="请选择" class="is-gray">
+                                <el-option label="等于" value="equal"></el-option>
+                                <el-option label="不等于" value="unequal"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="sm">
+                              <el-date-picker
+                                v-model="date1"
+                                type="date"
+                                placeholder="选择日期">
+                              </el-date-picker>
+                            </el-form-grid>
+                            <el-form-grid size="xxs">
+                              <el-select v-model="levelchance" placeholder="请选择" class="is-gray">
+                                <el-option label="并且" value="and"></el-option>
+                                <el-option label="或者" value="or"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid>
+                              <a class="member-choose__delete"><i class="bui-delete"></i></a>
+                            </el-form-grid>
+                          </el-form-item>
+                          <el-form-item label="最近关怀时间：" label-width="100px">
+                            <el-form-grid size="md">
+                              <el-select v-model="dates" placeholder="请选择">
+                                <el-option label="最后付款关怀时间" value="d1"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="xs">
+                              <el-select v-model="levelrule" placeholder="请选择" class="is-gray">
+                                <el-option label="等于" value="equal"></el-option>
+                                <el-option label="不等于" value="unequal"></el-option>
+                              </el-select>
+                            </el-form-grid>
+                            <el-form-grid size="sm">
+                              <el-date-picker
+                                v-model="date1"
+                                type="date"
+                                placeholder="选择日期">
+                              </el-date-picker>
+                            </el-form-grid>
+                            <el-form-grid>
+                              <a class="member-choose__delete"><i class="bui-delete"></i></a>
+                              <a class="member-choose__delete"><i class="bui-add"></i></a>
+                            </el-form-grid>
+                          </el-form-item>
+                        </el-collapse-item>
+                      </el-collapse>
+                    </el-scrollbar>
+                  </el-form>
+                </el-col>
+              </el-row>
+            </div>
+          </div>
+        </el-tab-pane>
+      </el-tabs>
+      <!-- 订单商品筛选 弹窗 -->
+      <el-dialog title="交易分层" v-model="goodsFilterDialog" :close-on-click-modal="false" :modal-append-to-body="false"
+                 size="large">
+        <el-form placement="right" :model="ruleForm" label-width="90px" v-model="goodsFilterValidateForm">
+          <el-form-item label="客户订单：">
+            <el-form-grid size="xxs">
+              <el-select v-model="goodsFilterValidateForm.rule" placeholder="请选择">
+                <el-option label="满足" value="ye"></el-option>
+                <el-option label="不满足" value="no"></el-option>
+              </el-select>
+            </el-form-grid>
+            <el-form-grid>以下条件</el-form-grid>
+          </el-form-item>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="时间选择：">
+                <el-form-grid>
+                  <el-radio-group v-model="goodsFilterValidateForm.formRadioTime" @change="goodsFilterTime">
+                    <el-radio label="绝对时间"></el-radio>
+                    <el-radio label="相对时间"></el-radio>
+                  </el-radio-group>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="下单时间：">
+                <el-form-grid size="lg" v-show="!relativeTime">
+                  <el-date-picker
+                    v-model="goodsFilterValidateForm.orderDate"
+                    type="datetimerange"
+                    placeholder="请选择下单时间范围">
+                  </el-date-picker>
+                </el-form-grid>
+                <el-form-grid v-show="relativeTime">
+                  <el-form-grid>距离当前</el-form-grid>
+                  <el-form-grid size="sm">
+                    <el-row>
+                      <el-col :span="11">
+                        <el-input type="number" placeholder="" :max="5" class="text-right"></el-input>
+                      </el-col>
+                      <el-col :span="2" class="text-center">~</el-col>
+                      <el-col :span="11">
+                        <el-input placeholder="" :max="5" class="text-right"></el-input>
+                      </el-col>
+                    </el-row>
+                  </el-form-grid>
+                  <el-form-grid>天</el-form-grid>
+                  <el-form-grid size="xs">
+                    <el-time-picker v-model="goodsFilterValidateForm.ordertime"></el-time-picker>
+                  </el-form-grid>
+                  <el-form-grid>~</el-form-grid>
+                  <el-form-grid size="xs">
+                    <el-time-picker></el-time-picker>
+                  </el-form-grid>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="付款时间：">
+                <el-form-grid size="lg" v-show="!relativeTime">
+                  <el-date-picker
+                    type="datetimerange"
+                    placeholder="请选择付款时间范围">
+                  </el-date-picker>
+                </el-form-grid>
+                <el-form-grid v-show="relativeTime">
+                  <el-form-grid>距离当前</el-form-grid>
+                  <el-form-grid size="sm">
+                    <el-row>
+                      <el-col :span="11">
+                        <el-input type="number" placeholder="" :max="5" class="text-right"></el-input>
+                      </el-col>
+                      <el-col :span="2" class="text-center">~</el-col>
+                      <el-col :span="11">
+                        <el-input placeholder="" :max="5" class="text-right"></el-input>
+                      </el-col>
+                    </el-row>
+                  </el-form-grid>
+                  <el-form-grid>天</el-form-grid>
+                  <el-form-grid size="xs">
+                    <el-time-picker></el-time-picker>
+                  </el-form-grid>
+                  <el-form-grid>~</el-form-grid>
+                  <el-form-grid size="xs">
+                    <el-time-picker></el-time-picker>
+                  </el-form-grid>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="发货时间：">
+                <el-form-grid size="lg" v-show="!relativeTime">
+                  <el-date-picker
+                    type="datetimerange"
+                    placeholder="请选择发货时间范围">
+                  </el-date-picker>
+                </el-form-grid>
+                <el-form-grid v-show="relativeTime">
+                  <el-form-grid>距离当前</el-form-grid>
+                  <el-form-grid size="sm">
+                    <el-row>
+                      <el-col :span="11">
+                        <el-input type="number" placeholder="" :max="5" class="text-right"></el-input>
+                      </el-col>
+                      <el-col :span="2" class="text-center">~</el-col>
+                      <el-col :span="11">
+                        <el-input placeholder="" :max="5" class="text-right"></el-input>
+                      </el-col>
+                    </el-row>
+                  </el-form-grid>
+                  <el-form-grid>天</el-form-grid>
+                  <el-form-grid size="xs">
+                    <el-time-picker></el-time-picker>
+                  </el-form-grid>
+                  <el-form-grid>~</el-form-grid>
+                  <el-form-grid size="xs">
+                    <el-time-picker></el-time-picker>
+                  </el-form-grid>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="结束时间：">
+                <el-form-grid size="lg" v-show="!relativeTime">
+                  <el-date-picker
+                    type="datetimerange"
+                    placeholder="请选择结束时间范围">
+                  </el-date-picker>
+                </el-form-grid>
+                <el-form-grid v-show="relativeTime">
+                  <el-form-grid>距离当前</el-form-grid>
+                  <el-form-grid size="sm">
+                    <el-row>
+                      <el-col :span="11">
+                        <el-input type="number" placeholder="" :max="5" class="text-right"></el-input>
+                      </el-col>
+                      <el-col :span="2" class="text-center">~</el-col>
+                      <el-col :span="11">
+                        <el-input placeholder="" :max="5" class="text-right"></el-input>
+                      </el-col>
+                    </el-row>
+                  </el-form-grid>
+                  <el-form-grid>天</el-form-grid>
+                  <el-form-grid size="xs">
+                    <el-time-picker></el-time-picker>
+                  </el-form-grid>
+                  <el-form-grid>~</el-form-grid>
+                  <el-form-grid size="xs">
+                    <el-time-picker></el-time-picker>
+                  </el-form-grid>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="次数：">
+                <el-form-grid size="sm">
+                  <el-row>
+                    <el-col :span="11">
+                      <el-input type="number" placeholder="" :max="5" class="text-right"></el-input>
+                    </el-col>
+                    <el-col :span="2" class="text-center">~</el-col>
+                    <el-col :span="11">
+                      <el-input placeholder="" :max="5" class="text-right"></el-input>
+                    </el-col>
+                  </el-row>
+                </el-form-grid>
+                <el-form-grid class="text-warning">
+                  <el-tooltip effect="light" placement="right">
+                    <i class="bui-info"></i>
+                    <div slot="content">次数是以下单时间进行统计（次数为同一用户当天购买多次只算一次购买）</div>
+                  </el-tooltip>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="件数：">
+                <el-form-grid size="sm">
+                  <el-row>
+                    <el-col :span="11">
+                      <el-input type="number" placeholder="" :max="5" class="text-right"></el-input>
+                    </el-col>
+                    <el-col :span="2" class="text-center">~</el-col>
+                    <el-col :span="11">
+                      <el-input placeholder="" :max="5" class="text-right"></el-input>
+                    </el-col>
+                  </el-row>
+                </el-form-grid>
+                <el-form-grid class="text-warning">
+                  <el-tooltip effect="light" placement="right">
+                    <i class="bui-info"></i>
+                    <div slot="content">件数是以下单时间进行统计</div>
+                  </el-tooltip>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="金额：">
+                <el-form-grid size="sm">
+                  <el-row>
+                    <el-col :span="11">
+                      <el-input type="number" placeholder="" :max="5" class="text-right"></el-input>
+                    </el-col>
+                    <el-col :span="2" class="text-center">~</el-col>
+                    <el-col :span="11">
+                      <el-input placeholder="" :max="5" class="text-right"></el-input>
+                    </el-col>
+                  </el-row>
+                </el-form-grid>
+
+                <el-form-grid class="text-warning">
+                  <el-tooltip effect="light" placement="right">
+                    <i class="bui-info"></i>
+                    <div slot="content">金额是以下单时间进行统计</div>
+                  </el-tooltip>
+                </el-form-grid>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="订单类型：">
+                <el-form-grid size="xmd">
+                  <el-select v-model="goodsFilterValidateForm.select" placeholder="请选择" filterable>
+                    <el-option label="不限" value="1"></el-option>
+                    <el-option label="聚划算" value="2"></el-option>
+                    <el-option label="普通买家" value="3"></el-option>
+                    <el-option label="即时到帐/趣味猜交易类型" value="4"></el-option>
+                    <el-option label="外卖交易类型" value="5"></el-option>
+                    <el-option label="淘花网交易类型" value="6"></el-option>
+                  </el-select>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="单笔订单金额：">
+                <el-form-grid size="sm">
+                  <el-row>
+                    <el-col :span="11">
+                      <el-input type="number" placeholder="" :max="5" class="text-right"></el-input>
+                    </el-col>
+                    <el-col :span="2" class="text-center">~</el-col>
+                    <el-col :span="11">
+                      <el-input placeholder="" :max="5" class="text-right"></el-input>
+                    </el-col>
+                  </el-row>
+                </el-form-grid>
+                <el-form-grid>单笔订单件数：</el-form-grid>
+                <el-form-grid size="sm">
+                  <el-row>
+                    <el-col :span="11">
+                      <el-input type="number" placeholder="" :max="5" class="text-right"></el-input>
+                    </el-col>
+                    <el-col :span="2" class="text-center">~</el-col>
+                    <el-col :span="11">
+                      <el-input placeholder="" :max="5" class="text-right"></el-input>
+                    </el-col>
+                  </el-row>
+                </el-form-grid>
+              </el-form-item>
+
+              <el-form-item label="订单状态：">
+                <el-form-grid size="xmd">
+                  <el-select v-model="goodsFilterValidateForm.select" placeholder="请选择" filterable>
+                    <el-option label="等待买家付款" value="s1"></el-option>
+                    <el-option label="卖家部分发货（商品未发货）" value="s2"></el-option>
+                    <el-option label="卖家部分发货（商品已发货）" value="s3"></el-option>
+                    <el-option label="卖家部分发货" value="s4"></el-option>
+                    <el-option label="买家已签收（不区分最终状态）" value="s5"></el-option>
+                    <el-option label="交易成功" value="s6"></el-option>
+                  </el-select>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="邮费：">
+                <el-form-grid>
+                  <el-radio-group v-model="goodsFilterValidateForm.franking" @change="goodsFilterFranking">
+                    <el-radio label="不限"></el-radio>
+                    <el-radio label="邮费区间"></el-radio>
+                  </el-radio-group>
+                </el-form-grid>
+                <el-form-grid size="sm" v-show="frankingPrice">
+                  <el-row>
+                    <el-col :span="11">
+                      <el-input type="number" placeholder="" :max="5" class="text-right"></el-input>
+                    </el-col>
+                    <el-col :span="2" class="text-center">~</el-col>
+                    <el-col :span="11">
+                      <el-input placeholder="" :max="5" class="text-right"></el-input>
+                    </el-col>
+                  </el-row>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="优惠券：">
+                <el-form-grid>
+                  <el-radio-group v-model="goodsFilterValidateForm.coupon" @change="goodsFilterCoupon">
+                    <el-radio label="不使用"></el-radio>
+                    <el-radio label="优惠金额"></el-radio>
+                  </el-radio-group>
+                </el-form-grid>
+                <el-form-grid size="xmd" v-show="couponPrice">
+                  <el-input placeholder="多个以;隔开"></el-input>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="备注旗帜：">
+                <el-form-grid>
+                  <el-radio-group v-model="goodsFilterValidateForm.formRadio">
+                    <el-radio label="1">不限</el-radio>
+                    <el-radio label="2"><i class="bui-flag text-gray"></i></el-radio>
+                    <el-radio label="3"><i class="bui-flag text-danger"></i></el-radio>
+                    <el-radio label="4"><i class="bui-flag text-warning"></i></el-radio>
+                    <el-radio label="5"><i class="bui-flag text-success"></i></el-radio>
+                    <el-radio label="6"><i class="bui-flag text-info"></i></el-radio>
+                    <el-radio label="7"><i class="bui-flag text-purple"></i></el-radio>
+                  </el-radio-group>
+                </el-form-grid>
+              </el-form-item>
+
+              <el-form-item label="订单备注：">
+                <el-form-grid block>
+                  <el-input placeholder="请输入订单备注"></el-input>
+                </el-form-grid>
+              </el-form-item>
+              <el-form-item label="订单渠道来源：">
+                <el-form-grid>
+                  <el-button type="primary"><i class="bui-select-shops"></i>选择店铺</el-button>
+                </el-form-grid>
+                <el-form-grid>已选择<b class="text-danger"> 3 </b>家店铺</el-form-grid>
+                <!--  <el-form-grid size="xmd">
+                    <el-popover  ref="droptreepopover"
+                                 v-model="shopDropTreeVisible"
+                                 :width="shopDroptreeWidth"
+                                 placement="bottom-start"
+                                 trigger="click"
+                                 popper-class="tmp-droptree-popover">
+                      <el-scrollbar wrap-class="tmp-droptree-scroll">
+                        <el-input class="tmp-droptree-search" placeholder="输入关键字进行过滤"></el-input>
+                        <el-tree-extra :data="shopDropTreeList"
+                                       :expand-on-click-node="false"
+                                       ref="shopDropTree"
+                                       @node-click="handleShopSelectValue"
+                                       class="tmp-droptree-tree"></el-tree-extra>
+                      </el-scrollbar>
+                      <div class="tmp-droptree-footer">
+                        <el-button size="mini" type="text" @click="shopDropTreeVisible = false">取消</el-button>
+                        <el-button type="primary" size="mini" @click="handleSaveShopSelect">保存</el-button>
+                      </div>
+                      <el-input slot="reference" ref="shopDropTreeInput"  v-model="shopDropTreeValue" readonly @click.native="handleShowShopDropTree" placeholder="请选择" class="tmp-droptree-input" class="tmp-droptree-input"></el-input>
+
+                    </el-popover>
+                  </el-form-grid>-->
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-form-item label="订单商品：">
+            <!-- 选择商品结果列表 列表展开收缩切换结构-->
+            <bus-toggles :max-height="180" class="is-double">
+              <el-row class="tmp-choose" :gutter="30">
+                <el-col :span="12">
+                  <div class="tmp-choose__title">
+                    <el-button type="primary"><i class="bui-select-goods"></i>选择商品</el-button>
+                    <span class="total">已选择20个商品</span></div>
+                  <ul class="tmp-choose__goods">
+                    <!-- <li>对不起，查阅不到相关数据！</li>-->
+                    <li>
+                      <span class="g-name">法国原瓶进口 美圣世家仙马园波尔多干红葡萄酒750ml</span>
+                      <i class="g-delete bui-delete"></i>
+                    </li>
+                    <li>
+                      <span class="g-name">法国原瓶进口 美圣萄酒750ml</span>
+                      <i class="g-delete bui-delete"></i>
+                    </li>
+                    <li>
+                      <span class="g-name">法国圣世家仙马园波尔多干红葡萄酒750ml</span>
+                      <i class="g-delete bui-delete"></i>
+                    </li>
+                    <li>
+                      <span class="g-name">法国原瓶进口 美圣世家仙马园波尔多干红葡萄酒750ml</span>
+                      <i class="g-delete bui-delete"></i>
+                    </li>
+                    <li>
+                      <span class="g-name">法国原瓶进口 美圣萄酒750ml</span>
+                      <i class="g-delete bui-delete"></i>
+                    </li>
+                    <li>
+                      <span class="g-name">法国圣世家仙马园波尔多干红葡萄酒750ml</span>
+                      <i class="g-delete bui-delete"></i>
+                    </li>
+                    <li>
+                      <span class="g-name">法国原瓶进口 美圣世家仙马园波尔多干红l</span>
+                      <i class="g-delete bui-delete"></i>
+                    </li>
+                    <li>
+                      <span class="g-name">法国仙马园波尔多干红葡萄酒750ml</span>
+                      <i class="g-delete bui-delete"></i>
+                    </li>
+                    <li>
+                      <span class="g-name">法国原瓶进口 美圣世家仙马园美圣世家仙马园波尔多干红葡萄酒750ml美圣世家仙马园波尔多干红葡萄酒750ml波尔多干红葡萄酒750ml</span>
+                      <i class="g-delete bui-delete"></i>
+                    </li>
+                    <li>
+                      <span class="g-name">法国原瓶进口多干红葡萄酒750ml</span>
+                      <i class="g-delete bui-delete"></i>
+                    </li>
+                    <li>
+                      <span class="g-name">法国原瓶进口 美圣世家仙马园萄酒750ml</span>
+                      <i class="g-delete bui-delete"></i>
+                    </li>
+                    <li>
+                      <span class="g-name">法国仙马园波尔多干红葡萄酒750ml</span>
+                      <i class="g-delete bui-delete"></i>
+                    </li>
+                  </ul>
+                </el-col>
+                <el-col :span="12">
+                  <div class="tmp-choose__title">
+                    <el-button type="primary"><i class="bui-select-condition"></i>选择条件</el-button>
+                    <span class="total">已选择20个条件</span></div>
+                  <ul class="tmp-choose__goods">
+                    <!-- <li>对不起，查阅不到相关数据！</li>-->
+                    <li>
+                      <span class="g-name">商品单价超过一万元</span>
+                      <i class="g-delete bui-delete"></i>
+                    </li>
+                    <li>
+                      <span class="g-name">商品单价超过5000元</span>
+                      <i class="g-delete bui-delete"></i>
+                    </li>
+                    <li>
+                      <span class="g-name">商品单价超过5000元</span>
+                      <i class="g-delete bui-delete"></i>
+                    </li>
+                  </ul>
+                </el-col>
+              </el-row>
+            </bus-toggles>
+            <!-- /end 选择商品结果列表 列表展开收缩切换结构-->
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="goodsFilterDialog = false">取 消</el-button>
+          <el-button type="primary" @click="goodsFilterDialog = false">保 存</el-button>
+        </div>
+      </el-dialog>
+      <!-- /end 订单商品筛选 弹窗 -->
+    </div>
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

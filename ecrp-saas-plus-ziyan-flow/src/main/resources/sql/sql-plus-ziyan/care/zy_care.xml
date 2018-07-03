@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="care.ZyCare">
+		<!--查找审核通过的关怀规则-->
+		<sql id="queryValidatedList" value=" select *
+                            from care_auto_pattern
+                            where state = 1 and is_valid = 1">
+			<if value="and type_mark = #{typeMark}"></if>
+			<if value=" and pattern_type = #{patternType}"></if>
+			<if value="order by order_num desc desc"></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>

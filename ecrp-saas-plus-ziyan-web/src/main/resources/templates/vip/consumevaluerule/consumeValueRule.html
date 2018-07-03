@@ -1,0 +1,123 @@
+<th:block th:include="../public/include/layout::layout(~{::content},~{::script})">
+	<div th:fragment="content">
+		<div id="consumeValueRule" v-cloak>
+			<ns-shoplist-select ref="brandMultiSelect" @callback="doBrandMultilayer"></ns-shoplist-select>
+			<ns-goods-select ref="selectItems" @callback="doSelectItem" :goods="consumeValueRule.itemConsumeValue"></ns-goods-select>
+			<div class="template-page-tab">
+				<el-tabs type="card" v-model="activeName" @tab-click="clickTab(activeName)">
+					<el-tab-pane label="消费值规则" :name="consumeValueRuleName">
+					<el-row>
+						<el-col :span="24">
+							<el-form label-width="110px" class="institution-form" ref="consumeValueRuleForm" :model="consumeValueRule" placement="right" :rules="rules">
+								<el-form-item label="是否启用：">
+                 					 <el-form-grid>
+                    				 	<el-switch on-text="开" off-text="关" :on-value="1"  :off-value="0" v-model="consumeValueRule.is_open" :width="44"></el-switch>
+                					 </el-form-grid>
+               					</el-form-item>
+								<el-form-item label="排除权益黑名单：">
+									<el-form-grid>
+										<el-switch on-text="是" off-text="否" :width="44" :on-value="1" :off-value="0" th:v-model="consumeValueRule.f_right_black"></el-switch>
+									</el-form-grid>
+								</el-form-item>
+               					<el-form-item label="交易金额：" repuired>
+                  					<el-form-grid size="sm">
+                  					    <el-form-item prop="consume_value_price">
+                     						<el-input class="text-right" placeholder="请输入金额"  v-model="consumeValueRule.consume_value_price" ><span slot="append">元</span></el-input>
+                     					</el-form-item>
+                  					</el-form-grid> 
+                  					<el-form-grid class="text-info"><i class="bui-info"></i>多少元兑换1消费值</el-form-grid></el-form-item>
+                  				</el-form-item>	  
+                  				<el-form-item label="兑换上限：" width="100px">
+                					<el-form-grid size="sm" >
+                						<el-form-item prop="consume_value_limit">
+                    						<el-input class="text-right" placeholder="请输入消费值"  v-model="consumeValueRule.consume_value_limit" ><span slot="append">个</span></el-input>
+                    					</el-form-item>
+                 					</el-form-grid>
+                 					<el-form-grid class="text-info"><i class="bui-info"></i>单笔交易可兑换的最高消费值</el-form-grid>
+                				</el-form-item> 
+                				<el-form-item label="取整规则：" repuired>
+                  					<el-form-grid size="sm">
+					                    <el-select placeholder="消费值值取整规则" v-model="consumeValueRule.consume_value_round" >
+					                      	<el-option label="向上取整" :value="0"></el-option>
+					                      	<el-option label="向下取整" :value="1"></el-option>
+					                      	<el-option label="四舍五入" :value="2"></el-option>
+					                    </el-select>
+				                  	</el-form-grid>
+                				</el-form-item>
+                				<el-form-item label="消费值衰减：" repuired>
+                  					<el-form-grid> 自上次升级之日起</el-form-grid>
+                  					<el-form-grid size="xs">
+                  						<el-form-item prop="decay_time" required>
+                  							<el-input class="text-right" type = "number" v-model="consumeValueRule.decay_time"></el-input>
+                          				</el-form-item>
+                     			    </el-form-grid>
+                     			    <el-form-grid> 天后自动衰减</el-form-grid>
+                  					<el-form-grid size="sm">
+                  						<el-form-item prop="decay_value">
+                  							<el-input class="text-right" v-model="consumeValueRule.decay_value"><span slot="append">消费值</span></el-input>
+                  						</el-form-item>
+                  					</el-form-grid>
+                  				</el-form-item>
+                  				<el-form-item label="排除商品：" >
+                  					<el-form-grid size="xxlg">
+                  						  排除以下商品：
+	                  					<ns-goods-conditions-select ref="choosegoods1"
+						            	 	:show-conditions-select ="false" @callback="callback" 
+						            	 	:goods="consumeValueRule.goods_condition">
+					     				</ns-goods-conditions-select>
+                 		 			</el-form-grid>
+               					</el-form-item>
+								<!-- 指定消费值 -->
+               					<el-form-item label="指定消费值：">
+                 		 			<el-form-grid style="margin-left: 10px;">
+                 	  					<el-button type="primary" @click="handlerSelectItem"><i class="bui-select-goods"></i> 选择商品</el-button>
+                  					</el-form-grid>
+                  					<!-- 选择商品结果列表 列表展开收缩切换结构-->
+					            	<bus-toggles :max-height="180" style="width:51%">
+										<el-form style="margin-top:1px;margin-bottom:2px" class="institution-form tmp-choose__goods" ref="consumealueForm" :model="goods" :key="index" placement="right" v-for="(goods,index) in consumeValueRule.itemConsumeValue" :rules="rules">
+						          			<el-form-item>
+						          				<el-form-grid size="xmd">
+							          				{{goods.title}}
+							          			</el-form-grid>
+							          			<el-form-grid size="sm">
+							          				<el-form-item prop="consumeValue" >
+							          					<el-input :key="goods.id" class="text-right" placeholder="请输入消费" v-model="goods.consumeValue" :value="goods.consumeValue"><span slot="append">个</span></el-input>
+							          				</el-form-item>
+							          			</el-form-grid>
+							          			
+						          			</el-form-item>
+						            	</el-form>
+                     				</bus-toggles>
+               					</el-form-item>
+								<el-form-item label="排除店铺：">
+									<el-form-grid size="xmd" style="margin-left: 10px;">
+										<el-form-item prop="f_shop_ids">
+											<el-button type="primary" @click="handlerBrandMultilayer">
+												<i class="bui-select-shops"></i> 选择店铺
+											</el-button>
+											<el-form-grid>
+												已选择
+													<b class="text-danger">{{consumeValueRule.resultMultilayer}}</b> 家店铺
+											</el-form-grid>
+										</el-form-item>
+									</el-form-grid>
+								</el-form-item>
+				                <el-form-item>
+				                	<el-form-grid>
+				                    	<el-button type="primary" @click="saveRule()" >保存</el-button>
+				                  	</el-form-grid>
+				                </el-form-item>           			
+                  				
+							</el-form>
+							
+						</el-col>
+					</el-row>
+					</el-tab-pane>
+			 	</el-tabs>
+			</div>
+		</div>
+	</div>
+	<th:block th:fragment="script" th:inline="javascript">
+        <script type="text/javascript" src="/static/plus/ziyan/vip/js/consumeValueRule.jss"></script>
+    </th:block>
+</th:block>

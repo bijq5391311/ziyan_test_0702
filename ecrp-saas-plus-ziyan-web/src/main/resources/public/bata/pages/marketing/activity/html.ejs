@@ -1,0 +1,169 @@
+<% include ../../../include/layout/start.ejs %>
+<div id="example" v-cloak>
+  <div class="template-page">
+<!--
+    <div class="template-page-location">
+      <el-breadcrumb separator=">">
+        <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+        <el-breadcrumb-item>智能营销</el-breadcrumb-item>
+        <el-breadcrumb-item>活动管理</el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>
+-->
+
+    <div class="template-page-tab">
+      <el-tabs v-model="activeName" type="card">
+        <el-tab-pane label="活动管理" name="first">
+          <div class="activity-wrap">
+            <h4 class="activity-wrap__header">
+              <el-button-group size="mini" class="pull-right">
+                <el-button @click="gotoCurrent(thisYear)" :disabled="disabledYear">今年</el-button>
+                <el-button @click="gotoCurrent(thisYear, thisMonth)" :disabled="disabledMonth">本月</el-button>
+              </el-button-group>
+              {{currentYear}}年{{currentMonth}}月 营销情况概览
+            </h4>
+            <el-row class="activity-wrap__record">
+              <el-col :span="3">
+                <div class="record-name">执行中</div>
+                <div class="record-num"><b>4</b>个</div>
+              </el-col>
+              <el-col :span="3">
+                <div class="record-name">月总数</div>
+                <span class="record-num"><b>4</b>个</span>
+              </el-col>
+              <el-col :span="3">
+                <div class="record-name">月完成</div>
+                <div class="record-num"><b>4</b>个</div>
+              </el-col>
+              <el-col :span="5">
+                <div class="record-name">月营销成本</div>
+                <div class="record-num">￥<b>16365.05</b></div>
+              </el-col>
+              <el-col :span="3">
+                <div class="record-name">年总数</div>
+                <div class="record-num"><b>4</b>个</div>
+              </el-col>
+              <el-col :span="3">
+                <div class="record-name">年完成</div>
+                <div class="record-num"><b>4</b>个</div>
+              </el-col>
+              <el-col :span="4">
+                <div class="record-name">年营销成本</div>
+                <div class="record-num">￥<b>16365.05</b></div>
+              </el-col>
+            </el-row>
+            <el-calendar class="activity-wrap__calendar"
+                         ref="activityCalendar"
+                         :date-cell-content="dateCellRenderMarket"
+                         header-type="tab"
+                         @month-change="activityMonthChange"
+                         @year-change="activityYearChange">
+            </el-calendar>
+          </div>
+        </el-tab-pane>
+        <el-tab-pane label="活动设计" name="two">
+          <el-button type="primary" @click="paramEditVisible = true">属性修改</el-button>
+          <el-dialog custom-class="has-tabs" title="属性修改节点" v-model="paramEditVisible" :close-on-click-modal="false"
+                     :modal-append-to-body="false" size="small">
+            <el-tabs v-model="paramActive" type="card">
+              <el-tab-pane label="节点设置" name="set">
+                <el-form v-model="paramForm" :inline="true">
+                  <el-form-item label="任务名称：">
+                    <el-form-grid size="xmd">
+                      <el-input placeholder="请输入任务名称"></el-input>
+                    </el-form-grid>
+                    <el-form-grid>
+                      <el-checkbox>如果已有自定义属性，强制覆盖</el-checkbox>
+                    </el-form-grid>
+                  </el-form-item>
+                  <el-collapse v-model="paramCollapse" class="clean-outer">
+                    <el-collapse-item title="品牌属性" name="1">
+                      <el-table :show-header="false" :data="tableData" border>
+                        <el-table-column
+                          prop="id"
+                          width="65"
+                          label="编辑">
+                          <template scope="scope">
+                            <el-checkbox>清除</el-checkbox>
+                          </template>
+                        </el-table-column>
+                        <el-table-column
+                          prop="id"
+                          label="品牌">
+                          <template scope="scope">
+                            <el-form-item :label-width="paramLableWidth" label="性别：" class="mt-sm mb-sm"
+                                          v-if="scope.$index === 0">
+                              <el-form-grid>
+                                <el-radio-group v-model="paramForm.formRadio">
+                                  <el-radio label="男"></el-radio>
+                                  <el-radio label="女"></el-radio>
+                                </el-radio-group>
+                              </el-form-grid>
+                            </el-form-item>
+                            <el-form-item :label-width="paramLableWidth" label="黑名单：" class="mt-sm mb-sm"
+                                          v-else="scope.$index === 1">
+                              <el-form-grid>
+                                <el-checkbox-group v-model="paramForm.formCheck">
+                                  <el-checkbox label="权益黑名单"></el-checkbox>
+                                  <el-checkbox label="触达黑名单"></el-checkbox>
+                                </el-checkbox-group>
+                              </el-form-grid>
+                            </el-form-item>
+                          </template>
+                        </el-table-column>
+                      </el-table>
+                    </el-collapse-item>
+                    <el-collapse-item title="集团属性" name="3">
+                      <el-radio-group v-model="paramForm.formRadio" class="mb-sm spacing-button">
+                        <el-radio-button label="品牌一"></el-radio-button>
+                        <el-radio-button label="品牌二"></el-radio-button>
+                      </el-radio-group>
+                      <el-table :show-header="false" :data="tableData" border>
+                        <el-table-column
+                          prop="id"
+                          width="65"
+                          label="编辑">
+                          <template scope="scope">
+                            <el-checkbox>清除</el-checkbox>
+                          </template>
+                        </el-table-column>
+                        <el-table-column
+                          prop="id"
+                          label="品牌">
+                          <template scope="scope">
+                            <el-form-item :label-width="paramLableWidth" label="集团属性1：" class="mt-sm mb-sm"
+                                          v-if="scope.$index === 1">
+                              <el-form-grid>
+                                <el-checkbox-group v-model="paramForm.formCheck">
+                                  <el-checkbox label="复选1"></el-checkbox>
+                                  <el-checkbox label="复选2"></el-checkbox>
+                                </el-checkbox-group>
+                              </el-form-grid>
+                            </el-form-item>
+                            <el-form-item :label-width="paramLableWidth" label="集团属性2：" class="mt-sm mb-sm" v-else>
+                              <el-form-grid size="xmd">
+                                <el-input></el-input>
+                              </el-form-grid>
+                            </el-form-item>
+                          </template>
+                        </el-table-column>
+                      </el-table>
+                    </el-collapse-item>
+                  </el-collapse>
+                </el-form>
+              </el-tab-pane>
+              <el-tab-pane label="保存报告" name="report">
+                <div class="is-empty"><i class="bui-warn-fill"></i> 暂无数据</div>
+              </el-tab-pane>
+            </el-tabs>
+            <div slot="footer" class="dialog-footer">
+              <el-button @click="paramEditVisible = false">取 消</el-button>
+              <el-button type="primary" @click="paramEditVisible = false">保 存</el-button>
+            </div>
+          </el-dialog>
+        </el-tab-pane>
+      </el-tabs>
+    </div>
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

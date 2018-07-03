@@ -1,0 +1,8 @@
+<th:block th:fragment="render(code, subffix, dep)">
+	<th:block th:with="
+		dsl = ${T(com.nascent.ecrpsaas.base.model.PreviewSysUi).getDSL(currUser.tenantId,code).getJSON()},
+		tdsl = ${T(com.nascent.ecrpsaas.render.ELTokenHandler).handleToken(#ctx, dsl)}
+	">
+		<th:block th:insert="../public/renderEngineV2-1/grid/js::render(${tdsl}, ${subffix}, ${dep})"></th:block>
+	</th:block>
+</th:block>

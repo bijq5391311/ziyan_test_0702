@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="marketing.redsendrecord">
+	    <sql id="findList" value="
+	    select red_envelope.denomination 'denomination',red_send_record.*  from red_envelope
+	     join red_send_record on red_envelope.id=red_send_record.red_envelope_id">
+	     <if value="and red_envelope.id=#{id}"></if>
+	     <if value="and red_send_record.state=#{state}"></if>
+	     <bind name="nickname" value="#nickname == null ? null : ('%'+#nickname+'%')"></bind>
+         <if value="and nickname like #{nickname}"></if>
+	    </sql>
+	</sqlGroup>
+</sqlRoot>

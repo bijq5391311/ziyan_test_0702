@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="database.KdTradeExt">
+		<sql id="batchUpdateRemark" value="">
+			<if value="update kd_trade_ext set seller_memo=${seller_memo} where id=?"></if>
+		</sql>
+		
+		<sql id="updateSellerMemo" value="update kd_trade_ext set seller_memo=#{seller_memo} where sys_trade_id = #{sys_trade_id}"></sql>
+		
+		<sql id="updateTradeExpressState" value="update kd_trade_ext set out_company_name=#{companyName} ,out_state=#{outState},out_time=#{expressTime},update_time=#{updateTime} 
+				where sys_trade_id=#{sysTradeId}">
+		</sql>
+		
+		<sql id="batchUpdateMemo" value="update kd_trade_ext set seller_memo = #{seller_memo} ,update_time=current_timestamp() where 1=1 ">
+			<if value="and sys_trade_id in (${sys_trade_id})"></if>
+		</sql>
+		<sql id="updateUrgeTimes" value="update kd_trade_ext set urge_times = urge_times + 1 where 1= 1">
+			<if test="true" value="and sys_trade_id in (${sysTradeIds})"></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>

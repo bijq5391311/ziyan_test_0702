@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="dispatch.gradeRule">
+		<sql id="queryGradeDownRule" value="select id,sub_days as  subDays  from grade_rule  where allow_sub_grade =1 and state =1  and status = 1">
+		  	<if value="  and brand_id =  #{brandId} "></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>

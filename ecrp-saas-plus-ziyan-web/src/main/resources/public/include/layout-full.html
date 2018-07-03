@@ -1,0 +1,14 @@
+<th:block th:fragment="layoutfull(content)"><!DOCTYPE html>
+<html>
+<head th:replace="../public/include/head::head"></head>	
+<body class="page-body">
+
+    <!-- start:  Page content of course! -->
+   	<th:block th:include="${content}"></th:block>
+    <!-- end: Page content of course! -->
+
+</body>
+<script type="text/javascript" th:src="@{${nui}+'js/require.js'}"></script>
+<script type="text/javascript" th:src="@{${nui}+'js/nui.all.min.js'}"></script>
+</html>
+</th:block>

@@ -1,0 +1,9 @@
+<th:block th:fragment="createMethods(methods)">
+	<th:block th:inline="javascript">
+		{
+			[#th:block th:each="method, stat : ${methods}"]
+				[[${method.name}]]: [(${method.func})],
+			[/th:block]
+		}
+	</th:block>
+</th:block>

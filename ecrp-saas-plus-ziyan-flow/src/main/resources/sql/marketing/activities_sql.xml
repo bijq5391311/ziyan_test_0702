@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="marketing.activities">
+	    <sql id="acqueryList" value="SELECT (select `name` FROM sys_department where code = a.department_code) as department_name, id as id, mx_graph_node_values as mx_graph_node_values,
+					activities_name as activities_name, activity_mode as activity_mode, validated as validated, task_total as task_total,
+					creator as creator, create_time as create_time, status as status, remark as remark from activities a where group_id = #{group_id} and status = 2">
+			<bind name="depcode" value="#depcode == null ? null : (#depcode+'%')"></bind>		
+			<if value=" and department_code like #{depcode}"></if>
+<!-- 			<bind name="activities_name" value="'%'+#activities_name+'%'"></bind> -->
+			<if test="" value=" and activities_name like ${'%activities_name%'} "></if>
+			<if value=" order by create_time desc"></if>
+	    </sql>
+	    <sql id="analyzeList" value="SELECT a.sms_count AS sms_count, a.email_count AS email_count,
+						s.activities_name as activities_name, s.activity_mode as activity_mode from activitiesanalysis a
+							LEFT JOIN activities s ON a.activity_id = s.id">
+<!-- 			<if value=" order by update_time"></if> -->
+	    </sql>
+	    
+	    <sql id="getActivitiesList" value="SELECT id as id, creator_id as creator_id, ( SELECT `name` FROM sys_department WHERE CODE = a.department_code ) AS department_name,
+				activities_name AS activities_name, activity_mode AS activity_mode, validated AS validated,
+				task_total AS task_total, creator AS creator, create_time AS create_time, STATUS AS status,
+				remark AS remark, send_count as send_count, roi as roi, sale as sale, cost as cost,audit_user_id as aduit_user_id,
+				audit_user_name as aduit_user_name
+				from activities a WHERE 1=1 and ">
+				
+<!-- 		 <bind name="depcode" value="#depcode+'%'"></bind> -->
+				
+		<if value="(state != 0 and (`status` != 1 and department_code like ${'depcode%'}) OR (is_share = 1 and `status` != 1) or (department_code like ${'depcode%'} and `status` = 1))"></if>		
+<!-- 	  -->
+		 <bind name="activities_name" value="#activities_name == null ? null : ('%'+#activities_name +'%')"></bind>
+         <if value=" and activities_name like #{activities_name}"></if>
+         <bind name="creator" value="#creator == null ? null : ('%'+#creator+'%')"></bind>
+         <if test="#creator != null" value=" and creator like #{creator}"></if> 
+         <if test="#status != null" value=" and status = #{status}"></if>
+         <if test="#create_time$GTE != null" value=" and create_time BETWEEN #{create_time$GTE} and #{create_time$LTE} "></if>
+         
+         
+         
+         <if value=" order by create_time desc"></if>
+	    </sql>
+	    <sql id="getFlowTemplate" value="SELECT a.* from MKT_FLOW_TEMPLATE a
+							LEFT JOIN activities s ON a.name = s.activities_name where s.activities_name = #{name}">
+	    </sql>
+	    <sql id="getFlowTemplateByActivitiesId" value="SELECT a.* from MKT_FLOW_TEMPLATE a
+							where a.ActivitiesID = #{activityId}">
+	    </sql>
+	    <sql id="getCustomerXml" value="SELECT a.customer_xml from subdivision a where a.id = #{subId}">
+			<if value=" and group_id like #{tenantId}"></if>
+	    </sql>
+	    <sql id="findActivitiesByName" value="SELECT a.* from activities a
+			where a.activities_name = #{activityName}
+		">
+	    </sql>
+	    <!-- 根据传入的状态，查询月记录数据  InstanceState 对应状态码, 不传获取所有月的总数据, type必须填-->
+	    <sql id="queryCalendarData" value=" SELECT DATE_FORMAT(m.TriggerTime, '%Y-%m-%d') AS result_date, count(m.id) as count,  m.InstanceState
+	    		from mkt_flow_running_process m, activities a where  m.state=1 and m.`Name` = a.activities_name ">
+	    	<bind name="department_code" value="#department_code == null ? null : ( #department_code+'%')"></bind>
+	    	<if value="  and a.department_code like #{department_code}"></if>
+			<if test="#InstanceState != null" value=" and m.InstanceState = #{InstanceState}"></if>	
+			<if value="  and m.is_pre_execution = 0" ></if>
+			<!-- 过滤时间 -->
+			<if test="#datetype == 1" value=" and DATE_FORMAT(m.TriggerTime, '%Y') = DATE_FORMAT(#{dateParm}, '%Y') "></if>
+			
+			<if test="#datetype == 2" value=" and DATE_FORMAT(m.TriggerTime, '%Y-%m') = DATE_FORMAT(#{dateParm}, '%Y-%m') "></if>
+			
+			
+			
+			<!-- 过滤天  -->
+			<if test="#type == 1" value=" GROUP BY DATE_FORMAT(TriggerTime, '%Y-%m-%d'), m.InstanceState"></if>
+			
+			<!-- 过滤月 -->
+			<if test="#type == 2" value=" GROUP BY DATE_FORMAT(TriggerTime, '%Y-%m'), m.InstanceState"></if>
+			
+			<!-- 过滤年 -->
+			<if test="#type == 3" value=" GROUP BY DATE_FORMAT(TriggerTime, '%Y'), m.InstanceState"></if>
+		</sql>
+	    <sql id="queryDayData" value="SELECT COUNT(m.InstanceState) AS count,m.InstanceState, a.activities_date, a.* 
+					from activities_calendar_count a, mkt_flow_running_process m WHERE a.mkt_id = m.ID ">
+				
+<!-- 				根据部门过滤且是否部门共享 -->
+				<bind name="deptCode" value="#deptCode == null ? null : ( #deptCode+'%')"></bind>
+	    		<if value="  and (a.department_code like #{deptCode} or a.is_share =1)"></if>
+				
+				<if value=" AND DATE_FORMAT(a.activities_date, '%Y-%m') = DATE_FORMAT(#{startDate}, '%Y-%m') and m.InstanceState !='ERROR'"></if>
+				
+				
+				<if value=" GROUP BY a.activities_date, m.InstanceState ORDER BY activities_date DESC"></if>
+		</sql>
+		
+		<sql id="getActivitiesByName" value="select count(id) as count from activities where activities_name = #{name} ">
+			<if test="#id != -1" value=" and id != #{id}"></if>
+		</sql>
+		<sql id="getActivitiesByInstance" value="select b.* from MKT_FLOW_RUNNING_PROCESS a,activities b where a.ActivitiesID = b.id and a.ID = #{instanceId} ">
+		</sql>
+
+<!-- 	    获取集团属性 -->
+	    <sql id="queryGroupproperties" value="select id as id, `name` as name, value as value, type as type, false as disabled, ' ' as model from kd_customer_property where group_id = #{group_id} and source = 1 and state = 1"></sql>
+	    
+	    <sql id="queryCustomPropertiesByBrandId" value="select id as id, `name` as name, value as value, type as type, false as disabled, ' ' as model from kd_customer_property where target = #{brnad_id} and source = 2 and state = 1"></sql>
+	    
+	    
+	    <sql id="calendarCount" value="SELECT  p.ID AS id, p.`Name` AS NAME, a.is_share AS is_share, a.department_code as department_code, DATE_FORMAT(p.TriggerTime,'%Y-%m-%d') as TriggerTime from mkt_flow_running_process p,
+			activities a WHERE a.activities_name = p. NAME  and p.InstanceState in ('READY', 'RUNNING')">
+	    </sql>
+	    
+	    <sql id="getDayDate" value="SELECT p.`Name` AS title, '' as link, (SELECT s.id as id FROM activities s where s.activities_name = p.`Name`) as id from activities_calendar_count a, mkt_flow_running_process p WHERE a.mkt_id = p.ID and a.activities_date = DATE_FORMAT(#{time},'%Y-%m-%d') and p.InstanceState = #{type}">
+	    </sql>
+	    <sql id="getWaitAnlysisActivities" value="SELECT * from activities where `status` = 5 and state != 2 limit #{index}, #{pageSize}">
+	    </sql>
+	    
+<!-- 	    历史获取分析节点 -->
+<!-- 	     SELECT m.* FROM -->
+<!-- 			`marketing` m, -->
+<!-- 			`activities` a -->
+<!-- 		WHERE -->
+<!-- 			( -->
+<!-- 				m.submit_state != 5 -->
+<!-- 				OR ( -->
+<!-- 					m.submit_state = 5 -->
+<!-- 					AND m.state = 2 -->
+<!-- 				) -->
+<!-- 			) -->
+<!-- 		AND m.submit_state !=- 1 -->
+<!-- 		AND NOW() > m.send_time -->
+<!-- 		AND m.marketing_manner = 10 -->
+<!-- 		AND m.activities_id = a.ID -->
+<!-- 		AND a.`status` IN (4, 5, 6)  limit #{pageIndex}, #{pageSize} -->
+	    <sql id="getWaitAnlysisNodes" value="  SELECT * FROM `analysis_node` where status = 0 limit #{pageIndex}, #{pageSize}">
+	    </sql>
+	    <sql id="queryNodeDate" value="  SELECT m.numberOfPeople, m.send_success_count, concat(left (m.send_success_count / m.numberOfPeople *100,5),'') as success_rate from marketing m where instance_id = #{instance_id} and node_id = #{node_id} ">
+	    </sql>
+		<!--获取节点分析数据 -->
+	    <sql id="loadActivitiesAnalysis" value=" SELECT
+							 mf.*,
+								m.numberOfPeople as numberOfPeople,
+								m.marketing_manner as marketingManner,
+								m.marketing_type,
+								m.holiday_name,
+								m.group_id_char,
+								m.price
+							FROM
+								marketing_effect_detail mf
+							
+							LEFT JOIN analysis_node n ON n.id = mf.analysis_node_id
+							INNER JOIN marketing m on m.instance_id = n.instance_id and m.node_id = n.pre_id
+							WHERE
+								n.instance_id =#{instance_id}
+								and n.node_id = #{node_id} ">
+	    </sql>
+	    
+		<sql id="loadAnalysisNode" value="SELECT mx_graph_analysis_values from activities where id = (SELECT activities_id from marketing where instance_id = #{instance_id} LIMIT 0,1)"></sql>
+		<sql id="loadAnalysisNodeData" value=" SELECT * from marketing_effect_detail where node_id = #{nodeId} and instance_id = #{instance_id} "></sql>
+		<sql id="findAnalysisNodes" value=" SELECT * from analysis_node where instance_id = #{instance_id} "></sql>
+		<sql id="findAnalysisNode" value=" SELECT * from analysis_node where instance_id = #{instance_id} and node_id =  #{nodeId}"></sql>
+	</sqlGroup>
+</sqlRoot>

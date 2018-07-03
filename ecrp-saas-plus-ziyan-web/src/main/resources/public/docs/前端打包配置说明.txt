@@ -1,0 +1,15 @@
+
+功能描述：前端打包配置需要用到2个文件，分别是配置文件和变量文件。
+
+
+1、配置文件所在路径：ECRP\ECRP_SAAS\frontPack\index.js
+
+2、配置文件的内容：变量文件所在路径及前端打包资源的输出路径 
+
+3、变量文件所在路径：项目根目录下/src/main/resources/public/
+
+4、变量文件名称：variables.项目名称.css，如基础版的变量文件命名为：variables.base.css
+
+
+
+

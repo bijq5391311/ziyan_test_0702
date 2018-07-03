@@ -1,0 +1,92 @@
+<th:block
+	th:include="../public/include/layout::layout(~{::content},~{::script})">
+	<div th:fragment="content">
+  <!--  店铺选择弹窗结构 -->
+    <div id="integralruletackout" v-cloak>
+        <ns-shoplist-select ref="brandMultiSelect" @callback="doBrandMultilayer"></ns-shoplist-select>
+			<div class="template-page-tab">
+				<el-tabs v-model="activeName" type="card"
+					@tab-click="clickBrandTab(activeName)">
+					 <el-tab-pane :label="pointRule.channel_name" :key="indexOfPointRule"
+					:name="String(indexOfPointRule)"
+					v-for="(pointRule,indexOfPointRule) in pointRules" >
+					 <el-row>
+				<el-col :span="24"> 
+		             <el-form label-width="140px" class="institution-form"  ref ="form" :model="pointRule" :rules="rules" placement="right">
+                <el-form-item label="是否启用：">
+                  <el-form-grid>
+                    <el-switch on-text="开" off-text="关"  th:v-model="pointRule.is_open" :on-value="1"  :off-value="0" :width="44"></el-switch>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="交易金额：" required >
+                  <el-form-grid size="sm">
+                     <el-form-item prop="point_price">
+                      <el-input class="text-right" placeholder="请输入金额" 
+                       v-model="pointRule.point_price" ><span slot="append">元</span></el-input>
+                     </el-form-item>
+                  </el-form-grid>
+                  <el-form-grid class="text-info"><i class="bui-info"></i>多少元兑换1积分</el-form-grid></el-form-item>
+
+                <el-form-item label="积分兑换上限：">
+                  <el-form-grid size="sm">
+                      <el-form-item prop="point_limit">
+                    <el-input class="text-right" placeholder="请输入积分"  v-model="pointRule.point_limit" ><span slot="append">分</span></el-input>
+                      </el-form-item>
+                  </el-form-grid>
+                  <el-form-grid class="text-info"><i class="bui-info"></i>单笔交易可兑换的最高积分</el-form-grid>
+                </el-form-item>
+                <el-form-item label="积分取整规则："  required  >
+                  <el-form-grid size="sm">
+                    <el-form-item prop="point_round">
+                    <el-select placeholder="积分取整规则" v-model="pointRule.point_round" >
+                      <el-option label="向上取整" :value="0"></el-option>
+                      <el-option label="向下取整" :value="1"></el-option>
+                       <el-option label="四舍五入" :value="2"></el-option>
+<!--                       <el-option label="保留两位小数" :value="3"></el-option>-->
+                    </el-select>
+                    </el-form-item>
+                  </el-form-grid>
+                </el-form-item>
+                <el-form-item label="排除商品：" >
+                  <el-form-grid size="xxlg">
+                    排除以下商品：
+                  <ns-goods-conditions-select ref="choosegoods1"
+					             @callback="callback"  
+					             :goods="pointRule.goods_condition"
+					             :show-conditions-select ="false">
+				     </ns-goods-conditions-select>
+                  </el-form-grid>
+                </el-form-item>
+
+                 <el-form-item label="排除店铺：">
+                     <el-form-grid size="xmd">
+                         <el-form-item prop="f_shop_ids">
+                             <el-button type="primary" @click="handlerBrandMultilayer">
+                                 <i class="bui-select-shops"></i> 选择店铺
+                             </el-button>
+                             <el-form-grid>
+                                 已选择
+                                 <b class="text-danger">{{pointRule.resultMultilayer}}</b> 家店铺
+                             </el-form-grid>
+                         </el-form-item>
+                     </el-form-grid>
+                 </el-form-item>
+                <el-form-item>
+                  <el-form-grid>
+                    <el-button type="primary" @click="saveData(indexOfPointRule)">保存</el-button>
+                  </el-form-grid>
+                </el-form-item>
+              </el-form>
+					</el-col> 
+					</el-row> 
+					</el-tab-pane>
+					 </el-tabs>
+			</div>
+		</div>
+
+	</div>
+	<th:block th:fragment="script">
+		<script type="text/javascript"
+			th:src="@{/static/plus/ziyan/integral/kdpointrule/pointRuleOutTake.js}"></script>
+	</th:block>
+</th:block>

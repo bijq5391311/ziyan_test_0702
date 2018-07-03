@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="zybase.common">
+		<sql id="queryShopList" value=" SELECT id AS id, out_name AS shopName, out_code AS shopCode from out_shop ">
+			<if value="and out_code in(${'outCodes'})"></if>
+		</sql>
+	</sqlGroup>
+	<sqlGroup name="zybase.area">
+		<sql id="queryAreaTree" value="select tb_name as id,parent_id as parentId,tb_name as label
+		       from  area where state = 1">
+		       <if value="and parent_id = (select group_concat(a.tb_id separator &apos;,&apos;) from  area a where a.tb_name = #{parent_id})"></if>
+		       <if value="and tb_type = #{tb_type}"></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>

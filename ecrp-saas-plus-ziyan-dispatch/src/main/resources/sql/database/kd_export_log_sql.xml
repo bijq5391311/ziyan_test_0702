@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name = "kdexportlog.KdExportLog">
+		<sql id="queryList" value="select * from kd_export_log where 1=1">
+		
+		    <bind name="download_addr" value="#download_addr == null ? null : ('%'+#download_addr+'%')"></bind>
+		    <bind name="create_accout" value="#create_accout == null ? null : ('%'+#create_accout+'%')"></bind>
+		    
+			<if test="#download_addr != null and #download_addr != '%%'" value="and download_addr like #{download_addr}"></if>
+			<if test="#create_accout != null and #create_accout != '%%'" value="and create_accout like #{create_accout}"></if>
+			<if value="and result_state = #{result_state}"></if>
+			<if value="order by create_time desc"></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>

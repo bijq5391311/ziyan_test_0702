@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:util="http://www.springframework.org/schema/util" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xmlns:cache="http://www.springframework.org/schema/cache" xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+    http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache-3.2.xsd
+    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+    http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/task
+    http://www.springframework.org/schema/task/spring-task.xsd">
+
+    <bean id="generateRfmUpdateTaskJob" class="com.nascent.ecrpsaas.dispatch.task.rfm.GenerateRfmUpdateTaskJob"></bean>
+    <bean id="kdCustomerRfmUpdateJob" class="com.nascent.ecrpsaas.dispatch.task.rfm.KdCustomerRfmUpdateJob"></bean>
+    <task:scheduler id="rfm_scheduler" pool-size="1" />
+    <!-- 调度任务配置 -->
+    <task:scheduled-tasks scheduler="rfm_scheduler">
+        <!-- 生成会员Rfm更新任务 -->
+        <task:scheduled ref="generateRfmUpdateTaskJob" method="workStart" cron="0/40 * * * * ?"/>
+        <!-- 更新店铺会员Rfm属性值 -->
+        <task:scheduled ref="kdCustomerRfmUpdateJob" method="workStart" cron="0 0/2 * * * ?"/>
+    </task:scheduled-tasks>
+</beans>

@@ -1,0 +1,605 @@
+<% include ../../../include/layout/start.ejs %>
+<div id="example" v-cloak>
+  <div class="template-page">
+<!--    <div class="template-page-location">
+      <el-breadcrumb separator=">">
+        <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+        <el-breadcrumb-item>会员洞察</el-breadcrumb-item>
+        <el-breadcrumb-item>会员分群</el-breadcrumb-item>
+        <el-breadcrumb-item>会员划分</el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>-->
+
+    <div class="template-page-tab">
+      <el-tabs v-model="activeName" type="card">
+        <el-tab-pane label="组织机构" name="first">
+          <div class="template-layout">
+            <div class="template-layout-left">
+              <div class="template-left-tree">
+                <el-scrollbar ref="layoutLeftScroll1"
+                              wrap-class="template-layout__scroll" outsider>
+                  <h5 style="margin:0" class="template-tree-title">所有类目</h5>
+                  <el-tree-extra class="template-tree-organize"
+                                 :empty-text="orgnazationEmpty"
+                                 :data="orgnazationData"
+                                 node-key="id"
+                                 :indent="20"
+                                 :expand-on-click-node="false"
+                                 :maxlength="15"
+                                 show-icon
+                                 icon-add="bui-add"
+                                 icon-edit="bui-edit"
+                                 icon-delete="bui-delete"
+                                 @node-click="handleOrgClick"
+                                 :set-custom-icon="setCustomIcon"
+                                 :before-add-node="beforeAddNode"
+                                 :save-new-data="saveNewData"
+                                 :before-edit-node="beforeEditNode"
+                                 :save-edit-data="saveEditData"
+                                 :before-delete-node="beforeDeleteNode"
+                                 :after-delete-node="afterDeleteNode">
+                  </el-tree-extra>
+                </el-scrollbar>
+              </div>
+            </div>
+
+            <div class="template-layout-right">
+              <el-scrollbar ref="layoutLeftScroll12"
+                            wrap-class="template-layout__scroll" outsider>
+                <el-row>
+                  <el-col :span="24">
+                    <el-collapse :collapsed-on-click-header="false" class="storecheck-wrap" v-model="brandNames"
+                                 accordion>
+                      <div style="height:140px;" v-if="loading"
+                           v-loading="loading"
+                           element-loading-text="数据加载中"></div>
+                      <el-collapse-item content-switch v-for="(item, index) in orgnazationShops" :key="item.id"
+                                        :name="item.label">
+                      <span slot="title">
+                         {{item.label}} <span class="storecheck-cate__number">(1/<b>10</b>)</span>
+                      </span>
+                        <!-- 品牌的根店铺 -->
+                        <el-row slot="menu">
+                          <el-col :span="8" v-for="leaf in item.leaf" :key="leaf.id">
+                            <div class="storecheck-cate__item"><!--<span class="tmp-mark" v-if="leaf.mark">独</span>-->
+                              <div class="storecheck-cate__item__value">{{leaf.label}}</div>
+                            </div>
+                          </el-col>
+                        </el-row>
+                        <!-- 品牌的店铺类别列表  -->
+                        <div class="storecheck-cate__content" v-for="cate in item.children" :key="cate.id">
+                          <!--   线上数据  -->
+                          <el-collapse v-model="storecheckNames" v-if="cate.online" class="storecheck-cate">
+                            <el-collapse-item v-for="(online, index) in cate.children" :key="online.id">
+                             <span class="storecheck-cate__title" slot="title">
+                              {{online.label}}  <span class="storecheck-cate__number">(1/<b>10</b>)</span>
+                              <i class="el-collapse-item__header__caret el-icon-caret-top"></i>
+                            </span>
+                              <el-row>
+                                <el-col :span="8" v-for="shop in online.children" :key="shop.id">
+                                  <div class="storecheck-cate__item">
+                                    <!--<span class="tmp-mark" v-if="shop.mark">独</span>-->
+                                    <div class="storecheck-cate__item__value">{{shop.label}}</div>
+                                  </div>
+                                </el-col>
+                              </el-row>
+                            </el-collapse-item>
+                          </el-collapse>
+                          <!--   线下数据  -->
+                          <el-collapse v-if="cate.line" :collapsed-on-click-header="false" class="storecheck-cate"
+                                       @change="handleStorecheckCateChange">
+                            <el-collapse-item v-for="(line, index) in cate.children" :key="line.id" content-switch>
+                          <span class="storecheck-cate__title" slot="title">
+                            <i class="bui-dingwei"></i>{{line.label}}  <span
+                              class="storecheck-cate__number">(1/<b>10</b>)</span>
+                          </span>
+                              <!-- 线下店铺的根店铺 -->
+                              <el-row slot="menu">
+                                <el-col :span="24" v-if="!line.leaf">
+                                  暂无店铺数据
+                                </el-col>
+                                <el-col :span="8" v-for="leaf in line.leaf" :key="leaf.id">
+                                  <div class="storecheck-cate__item">
+                                    <!--<span class="tmp-mark" v-if="leaf.mark">独</span>-->
+                                    <div class="storecheck-cate__item__value">{{leaf.label}}</div>
+                                  </div>
+                                </el-col>
+                              </el-row>
+                              <!-- 线下店铺的分类列表 -->
+                              <el-row>
+                                <el-col :span="24">
+                                  <el-multi
+                                    :data="line.children"
+                                    ref="a"
+                                    accordion
+                                    :expand-on-click-node="false"
+                                    show-checkbox
+                                    :show-Selectall="false"
+                                    :cols="4"
+                                    :props="lineProps">
+                                  </el-multi>
+                                </el-col>
+                              </el-row>
+                            </el-collapse-item>
+                          </el-collapse>
+                        </div>
+                      </el-collapse-item>
+                    </el-collapse>
+                  </el-col>
+                </el-row>
+              </el-scrollbar>
+            </div>
+          </div>
+        </el-tab-pane>
+        <el-tab-pane label="店铺树" name="two">
+          <div class="template-layout">
+            <div class="template-layout-left">
+              <div class="template-left-tree">
+                <el-scrollbar ref="layoutLeftScroll2"
+                              wrap-class="template-layout__scroll" outsider>
+                  <el-tree-extra class="template-tree-organize"
+                                 :empty-text="orgnazationEmpty"
+                                 :data="orgnazationData"
+                                 node-key="id"
+                                 :indent="20"
+                                 :expand-on-click-node="false"
+                                 :maxlength="15"
+                                 show-icon
+                                 type="line"
+                                 icon-add="bui-add"
+                                 icon-edit="bui-edit"
+                                 icon-delete="bui-delete"
+                                 @node-click="handleOrgClick"
+                                 :set-custom-icon="setCustomIcon"
+                                 :before-add-node="beforeAddNode"
+                                 :save-new-data="saveNewData"
+                                 :before-edit-node="beforeEditNode"
+                                 :save-edit-data="saveEditData"
+                                 :before-delete-node="beforeDeleteNode"
+                                 :after-delete-node="afterDeleteNode">
+                  </el-tree-extra>
+                </el-scrollbar>
+              </div>
+            </div>
+
+            <div class="template-layout-right">
+              <el-scrollbar ref="layoutLeftScroll22"
+                            wrap-class="template-layout__scroll" outsider>
+                <el-input
+                  placeholder="输入关键字进行过滤"
+                  v-model="filterText"
+                  style="margin-bottom:15px;">
+                </el-input>
+                <el-row>
+                  <el-col :span="24">
+                    <el-tree-extra :data="orgnazationShops"
+                                   node-key="id"
+                                   show-checkbox
+                                   :filter-node-method="filterNode"
+                                   ref="filterExtra"></el-tree-extra>
+                  </el-col>
+                </el-row>
+              </el-scrollbar>
+            </div>
+          </div>
+        </el-tab-pane>
+        <el-tab-pane label="会员划分" name="three">
+          <div class="template-layout">
+            <div class="template-layout-left">
+              <div class="template-left-tree">
+                <el-scrollbar ref="layoutLeftScroll3"
+                              wrap-class="template-layout__scroll" outsider>
+                  <div class="member-division-block">
+                    <el-button type="primary"><i class="bui-add"></i>创建分类</el-button>
+                  </div>
+                  <el-tree class="template-tree-organize"
+                           ref="creator"
+                           node-key="id"
+                           :data="data"
+                           :props="defaultProps"
+                           @node-click="handleNodeClick"
+                           :expand-on-click-node="false"
+                           :render-content="renderContent"></el-tree>
+                </el-scrollbar>
+              </div>
+            </div>
+
+            <div class="template-layout-right">
+              <el-scrollbar ref="layoutLeftScroll32"
+                            wrap-class="template-layout__scroll" outsider>
+                <el-row>
+                  <el-col :span="24">
+
+                    <bus-multi-filter @submit-search="submitSearch"
+                                      @reset-search="resetSearch"
+                                      @recover-search="recoverSearch"
+                                      @clean-search="cleanSearch">
+                      <!-- 按钮组 -->
+                      <template slot="btns">
+                        <a class="el-button el-button--primary" href="/memberInsight/memberDivisionCreate/index.html"><i
+                            class="bui-add"></i>新建分组</a>
+                        <el-button type="primary"><i class="bui-delete"></i>删除分组</el-button>
+                      </template>
+                      <!-- end/按钮组 -->
+                      <!-- 单条件表单 -->
+                      <el-form slot="singleform" :inline="true" class="pull-right">
+                        <el-form-item>
+                          <el-input
+                            placeholder="请输入姓名"
+                            icon="search">
+                          </el-input>
+                        </el-form-item>
+                      </el-form>
+                      <!-- end/单条件表单 -->
+                      <!-- 多条件表单 -->
+                      <el-form label-width="80px" :inline="true">
+                        <el-form-item label="关键词：">
+                          <el-form-grid size="xmd">
+                            <el-input placeholder="请输入关键词"></el-input>
+                          </el-form-grid>
+                        </el-form-item>
+                        <el-form-item label="交易来源：">
+                          <el-form-grid size="xmd">
+                            <el-select placeholder="请选择交易来源" v-model="defaultSelect">
+                              <el-option label="区域一" value="shanghai"></el-option>
+                              <el-option label="区域二" value="beijing"></el-option>
+                            </el-select>
+                          </el-form-grid>
+                        </el-form-item>
+                        <el-form-item label="件数：" class="el-inline-block">
+                          <el-form-grid size="xmd">
+                            <el-row>
+                              <el-col :span="11">
+                                <el-input placeholder=""></el-input>
+                              </el-col>
+                              <el-col :span="2">~</el-col>
+                              <el-col :span="11">
+                                <el-input placeholder=""></el-input>
+                              </el-col>
+                            </el-row>
+                          </el-form-grid>
+                        </el-form-item>
+                        <el-form-item label="商品编码：" class="el-inline-block">
+                          <el-form-grid size="xmd">
+                            <el-input placeholder=""></el-input>
+                          </el-form-grid>
+                          </el-form-grid >
+                        </el-form-item>
+                        <el-form-item label="原始编号：" class="el-inline-block">
+                          <el-form-grid size="xmd">
+                            <el-input placeholder=""></el-input>
+                          </el-form-grid>
+                        </el-form-item>
+                        <el-form-item label="下单时间：">
+                          <el-form-grid size="xmd">
+                            <el-date-picker type="daterange" v-model="date" placeholder="选择日期"
+                                            format="yyyy-MM-dd"></el-date-picker>
+                          </el-form-grid>
+                        </el-form-item>
+                        <el-form-item label="快递公司：" class="el-inline-block">
+                          <el-form-grid size="xmd">
+                            <el-select placeholder="不限" v-model="defaultSelect">
+                              <el-option label="区域一" value="shanghai"></el-option>
+                              <el-option label="区域二" value="beijing"></el-option>
+                            </el-select>
+                          </el-form-grid>
+                        </el-form-item>
+                        <el-form-item label="地址：">
+                          <el-form-grid size="xmd">
+                            <el-select placeholder="省/市/区" v-model="defaultSelect">
+                              <el-option label="区域一" value="shanghai"></el-option>
+                              <el-option label="区域二" value="beijing"></el-option>
+                            </el-select>
+                          </el-form-grid>
+                        </el-form-item>
+                      </el-form>
+                      <!-- end/多条件表单 -->
+                      <!-- 搜索结果 -->
+                      <template slot="result">
+                        <el-tag v-for="(tag,index) in 10" :key="index" type="primary" :closable="true">tag</el-tag>
+                      </template>
+                      <!-- end/搜索结果 -->
+                    </bus-multi-filter>
+                    <el-table
+                      :data="tableData"
+                      :empty-text="tableEmptyTip"
+                      class="template-table"
+                      border
+                      resizable>
+                      <el-table-column
+                        type="selection"
+                        width="55">
+                      </el-table-column>
+                      <el-table-column
+                        prop="date"
+                        label="日期"
+                        width="180">
+                      </el-table-column>
+                      <el-table-column
+                        prop="name"
+                        label="姓名"
+                        width="180">
+                      </el-table-column>
+                      <el-table-column
+                        prop="province"
+                        label="省份"
+                        width="180">
+                      </el-table-column>
+                      <el-table-column
+                        prop="address"
+                        label="地址">
+                      </el-table-column>
+                      <el-table-column
+                        label="操作"
+                        width="110">
+                        <template scope="scope">
+                          <el-button type="text" @click.native.prevent="editRow(scope.$index, tableData)">详情</el-button>
+                          |
+                          <el-dropdown trigger="click" menu-align="start">
+                            <span class="el-dropdown-link">
+                              更多<i class="el-icon-caret-bottom el-icon--right"></i>
+                            </span>
+                            <el-dropdown-menu slot="dropdown">
+                              <el-dropdown-item :command="String(scope.$index)">删除</el-dropdown-item>
+                            </el-dropdown-menu>
+                          </el-dropdown>
+                        </template>
+                      </el-table-column>
+                    </el-table>
+                    <el-pagination
+                      class="template-table-pagination"
+                      @size-change="handleSizeChange"
+                      @current-change="handleCurrentChange"
+                      :current-page="currentPage4"
+                      :page-sizes="[10, 20, 30, 50, 100]"
+                      :page-size="10"
+                      layout="total, sizes, prev, pager, next, jumper"
+                      :total="100">
+                    </el-pagination>
+                  </el-col>
+                </el-row>
+              </el-scrollbar>
+            </div>
+          </div>
+        </el-tab-pane>
+        <el-tab-pane label="会员分组" name="four">
+          <div class="template-layout">
+            <div class="template-layout-left">
+
+              <el-scrollbar ref="layoutLeftScrollColl"
+                            wrap-class="template-layout__scroll" outsider>
+                  <el-collapse accordion  class="is-white">
+                    <el-collapse-item title="工程部">
+                      <el-scrollbar wrap-class="template-layout__scroll" :wrap-style="{'color': '#ff0;'}">
+                         <el-tree-extra class="template-tree-organize"
+                                     :empty-text="orgnazationEmpty"
+                                     :data="orgnazationData"
+                                     node-key="id"
+                                     :indent="20"
+                                     :expand-on-click-node="false"
+                                     :maxlength="15"
+                                     show-icon
+                                     icon-add="bui-add"
+                                     icon-edit="bui-edit"
+                                     icon-delete="bui-delete"
+                                     @node-click="handleOrgClick"
+                                     :set-custom-icon="setCustomIcon"
+                                     :before-add-node="beforeAddNode"
+                                     :save-new-data="saveNewData"
+                                     :before-edit-node="beforeEditNode"
+                                     :save-edit-data="saveEditData"
+                                     :before-delete-node="beforeDeleteNode"
+                                     :after-delete-node="afterDeleteNode">
+                      </el-tree-extra>
+                      </el-scrollbar>
+                    </el-collapse-item>
+                    <el-collapse-item title="测试部">
+                      <el-tree-extra class="template-tree-organize"
+                                     :empty-text="orgnazationEmpty"
+                                     :data="orgnazationData"
+                                     node-key="id"
+                                     :indent="20"
+                                     :expand-on-click-node="false"
+                                     :maxlength="15"
+                                     show-icon
+                                     icon-add="bui-add"
+                                     icon-edit="bui-edit"
+                                     icon-delete="bui-delete"
+                                     @node-click="handleOrgClick"
+                                     :set-custom-icon="setCustomIcon"
+                                     :before-add-node="beforeAddNode"
+                                     :save-new-data="saveNewData"
+                                     :before-edit-node="beforeEditNode"
+                                     :save-edit-data="saveEditData"
+                                     :before-delete-node="beforeDeleteNode"
+                                     :after-delete-node="afterDeleteNode">
+                      </el-tree-extra>
+                    </el-collapse-item>
+                    <el-collapse-item title="研发部">
+                      <el-tree-extra class="template-tree-organize"
+                                     :empty-text="orgnazationEmpty"
+                                     :data="orgnazationData"
+                                     node-key="id"
+                                     :indent="20"
+                                     :expand-on-click-node="false"
+                                     :maxlength="15"
+                                     show-icon
+                                     icon-add="bui-add"
+                                     icon-edit="bui-edit"
+                                     icon-delete="bui-delete"
+                                     @node-click="handleOrgClick"
+                                     :set-custom-icon="setCustomIcon"
+                                     :before-add-node="beforeAddNode"
+                                     :save-new-data="saveNewData"
+                                     :before-edit-node="beforeEditNode"
+                                     :save-edit-data="saveEditData"
+                                     :before-delete-node="beforeDeleteNode"
+                                     :after-delete-node="afterDeleteNode">
+                      </el-tree-extra>
+                    </el-collapse-item>
+                  </el-collapse>
+              </el-scrollbar>
+            </div>
+            <div class="template-layout-right">
+              <el-scrollbar ref="layoutLeftScroll32"
+                            wrap-class="template-layout__scroll" outsider>
+                <el-row>
+                  <el-col :span="24">
+
+                    <bus-multi-filter @submit-search="submitSearch"
+                                      @reset-search="resetSearch"
+                                      @recover-search="recoverSearch"
+                                      @clean-search="cleanSearch">
+                      <!-- 按钮组 -->
+                      <template slot="btns">
+                        <a class="el-button el-button--primary" href="/memberInsight/memberDivisionCreate/index.html"><i
+                            class="bui-add"></i>新建分组</a>
+                        <el-button type="primary"><i class="bui-delete"></i>删除分组</el-button>
+                      </template>
+                      <!-- end/按钮组 -->
+                      <!-- 单条件表单 -->
+                      <el-form slot="singleform" :inline="true" class="pull-right">
+                        <el-form-item>
+                          <el-input
+                            placeholder="请输入姓名"
+                            icon="search">
+                          </el-input>
+                        </el-form-item>
+                      </el-form>
+                      <!-- end/单条件表单 -->
+                      <!-- 多条件表单 -->
+                      <el-form label-width="80px" :inline="true">
+                        <el-form-item label="关键词：">
+                          <el-form-grid size="xmd">
+                            <el-input placeholder="请输入关键词"></el-input>
+                          </el-form-grid>
+                        </el-form-item>
+                        <el-form-item label="交易来源：">
+                          <el-form-grid size="xmd">
+                            <el-select placeholder="请选择交易来源" v-model="defaultSelect">
+                              <el-option label="区域一" value="shanghai"></el-option>
+                              <el-option label="区域二" value="beijing"></el-option>
+                            </el-select>
+                          </el-form-grid>
+                        </el-form-item>
+                        <el-form-item label="件数：" class="el-inline-block">
+                          <el-form-grid size="xmd">
+                            <el-row>
+                              <el-col :span="11">
+                                <el-input placeholder=""></el-input>
+                              </el-col>
+                              <el-col :span="2">~</el-col>
+                              <el-col :span="11">
+                                <el-input placeholder=""></el-input>
+                              </el-col>
+                            </el-row>
+                          </el-form-grid>
+                        </el-form-item>
+                        <el-form-item label="商品编码：" class="el-inline-block">
+                          <el-form-grid size="xmd">
+                            <el-input placeholder=""></el-input>
+                          </el-form-grid>
+                          </el-form-grid >
+                        </el-form-item>
+                        <el-form-item label="原始编号：" class="el-inline-block">
+                          <el-form-grid size="xmd">
+                            <el-input placeholder=""></el-input>
+                          </el-form-grid>
+                        </el-form-item>
+                        <el-form-item label="下单时间：">
+                          <el-form-grid size="xmd">
+                            <el-date-picker type="daterange" v-model="date" placeholder="选择日期"
+                                            format="yyyy-MM-dd"></el-date-picker>
+                          </el-form-grid>
+                        </el-form-item>
+                        <el-form-item label="快递公司：" class="el-inline-block">
+                          <el-form-grid size="xmd">
+                            <el-select placeholder="不限" v-model="defaultSelect">
+                              <el-option label="区域一" value="shanghai"></el-option>
+                              <el-option label="区域二" value="beijing"></el-option>
+                            </el-select>
+                          </el-form-grid>
+                        </el-form-item>
+                        <el-form-item label="地址：">
+                          <el-form-grid size="xmd">
+                            <el-select placeholder="省/市/区" v-model="defaultSelect">
+                              <el-option label="区域一" value="shanghai"></el-option>
+                              <el-option label="区域二" value="beijing"></el-option>
+                            </el-select>
+                          </el-form-grid>
+                        </el-form-item>
+                      </el-form>
+                      <!-- end/多条件表单 -->
+                      <!-- 搜索结果 -->
+                      <template slot="result">
+                        <el-tag v-for="(tag,index) in 10" :key="index" type="primary" :closable="true">tag</el-tag>
+                      </template>
+                      <!-- end/搜索结果 -->
+                    </bus-multi-filter>
+                    <el-table
+                      :data="tableData"
+                      :empty-text="tableEmptyTip"
+                      class="template-table"
+                      border
+                      resizable>
+                      <el-table-column
+                        type="selection"
+                        width="55">
+                      </el-table-column>
+                      <el-table-column
+                        prop="date"
+                        label="日期"
+                        width="180">
+                      </el-table-column>
+                      <el-table-column
+                        prop="name"
+                        label="姓名"
+                        width="180">
+                      </el-table-column>
+                      <el-table-column
+                        prop="province"
+                        label="省份"
+                        width="180">
+                      </el-table-column>
+                      <el-table-column
+                        prop="address"
+                        label="地址">
+                      </el-table-column>
+                      <el-table-column
+                        label="操作"
+                        width="110">
+                        <template scope="scope">
+                          <el-button type="text" @click.native.prevent="editRow(scope.$index, tableData)">详情</el-button>
+                          |
+                          <el-dropdown trigger="click" menu-align="start">
+                            <span class="el-dropdown-link">
+                              更多<i class="el-icon-caret-bottom el-icon--right"></i>
+                            </span>
+                            <el-dropdown-menu slot="dropdown">
+                              <el-dropdown-item :command="String(scope.$index)">删除</el-dropdown-item>
+                            </el-dropdown-menu>
+                          </el-dropdown>
+                        </template>
+                      </el-table-column>
+                    </el-table>
+                    <el-pagination
+                      class="template-table-pagination"
+                      @size-change="handleSizeChange"
+                      @current-change="handleCurrentChange"
+                      :current-page="currentPage4"
+                      :page-sizes="[10, 20, 30, 50, 100]"
+                      :page-size="10"
+                      layout="total, sizes, prev, pager, next, jumper"
+                      :total="100">
+                    </el-pagination>
+                  </el-col>
+                </el-row>
+              </el-scrollbar>
+            </div>
+          </div>
+        </el-tab-pane>
+      </el-tabs>
+    </div>
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

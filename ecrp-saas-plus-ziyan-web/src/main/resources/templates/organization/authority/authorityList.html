@@ -1,0 +1,205 @@
+<th:block th:include="../public/include/layout::layout(~{::content},~{::script})">
+    <div th:fragment="content" class="template-page-tab">
+        <link th:href="@{/static/organization/authority/css/page.css}" rel="stylesheet"/>
+        <div id="app" v-cloak>
+            <div class="template-page">
+                <div class="template-page-tab">
+
+                    <!-- 选择组织架构 -->
+                    <div class="template-left-tree">
+                        <el-scrollbar ref="leftScrollOrg"
+                                      wrap-class="template-layout__scroll" outsider>
+                            <h5 class="template-tree-title">选择组织架构</h5>
+                            <ns-tree ref="deptTree" url="/organization/authority/loadDeptPositionTree"
+                                     class="template-tree-organize"
+                                     :highlight-current="true"
+                                     :expand-on-click-node="false"
+                                     node-key="id"
+                                     default-expand-all
+                                     @node-click="deptHandleClick"
+                                     :maxlength="30"></ns-tree>
+                        </el-scrollbar>
+                        <!-- /end 选择组织架构 -->
+                    </div>
+                    <el-tabs type="card" v-model="authorityCate"
+                             class="authority-tab">
+                        <el-tab-pane label="数据权限"
+                                     name="data" ref="dataContentScroll"> <!--  选择渠道 -->
+                            <div class="authority-data">
+                                <div class="authority-panel is-left">
+                                    <div class="authority-panel__title">选择渠道</div>
+                                    <div class="authority-panel__body">
+                                        <el-scrollbar ref="channelTreeScroll" outsider>
+                                            <ns-tree ref="channelTree" url="/base/common/loadChannelTree"
+                                                     node-key="code"
+                                                     :expand-on-click-node="false"
+                                                     :highlight-current="true"
+                                                     default-expand-all
+                                                     :current-node-key="channelCode"
+                                                     class="template-tree-organize"
+                                                     @node-click="channelHandleClick"
+                                                     :maxlength="30"></ns-tree>
+                                        </el-scrollbar>
+                                    </div>
+                                </div>
+                                <!-- /end 选择渠道 -->
+                                <!--  选择店铺 -->
+                                <div class="authority-panel is-right is-autosize">
+                                    <div class="authority-panel__title">
+                            <span class="pull-right">已选择<b>{{checkedShopCodes.length}}</b>家店铺
+                            </span><span>选择店铺</span>
+                                        <el-form class="pull-right">
+                                            <el-form-item>
+                                                <el-input v-model="shopName" placeholder="请输入关键字搜索" icon="search"
+                                                          @click="searchShop"></el-input>
+                                            </el-form-item>
+                                        </el-form>
+                                    </div>
+                                    <div class="authority-panel__body">
+                                        <div class="authority-shops">
+                                            <div class="authority-shops__header">
+                                                <el-checkbox v-model="checkAll" label="全选"
+                                                             :indeterminate="isIndeterminate"
+                                                             @change="handleCheckAllChange"></el-checkbox>
+                                            </div>
+                                            <!--选择店铺 店铺列表-->
+                                            <el-scrollbar ref="shopListScroll">
+                                                <div class="authority-shops__list">
+                                                    <el-checkbox-group ref="checkBoxs" v-model="checkedShopCodes"
+                                                                       @change="handleCheckedShopsChange"
+                                                                       :key="channelCode+pagination.currPage">
+                                                        <template v-if="shopList.length > 0">
+                                                            <el-checkbox v-for="shop in shopList" :label="shop.code"
+                                                                         :key="shop.code"
+                                                                         :disabled="shop.disabled == 0 ? false : true">
+                                                                {{shop.name}}
+                                                            </el-checkbox>
+                                                        </template>
+                                                        <template v-else-if="channelCode == ''">
+                                                            <div class="is-empty">请选择渠道</div>
+                                                        </template>
+                                                        <template v-else>
+                                                            <div class="is-empty">暂无数据</div>
+                                                        </template>
+                                                    </el-checkbox-group>
+
+                                                </div>
+                                            </el-scrollbar>
+
+                                            <el-pagination v-show="shopList.length > 0"
+                                                           @current-change="handleCurrentPageChange"
+                                                           class="template-table-pagination"
+                                                           :current-page="pagination.currPage"
+                                                           :page-size="pagination.currSize"
+                                                           layout="total, prev, pager, next"
+                                                           :total="pagination.total">
+                                            </el-pagination>
+                                            <!-- /end 选择店铺 店铺列表-->
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="authority-controls">
+                                    <el-button type="primary" @click="save">确定</el-button>
+                                    <el-button @click="resetCheckedShop">重置</el-button>
+                                </div>
+                                <!--  选择店铺 -->
+                            </div>
+                        </el-tab-pane>
+                        <el-tab-pane label="功能权限" name="func">
+                            <el-row>
+                                <el-col :span="6">
+                                    <div class="mb-sm">
+                                        <el-button type="primary" @click="openDialog">复制权限</el-button>
+                                    </div>
+                                    <el-scrollbar ref="permissionScroll">
+                                        <ns-tree ref="menuTree" url="/organization/authority/loadAuthorityTree"
+                                                 node-key="id"
+                                                 :expand-on-click-node="false"
+                                                 :highlight-current="true"
+                                                 default-expand-all
+                                                 class="template-tree-organize"
+                                                 show-checkbox
+
+                                                 show-icon
+                                                 @node-click="channelHandleClick"></ns-tree>
+                                    </el-scrollbar>
+                                </el-col>
+                            </el-row>
+                            <div class="authority-controls">
+                                <el-button type="primary" @click="save">确定</el-button>
+                                <el-button @click="resetCheckedShop">重置</el-button>
+                            </div>
+                            <el-dialog ref="dialog" title="权限复制" v-model="visible" :modal-append-to-body="false"
+                                       size="tiny"
+                                       :close-on-click-modal="false" @close="closeDialog">
+                                <el-form ref="form" :model="form" placement="right" label-width="100px" :rules="rules">
+                                    <el-form-item label="选择部门：" required>
+                                        <el-form-grid size="xmd">
+                                            <el-form-item prop="department">
+                                                <ns-droptree node-key="code" v-model="form.department"
+                                                             url="/base/common/loadDeptTree"
+                                                             placeHolder="请选择"></ns-droptree>
+                                            </el-form-item>
+                                        </el-form-grid>
+                                    </el-form-item>
+                                    <el-form-item label="选择岗位：" required>
+                                        <el-form-grid size="xmd">
+                                            <el-form-item prop="positionCode">
+                                                <el-select v-model="form.positionCode" placeHolder="请选择">
+                                                    <el-option
+                                                            v-for="item in form.positionList"
+                                                            :key="item.code"
+                                                            :label="item.name"
+                                                            :value="item.code"
+                                                    >
+                                                    </el-option>
+                                                </el-select>
+                                            </el-form-item>
+                                        </el-form-grid>
+                                    </el-form-item>
+                                </el-form>
+                                <div slot="footer" class="dialog-footer">
+                                    <el-button @click="()=>{this.visible = false;}">取消</el-button>
+                                    <el-button type="primary" @click="authorityCopy">保存</el-button>
+                                </div>
+                            </el-dialog>
+                        </el-tab-pane>
+                        <!-- <el-tab-pane label="平台权限" name="platfrom">
+                            <el-row>
+                                <el-col :span="6">
+                                    <el-scrollbar ref="platfromScroll">
+                                        <ns-tree ref="platfromTree" url="/organization/authority/loadPlatfromTree"
+                                                 node-key="id"
+                                                 :expand-on-click-node="false"
+                                                 :highlight-current="true"
+                                                 default-expand-all
+                                                 class="template-tree-organize"
+                                                 show-checkbox
+                                                 check-strictly
+                                                 show-icon
+                                                 @check-change="menuCheckChange"
+                                                 @node-click="channelHandleClick"></ns-tree>
+                                    </el-scrollbar>
+                                </el-col>
+                            </el-row>
+                            <div class="authority-controls">
+                                <el-button type="primary" @click="save">确定</el-button>
+                                <el-button @click="resetCheckedShop">重置</el-button>
+                            </div>
+                        </el-tab-pane> -->
+                    </el-tabs>
+                </div>
+            </div>
+        </div>
+    </div>
+    <th:block th:fragment="script">
+        <script type="text/javascript"
+                th:src="@{/static/organization/authority/js/authorityList.js}" defer="defer"></script>
+    </th:block>
+</th:block>
+
+
+
+
+

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+
+  <sqlGroup name="base.marketing">
+    <sql id="queryRedEnvelopeOptions"
+      value="select id as id,name as name from red_envelope where 1=1 ">
+      <if test="#groupId!=null and #groupId!=''" value="and group_id=#{groupId}"></if>
+      <if value=" and state=1"></if>
+    </sql>
+    <sql id="queryUmpActivitiesOptions"
+      value="select id as id,activity_name as activityName from ump_activities where 1=1 ">
+      <if test="#groupId!=null and #groupId!=''" value="and group_id=#{groupId}"></if>
+      <if value=" and state=0 and status = 2 and activity_type = 2"></if>
+    </sql>
+    <sql id="queryUmpActivitiesByShop" value="select * from ump_activities where 1=1 ">
+      <if value=" and shop_code in (${codes})"></if>
+      <if value=" and state=0 and end_time >= now() and activity_type = 2"></if>
+    </sql>
+    <sql id="queryKdCouponOptions"
+      value="select id as id,coupon_title as couponTitle from kd_coupon where 1=1 ">
+      <if test="#groupId!=null and #groupId!=''" value="and group_id=#{groupId}"></if>
+      <if value=" and state=0"></if>
+    </sql>
+
+    <sql id="queryKdPointactivityOptions"
+      value="select id as v ,activity_name as k  from kd_point_activity where state = 1 and activity_status = 1 and end_time >= DATE_FORMAT(now(),'%Y-%m-%d') ">
+      <if value="and brand_ids like concat('%',#{brandId},'%')"></if>
+    </sql>
+
+    <sql id="queryCouponByShop" value="select * from kd_coupon where 1=1 and end_time >= now() ">
+      <if value=" and shop_code in (${codes})"></if>
+    </sql>
+    <sql id="subdivisionMarkertingTime"
+      value="select count(1) from marketing where 1=1 and  marketing_manner = '8'">
+      <if value=" and user_subdivision_id = #{subdivision_id}"></if>
+    </sql>
+    <sql id="findBySysCustomerId" value="SELECT
+											c.customer_name,
+											s.`name`,
+											l.*
+										FROM
+											`kd_point_log` l
+										LEFT JOIN sys_shop s ON s.`code` = l.shop_code
+										LEFT JOIN kd_customer c on l.sys_customer_id = c.sys_customer_id
+										WHERE
+											action = #{action}
+										AND l.sys_customer_id = #{sys_customer_id}
+										ORDER BY
+											point_create_time DESC
+	">
+      <if value=" and user_subdivision_id = #{subdivision_id}"></if>
+    </sql>
+  </sqlGroup>
+</sqlRoot>

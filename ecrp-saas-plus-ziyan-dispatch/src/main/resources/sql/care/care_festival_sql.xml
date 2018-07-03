@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="care.Festival">
+         <sql id="queryFestivalCalendarList" value="select left(festival_date,10) as date, festival_name as name,
+                id as id,festival_expire as festivalExpire,festival,lunar_calendar as lunarCalendar,false as status
+                 from event_festival_setting where 1=1 and state = 1">
+                 <if value="and festival_date like concat(#{festival_date},'%')"></if>
+               <if value="order by festival_date desc"></if>
+         </sql>
+         
+         <sql id="countFestivalByDate" value="select count(*) from event_festival_setting where 1=1 and state = 1">
+            <if value="and LEFT(festival_date,7) = #{month}"></if>
+            <if value="and LEFT(festival_date,4) = #{year}"></if>
+         </sql>
+        <sql id="deleteFestivalByName"
+             value="update  event_festival_setting  set state= 0 where  festival_name = #{festivalName}">
+        </sql>
+	</sqlGroup>
+</sqlRoot>

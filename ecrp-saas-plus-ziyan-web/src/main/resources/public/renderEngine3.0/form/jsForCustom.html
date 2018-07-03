@@ -1,0 +1,129 @@
+<th:block th:fragment="renderjs(dslJSON, context)">
+	<th:block th:inline="javascript", 
+		th:with="
+			compName = ${context.get('name')},
+		    deps = ${context.get('deps')},
+			methods = ${dslJSON.get('methods')},
+			state = ${#strings.isEmpty(dslJSON.get('state'))? '{}' : dslJSON.get('state')},
+			model = ${#strings.isEmpty(dslJSON.get('model'))? '{}' : dslJSON.get('model')},
+			rules = ${#strings.isEmpty(dslJSON.get('rules'))? '{}' : dslJSON.get('rules')},
+			computed = ${#strings.isEmpty(dslJSON.get('computed'))? '{}' : dslJSON.get('computed')},
+			watch = ${dslJSON.get('watch') ?: '{}'}
+		"
+	>
+		[(${T(com.nascent.ecrpsaas.render.FormHelper).preprocessing(context, dslJSON)})]
+		define([[${compName}]], [ [(${#strings.isEmpty(deps) ? "" : "'"+deps.replace(",","','")+"',"})] "vue", "nui", "jquery","utilbuild/main"], 
+		function([(${#strings.isEmpty(deps) ? "" : deps+","})] Vue, Nui, $) {
+			
+			var vueEvent = require("vue-event");
+			function httpPost(url, data, options, $this) {
+				$.ajax({
+					url: url,
+					data: data,
+					type: "post",
+					dataType: options && options.type || "json",
+					success: function(data,ts,xhr) {
+						 if(options && options.success && typeof options.success === "function") {
+						 	options.success(data, ts, xhr, $this);
+						 }
+					},
+					error: function(xhr, ts, error) {
+						if(options && options.error && typeof options.error === "function") {
+						 	options.error(xhr, ts, error, $this);
+						 }
+					},
+					complete:function(xhr, ts) {
+						if(options && options.complete && typeof options.complete === "function") {
+						 	options.complete(data, ts, $this);
+						 }
+					}
+				})
+			}
+		
+			var mixin = {
+				methods: {
+					$setModel: function(model) {
+						this.$refs.form ? this.$resetFields() : null;
+						this.$set(this, "model", model);
+					},
+					$getModel: function() {
+						return $.extend(true, {}, this.model);
+					},
+					$resetFields: function() {
+						var form = this.$refs.form;
+						form.resetFields();
+					},
+					$valid: function(callback) {
+						var form = this.$refs.form;
+						form.validate(function(state){
+							if(state) {
+								if(typeof callback === "function")
+									callback();
+							}
+						})
+					},
+					$submit: function(options) {
+						var model = $.extend(true,{},this.model);
+						var $this = this;
+						if(options && options.handleParams && typeof options.handleParams === "function") {
+							resolver(options.handleParams(model));
+						} else {
+							resolver(model);
+						}
+						
+						function resolver(model) {
+							var url = options && options.url || $this.url;
+							if(!url)
+								throw new Error("表单url未配置");
+							httpPost(url, model, options, $this);
+						}
+					},
+					$validAndSubmit: function(opt) {
+						var $this = this;
+						this.$valid(function() {
+							$this.$submit(opt);
+						});
+					}
+				},
+				props:["uid"],
+		        created: function() {
+		          	var that = this;
+		          	if(Boolean(this.uid)) {
+		          		EventManager.register(this.uid, "setModel", function(model) {
+			            	that.$setModel(model);
+			          	})
+		          	}
+		        },
+		        beforeDestroy: function() {
+		        	if(this.uid)
+		        		EventManager.destroy(this.uid);
+		        }
+			}
+			
+			var $buttonMethods$ = {
+				[#th:block th:each="item,stat: ${dslJSON.get('buttons')}"]
+					[[${"$$$button"+stat.index}]]: [(${#strings.isEmpty(item.get('action')) ? "$.noop" : item.get('action')})],
+				[/th:block]
+			}
+		
+			return {
+				mixin: {
+					mixins: [mixin,vueEvent],
+					data: function() {
+						return {
+							model: Object.assign({}, <!--/* 输入组件中的name集合 */-->[(${context.get('model')})],<!--/* 自定义的name集合 */--> [(${model})]),
+							rules: Object.assign({}, [(${context.get('rules')})], [(${rules})]),
+							state: [(${state})],
+							url: "[(${dslJSON.get('url')})]",
+							nameMap: {}
+						}
+					},
+					watch: [(${watch})],
+					computed: [(${computed})],
+					methods: Object.assign($buttonMethods$, [#th:block th:insert="../public/renderEngine3.0/common/method::createMethods(${methods})"][/th:block] )
+				},
+				template: { [#th:block th:insert="../public/renderEngine3.0/form/template::renderTemplateOfRegion(${dslJSON}, ${context})"][/th:block] }
+			}
+		})
+	</th:block>
+</th:block>

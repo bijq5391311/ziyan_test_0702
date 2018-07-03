@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="organization.SysBrand">
+		<sql id="queryBrandList" value="select * from sys_brand where state=1">
+			<bind name="brand_name" value="#brand_name == null ? null : ('%'+#brand_name+'%')"></bind>
+			<bind name="remark" value="#remark == null ? null : ('%'+#remark+'%')"></bind>
+			<if value="and brand_name like #{brand_name}"></if>
+			<if test="remark != null and remark != '%%'" value="and remark like #{remark}"></if>
+			<if value=" and create_time between #{startTime} and #{endTime}"></if>
+<!-- 			<if value="and create_time >= #{create_time}"></if> -->
+			<auth tenant="group_id"></auth>
+			<if value="order by create_time desc"></if>
+		</sql>
+		
+		<sql id="checkBrandName" value="select count(1) from sys_brand where brand_name=#{brand_name}">
+			<if test="#id!=0" value="and id!=#{id}"></if>
+			<auth tenant="group_id"></auth>
+		</sql>
+		
+		<sql id="queryBrand" value="select id,brand_name as brandName from sys_brand where state=1 "></sql>
+	</sqlGroup>
+</sqlRoot>

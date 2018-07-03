@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="organization.OutShop">
+		<sql id="queryProvince" value="select * from out_shop where state=1 and out_code is not null  and out_code !='' group by province"></sql>
+		<sql id="queryCity" value="select * from out_shop where state=1 and city is not null group by city"></sql>
+		<sql id="queryDistrict" value="select * from out_shop where state=1 and district is not null group by district"></sql>
+		<sql id="queryAllShop" value="select * from out_shop where state=1 and out_code is not null and out_code != ''"></sql>
+		<sql id="queryOnLineShopByGroupId" value="select * from out_shop where out_code is null">
+			<auth tenant="group_id"></auth>
+		</sql>
+		<sql id="deleteOnLineShop" value=" delete from out_shop where out_code is null or province is null">
+			<auth tenant="group_id"></auth>
+		</sql>
+		
+		<!-- 未关联的店铺 -->
+		<sql id="queryUnRelatedShop" value="select id as outShopId, province, out_name as shopName,is_related as isRelated from out_shop where  state=1 ">
+			<bind name="shopName" value="#shopName == null ? null : ('%'+#shopName+'%')"></bind>
+			<if value="and out_name like #{shopName}"></if>
+			<if test="#isRelated == null or #isRelated ==0 or #isRelated ==-1" value=" and is_related=0"></if>
+			<if test="#isRelated == 1" value=" and is_related=1"></if>
+		</sql>
+		
+		<sql id="batchUpdateShopRelated" value="">
+			<if value="update out_shop set is_related=1 where out_name=?"></if>
+		</sql>
+		
+		<sql id="queryOutShopByParams" value="select * from out_shop where 1 = 1">
+		   <if value="and out_code in (${'outCodes'})"></if>
+		   <if value="and out_code = #{outCode}"></if>
+		   <if value="and is_related = #{isRelated}"></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>

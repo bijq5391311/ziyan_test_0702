@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="base.subdivision">
+		<sql id="savesubdivision" value="INSERT INTO subdivision (parent_id,manual_xml,nicks,customer_sql,count_sql,group_id,department_code,user_count,state,create_time,update_time,subdivision_name,creator)  
+		VALUES(#{parentId},#{manualXml},#{nicks},#{customerSql},#{countSql},#{groupId},#{departmentCode},#{userCount},#{state},#{createTime},#{updateTime},#{subdivisionName},#{creator})">
+		</sql>
+		<!-- 会员 分类 树-->
+		<sql id="querySubdivisionCategoryTree" value="select id as id,parent_id as parentId,`subdivision_name` as label,'false' as checked,'true' as showAdd,'true' as showEdit,
+		     if(parent_id=0,'false','true') as showDelete 
+		       from  subdivision where is_category=1 and state = 1">
+		</sql>
+		<!-- 通过dept过滤分类树 -->
+		<sql id="querySubdivisionTreeByDept" value="select id as id,parent_id as parentId,`subdivision_name` as label,'false' as checked,'false' as showAdd,'false' as showEdit,
+		     false as showDelete,department_code as ext1
+		       from  subdivision where is_category=1 and department_code = #{department_code}">
+		</sql>
+		<!-- 会员分类和分组 -->
+		<sql id="querySubdivisionTree" value="select id as id,parent_id as parentId,`subdivision_name` as label ,if(is_category=1,true,false) as disabled
+		       from subdivision where state =1 and department_code like #{department_code}">
+		</sql>
+		<!-- 统计分组数量 -->
+		<sql id="querySubdivisionCount" value="select count(1) from subdivision where 1=1">
+		      <if value="and parent_id=#{parentId}"></if>
+		      <if value="and subdivision_name=#{subdName}"></if>
+		</sql>
+		
+		<sql id="querySubdivisionCustomerNum" value="#{sql}">
+		</sql>
+		
+		<sql id="querySubdivision" value="select count_sql as countSql,customer_sql as customerSql, department_code as departmentCode,
+		group_id as groupId,manual_xml as manualXml,nicks as nicks,user_count as userCount
+		,parent_id as parentId, state as state,create_time as createTime,update_time as updateTtime,subdivision_name as subdivisionName,creator as creator from subdivision where state = 1 and id =#{id} "></sql>
+		
+		<sql id="queryAreaVoProvince" value="select * from area where 1=1"></sql>
+		<sql id="queryAreaVoByPID" value="select * from area where state = 1 and tb_type = '3' ">
+		<if value=" and parent_id = #{parent_id}"></if>
+		</sql>
+		<sql id="queryProvince" value="select * from area where state = 1 and tb_type=2"></sql>
+		<sql id="queryCityAndCountiesByPId" value="select * from area where state = 1 and parent_id = #{parent_id}">
+		</sql>
+		<sql id="queryAreaTree" value="select tb_id as id,tb_id as code,tb_name as label,parent_id as parentId, true as showAdd,true as showEdit, CASE parent_id when 0 then false else true end AS showDelete from area where state=1"></sql>
+		
+		<sql id="queryExsitMemberInSubdivision" value="select count(1) from kd_customer where state = 1 and sys_customer_id in (#{sql}) and sys_customer_id = #{id} ">
+		<if value=" and parent_id = #{parent_id}"></if>
+		</sql>
+		
+		<sql id="querySubdivisionList" value= "select * from subdivision where 1=1">
+		  <if value="and id=#{id}"></if>
+		  <if value="and id in (${subdIds})"></if>
+		</sql>
+		<sql id= "querySubdivisioncontrol" value="select * from subdivisioncontrol where 1= 1">
+		  <if value="and code=#{code}"></if>
+		</sql>
+		<sql id="getFollowDeptWithSubdivision" value="select DISTINCT s.department_code ,s.department_name from subdivision s where 1=1 and s.is_category = 0 ">
+            <if value=" and s.department_code != #{deptCode} "></if>
+            <if value=" and exists ( select * from sys_department where  "></if>
+            <if value=" and code != #{deptCode}  "></if>
+            <bind name="deptCode" value="#deptCode == null?null:('%'+#deptCode+'%')"></bind>
+            <if value=" and code like #{deptCode}  "></if>
+            <if value=" and code = s.department_code)  "></if>
+		</sql>
+        <sql id="getShareSubdivision" value=" select DISTINCT s.department_code ,s.department_name from subdivision s where 1=1 and s.is_category = 0 and s.is_public =1 ">
+            <if value=" and s.department_code != #{deptCode} "></if>
+            <if value=" and exists ( select * from sys_department where  "></if>
+            <bind name="deptCode" value="#deptCode == null?null:('%'+#deptCode+'%')"></bind>
+            <if value=" and code not like #{deptCode}  "></if>
+            <if value=" and code = s.department_code)  "></if>
+
+        </sql>
+	</sqlGroup>
+</sqlRoot>

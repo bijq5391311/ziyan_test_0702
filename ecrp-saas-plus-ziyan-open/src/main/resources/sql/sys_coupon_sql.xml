@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+    <sqlGroup name="sysCoupon">
+        <sql id="getSysCouponByCouponId" value="select * from sys_coupon where
+        coupon_id = #{couponId} and state = 0 and (valid_time_type = 1 or valid_time_end &gt;= now())
+        limit 1"/>
+        <sql id="queryCouponByCouponId" value="select state,coupon_id couponId,coupon_name couponName,coupon_type couponType,rights_and_interests couponRights,full_or_plus_money conditions,
+        description instructions,valid_time_type validTimeType,number_days numberDays,valid_time_begin startTime,valid_time_end endTime,coupon_amouet totalNum,sent_amount sentNum,
+        if(shop_ids is null,0,1) appointShopState,if(appoint_goods_ids='',0,1) appointGoodsState
+        from sys_coupon  where 1=1 ">
+            <if value=" and coupon_id = #{couponId}"/>
+        </sql>
+        <sql id="queryCouponAllByCouponId" value="select * from sys_coupon  where 1=1 ">
+            <if value=" and coupon_id = #{couponId}"/>
+        </sql>
+
+        <sql id="findListByShopId" value="select
+        coupon_id couponId,coupon_name couponName,coupon_type couponType,rights_and_interests couponRights,conditions_of_use conditions,
+        description instructions,valid_time_type validTimeType,number_days numberDays,valid_time_begin startTime,valid_time_end endTime,coupon_amouet totalNum,sent_amount sentNum,
+        if(shop_ids is null,0,1) appointShopState,if(appoint_goods_ids='',0,1) appointGoodsState
+        from sys_coupon where state=0 ">
+        <if test="shopId != null" value="and shop_ids like concat('%',#{shopId},'%')"/>
+        <if value="and (coupon_amouet=-1 or coupon_amouet &gt; sent_amount)
+        and (valid_time_type = 1 or valid_time_end &gt;= now())"/>
+        </sql>
+
+        <sql id="sendCoupon" value="update sys_coupon set sent_amount=sent_amount+1
+        where id = #{id} and (coupon_amouet=-1 or coupon_amouet &gt; sent_amount)"/>
+        <!-- 查询优惠券  -->
+		<sql id="queryCouponAllList" value="select * from sys_coupon where state = 0 ">
+            <if value=" and coupon_id = #{couponId}"/>
+		</sql>
+		<!-- 优惠券中的核销数量+1  -->
+		<sql id="updateCouponVerification" value="update sys_coupon c set c.cancel_after_verification =  c.cancel_after_verification + 1 where 1=1 ">
+            <if value=" and c.coupon_id = #{couponId}"/>
+		</sql>
+		<!-- 优惠券已发放数量 + n  -->
+		<sql id="addCouponSentAmount" value="update sys_coupon c set c.sent_amount =  c.sent_amount +  ">
+            <if value=" #{sentAmount}"/>
+            <if value=" where c.coupon_id = #{couponId} and (c.coupon_amouet=-1 or c.coupon_amouet &gt; c.sent_amount) "/>
+		</sql>
+    </sqlGroup>
+</sqlRoot> 

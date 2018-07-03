@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="vip.KdCustomerShopRfm">
+		<sql id="updateInteractRfm" 
+		value="update kd_customer_shop_rfm set 
+		first_interact_time = (select min(opl.create_time) from kd_point_log opl where opl.sys_customer_id = #{sysCustomerId} and opl.action = 6),
+		last_interact_time = (select max(opl.create_time) from kd_point_log opl where opl.sys_customer_id = #{sysCustomerId} and opl.action = 6),
+		interact_times = (select count(1) from kd_point_log opl where opl.sys_customer_id = #{sysCustomerId} and opl.action = 6),
+		update_time = now() where 1=1">
+		<if value="and sys_customer_id = #{sysCustomerId}"></if>
+		<if value="and shop_code = #{shopCode}"></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>

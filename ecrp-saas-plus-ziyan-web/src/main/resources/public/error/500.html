@@ -1,0 +1,9 @@
+<th:block th:include="../public/include/layout-full::layoutfull(~{::contentfull})">
+  <th:block th:fragment="contentfull">  
+	<link rel="stylesheet" th:href="@{/static/ecrp/extra/500/index.css}" />
+	<div class="tmp-page-error">
+	  <div class="error-bg"></div>
+	  <div class="error-tips">建议您尝试返回 <a href="javascript:history.go(-1)">上一页面</a></div>
+	</div>
+  </th:block>
+</th:block>

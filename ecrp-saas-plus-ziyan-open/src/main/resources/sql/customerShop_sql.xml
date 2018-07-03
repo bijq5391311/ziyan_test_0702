@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="customerShop">
+	    <sql id="findCustomerShop" value="select * from kd_customer_shop c 
+	    where 1=1 and c.state=1">
+	    <if value=" and c.mobile = #{mobile}"></if>
+	    </sql>
+	</sqlGroup>
+</sqlRoot>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="Tree">
+		<sql id="updateChildren" value="">
+			<if value="update ${tableName} s set Code = concat(#{newCode},substring(Code,length(#{oldCode})+1,length(Code))) where code like ${'oldCode%'}"></if>
+		</sql>
+		<sql id="findMaxCode" value="">
+			<if value="select max(Code) as Code from ${tableName} where companyId = #{CompanyId} and ParentId = #{ParentId}"></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>

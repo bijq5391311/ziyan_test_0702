@@ -1,0 +1,180 @@
+<th:block th:fragment="attributes">
+<el-collapse-item  style="margin-left: 10px"   :title="item.key"  name= "group" :key="index"  id="group" v-if="item.value.length>0 && item.name =='group'"  v-for="(item, index) in A1">
+                <!-- 输入框 -->
+                <el-form-item   v-if=" inputs.value.length >0" :key="inputindexs" v-for="(inputs,inputindexs) in item.value">
+                <el-form-item  label-width="110px" v-if="input.type == 0" :key="inputindex" v-for="(input,inputindex) in inputs.value">
+                     
+                     <el-tooltip slot="label" effect="light" placement="top" :content="input.name" :disabled="!(input.name.length > 6)">
+					      <span v-text="(input.name.length > 6 ) ? input.name.substring(0,6) + '：' : input.name + '：'"></span>
+					</el-tooltip>
+                     
+                     <el-form :ref="inputs.key" placement="right" :model="input">
+<!--                      <el-form-grid>：</el-form-grid> -->
+                     <el-form-grid size="xxs">
+                      <el-select v-model="input.condition"   placeholder="请选择" class="is-gray">
+                      <el-option label="等于" value="equal"></el-option>
+                      <el-option label="不等于" value="notEqual"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                    <el-form-item prop="CDATA" :rules="  { required: true, message: '请输入内容', trigger:'blur' }">
+                     <el-input placeholder="" type="text" v-model="input.CDATA"   class="text-right"></el-input>
+                     </el-form-item>
+                   </el-form-grid>
+                  <el-form-grid size="xxs" v-if="inputindex !== inputs.value.length - 1">
+                          <el-select v-model="input.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid>
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(inputindex,inputindexs,inputs,item,index)"><i class="bui-delete"></i></a>
+                  <a class="member-choose__delete"  @click="addSubdivisionCondition(item,input.id)"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+           <!--  </el-form-item>  -->
+            
+            <!-- 时间框 -->
+                <!-- <el-form-item   label-width="130px" v-if=" datetimes.value.length >0" :key="datetimeindexs" v-for="(datetimes,datetimeindexs) in item.value"> -->
+                <el-form-item  label-width="110px" v-if="datetime.type == 2" :name="datetime.uuid" :key="datetime.uuid" v-for="(datetime,datetimeindex) in inputs.value">
+                     <el-tooltip slot="label" effect="light" placement="top" :content="datetime.name" :disabled="!(datetime.name.length > 6)">
+					      <span v-text="(datetime.name.length > 6 ) ? datetime.name.substring(0,6) + '：' : datetime.name + '：'"></span>
+					</el-tooltip>
+                    
+                     <el-form :ref="inputs.key" placement="right" :model="datetime">
+                    
+                     <el-form-grid size="xxs">
+                      <el-select v-model="datetime.condition"   placeholder="请选择" class="is-gray" >
+                      <el-option label="等于" value="equal"></el-option>
+                      <el-option label="不等于" value="notEqual"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                     <el-form-item prop="CDATA" :rules="  {type: 'date', required: true, message: '请选择时间', trigger: 'change' }">
+                     <el-date-picker v-model="datetime.CDATA" type="date" format="yyyy-MM-dd" :editable="false"   placeholder="选择日期"></el-date-picker>
+                     </el-form-item>
+                   </el-form-grid>
+                  <el-form-grid size="xxs" v-if="datetimeindex !== inputs.value.length - 1">
+                          <el-select v-model="datetime.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid>
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(datetimeindex,inputindexs,inputs,item,index)"><i class="bui-delete"></i></a>
+                    <a class="member-choose__delete"  @click="addSubdivisionCondition(item,datetime.id)"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            <!-- </el-form-item>  -->   
+            
+            
+            <!-- 下拉框 -->
+            <!-- <el-form-item   label-width="130px" v-if=" selects.value.length >0" :key="selectindexs" v-for="(selects,selectindexs) in item.value"> -->
+                <el-form-item label-width="110px" v-if="select.type == 1" :name="select.uuid" :key="select.uuid"  v-for="(select,selectindex) in inputs.value">
+                      <el-tooltip slot="label" effect="light" placement="top" :content="select.name" :disabled="!(select.name.length > 6)">
+					      <span v-text="(select.name.length > 6 ) ? select.name.substring(0,6) + '：' : select.name + '：'"></span>
+					</el-tooltip>
+                     
+                     <el-form :ref="inputs.key" placement="right" :model="select">
+                     
+                     <el-form-grid size="xxs">
+                      <el-select v-model="select.condition"   placeholder="请选择" class="is-gray">
+                      <el-option label="等于" value="equal"></el-option>
+                      <el-option label="不等于" value="notEqual"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                      <el-form-item prop="CDATA" :rules="  { required: true, message: '请选择关怀类型', trigger: 'change' }">
+                     <el-select v-model="select.CDATA" placeholder="请选择" class="is-gray">
+                            <el-option :label="selectdata" :value="selectdata"  :key="selectindex" v-for="(selectdata ,selectindex) in select.result"></el-option>
+                          </el-select>
+                   </el-form-item>
+                   </el-form-grid>
+                  <el-form-grid size="xxs" v-if="selectindex !== inputs.value.length  - 1">
+                          <el-select v-model="select.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid>
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(selectindex,inputindexs,inputs,item,index)"><i class="bui-delete"></i></a>
+                  <a class="member-choose__delete"  @click="addSubdivisionCondition(item,select.id)"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+           <!--  </el-form-item>  -->
+            
+            <!-- 单选框 --> 
+            <!-- <el-form-item   label-width="130px" v-if=" radios.value.length >0" :key="radioindexs" v-for="(radios,radioindexs) in item.value"> -->
+                <el-form-item label-width="110px" v-if="radio.type == 3" :name="radio.uuid" :key="radio.uuid" v-for="(radio,radioindex) in inputs.value">
+                    <el-tooltip slot="label" effect="light" placement="top" :content="radio.name" :disabled="!(radio.name.length > 6)">
+					      <span v-text="(radio.name.length > 6 ) ? radio.name.substring(0,6) + '：' : radio.name + '：'"></span>
+					</el-tooltip>
+                    
+                     <el-form :ref="inputs.key" placement="right" :model="radio">
+                     
+                     <el-form-grid size="xxs">
+                      <el-select v-model="radio.condition"   placeholder="请选择" class="is-gray">
+                      <el-option label="等于" value="equal"></el-option>
+                      <el-option label="不等于" value="notEqual"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                   <el-radio-group v-model="radio.CDATA">
+                    <el-radio :label="radiovalue" :key="radiovalueindex" v-for="(radiovalue,radiovalueindex) in radio.result">{{radiovalue}}</el-radio>
+                  </el-radio-group>
+                   </el-form-grid>
+                  <el-form-grid size="xxs" v-if="radioindex !== inputs.value.length  - 1">
+                          <el-select v-model="radio.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid>
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(radioindex,inputindexs,inputs,item,index)"><i class="bui-delete"></i></a>
+                 <a class="member-choose__delete"  @click="addSubdivisionCondition(item,radio.id)"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            <!-- </el-form-item>  -->
+            
+            <!-- 复选框 -->
+            <!-- <el-form-item   label-width="130px" v-if=" checkboxs.value.length >0" :key="checkboxindexs" v-for="(checkboxs,checkboxindexs) in item.value"> -->
+                <el-form-item label-width="110px" v-if="checkbox.type == 4" :name="checkbox.uuid" :key="checkbox.uuid" v-for="(checkbox,checkboxindex) in inputs.value">
+                      <el-tooltip slot="label" effect="light" placement="top" :content="checkbox.name" :disabled="!(checkbox.name.length > 6)">
+					      <span v-text="(checkbox.name.length > 6 ) ? checkbox.name.substring(0,6) + '：' : checkbox.name + '：'"></span>
+					</el-tooltip>
+                     <el-form :ref="inputs.key" placement="right" :model="checkbox">
+                     
+                     <el-form-grid size="xxs">
+                      <el-select v-model="checkbox.condition"   placeholder="请选择" class="is-gray">
+                      <el-option label="等于" value="equal"></el-option>
+                      <el-option label="不等于" value="notEqual"></el-option>
+                      </el-select>
+                    </el-form-grid>
+                    <el-form-grid >
+                   <el-checkbox-group v-model="checkbox.CDATA">
+                    <el-checkbox :label="checkboxvalue" :key="checkboxvalueindex" v-for="(checkboxvalue,checkboxvalueindex) in checkbox.result">{{checkboxvalue}}</el-checkbox>
+                  </el-checkbox-group>
+                   </el-form-grid>
+                  <el-form-grid size="xxs" v-if="checkboxindex !== inputs.value.length  - 1">
+                          <el-select v-model="checkbox.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid>
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(checkboxindex,inputindexs,inputs,item,index)"><i class="bui-delete"></i></a>
+                  <a class="member-choose__delete"  @click="addSubdivisionCondition(item,checkbox.id)"><i class="bui-add"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+            </el-form-item>
+            
+            
+            
+            
+            </el-collapse-item>
+</th:block>

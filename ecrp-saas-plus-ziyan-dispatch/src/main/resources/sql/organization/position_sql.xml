@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="organization.SysPosition">
+
+		<!-- 		<sql id="queryMaxChildNode" value="  -->
+		<!-- 				select  * from sys_position  -->
+		<!-- 				where parent_id=#{parent_id} and group_id=#{group_id} -->
+		<!-- 				 order by id desc limit 1"> -->
+		<!-- 		</sql> -->
+
+
+		<sql id="queryCompany" value="select * from sys_position 
+				where parent_id=#{parent_id} and group_id=#{group_id} and state=1 limit 1"></sql>
+
+
+
+		<sql id="queryChildCount" value="select count(1) from sys_position 
+				where parent_id=#{parent_id} and state=1"></sql>
+
+		<sql id="deletePosition" value="update sys_position set state=0 where id=#{id}"></sql>
+
+
+
+		<sql id="deleteDeptBatch" value="update sys_position set state=0 where id=?"></sql>
+
+		<!--  -->
+		<sql id="queryPositionTree" value="select id as id,parent_id as parentId,`code` as code,`name` as label,'false' as checked,'true' as showAdd,'true' as showEdit,
+		     if(parent_id=0,'false','true') as showDelete,'1' as ext1
+		       from  sys_position where state =1">
+		</sql>
+		<sql id="queryPositionByDeptCode" value="">
+			<if value="select post.id,post.name ,group_concat(dept.name separator '/') deptName 
+				from sys_department dept 
+				inner join sys_position post on post.department_code = dept.code
+				where post.state=1 "></if>
+			<if value="and post.department_code like (${'code%'})"></if>
+			<if value="and post.name like ${'%name%'}"></if>
+		</sql>
+
+		<sql id="queryPositionByDeptId" value="select p.*
+		          from sys_position p 
+		                 inner join sys_department d on d.`code`= p.`department_code`
+		           where 1 = 1">
+			<if value = " and p.state =#{state}"></if>
+			<if value = " and d.id = #{deptId}"></if>
+		</sql>
+
+		<sql id="queryPositionInDept" value="select * from  sys_position where state=1">
+			<bind name="code" value="#code == null ? null : (#code+'%')"></bind>
+			<bind name="name" value="#name == null ? null : ('%'+#name+'%')"></bind>
+			<if value="and department_code like #{code}"></if>
+			<if value="and name like #{name}  "></if>
+			<if value="order by create_time desc"></if>
+		</sql>
+
+		<sql id="queryOrganizationName" value="">
+			<if value="select group_concat(name separator '/') deptName 
+				from sys_department where state=1 "></if>
+			<if value="and code in (${'code'})"></if>
+		</sql>
+
+		<sql id="checkPositionInDept" value="select count(1) from sys_position where department_code=#{department_code} and name=#{name} and  state = 1">
+			<if test="#id!=-1" value="and id!=#{id}"></if>
+		</sql>
+
+	</sqlGroup>
+</sqlRoot>

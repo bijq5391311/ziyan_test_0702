@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="activity">
+	    <sql id="findIdAndStatus" value="select a.id,a.status from activities a
+	     where 1=1 and a.state=1">
+	    <if value=" and a.id = #{id}"></if>
+	    </sql>
+	    <sql id="updateStatus" value="update activities set status=#{status} where id= #{id}">
+	    </sql>
+	</sqlGroup>
+</sqlRoot>

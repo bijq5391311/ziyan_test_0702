@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+    <sqlGroup name="api.zyGoods">
+        <sql id="countGoods" count="select count(1)" value="
+        select count(1) as count from kd_goods k 
+        where 1=1 ">
+            <if value=" and k.sys_goods_id in (${goodsIds})"/>
+            <if value=" and outer_id in (${outerIds})"/>
+        </sql>
+    </sqlGroup>
+</sqlRoot> 

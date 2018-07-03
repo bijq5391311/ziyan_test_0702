@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="previewItem">
+		<!-- 分页查询 -->
+		<sql id="queryItemPage" value="select id,title,concat(sys_item_id,'') as sys_item_id from kd_item where 1=1 ">
+			<if test="#title!=null and #title!=''" value=" and title like ${'%title%'}"></if>
+			<if test="#outerId!=null and #outerId!=''" value=" and outer_id like ${'%outerId%'}"></if>
+			<if test="#categoryId!=null and #categoryId!=''" value=" and category_id=#{categoryId}"></if>
+			<if test="#minPrice!=null and #minPrice!=''" value=" and price&gt;=#{minPrice}"></if>
+			<if test="#maxPrice!=null and #maxPrice!=''" value=" and price&lt;=#{maxPrice}"></if>
+		</sql>
+
+		<sql id="getItemsByIds" value="select id,title,concat(sys_item_id,'') as sys_item_id from kd_item where 1=1 ">
+			<if value="and sys_item_id in(${ids})"></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>

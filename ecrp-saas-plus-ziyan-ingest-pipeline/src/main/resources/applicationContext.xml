@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:task="http://www.springframework.org/schema/task"
+	   xmlns:tx="http://www.springframework.org/schema/tx"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+	    http://www.springframework.org/schema/beans/spring-beans.xsd
+	    http://www.springframework.org/schema/tx
+	    http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/task
+		http://www.springframework.org/schema/task/spring-task.xsd">
+
+	<bean id="jobLauncher"
+		  class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+		<property name="jobRepository" ref="jobRepository" />
+		<property name="taskExecutor" ref="taskExecutor" />
+	</bean>
+
+	<bean id="taskExecutor" class="org.springframework.core.task.SyncTaskExecutor" />
+
+	<bean id="jobRunner" class="com.nascent.ecrpsaas.ingest.JobRunner">
+		<property name="taskExecutor" ref="taskExecutor"/>
+		<property name="scheduler" ref="scheduler" />
+	</bean>
+
+	<bean id="timerJobRunner" class="com.nascent.ecrpsaas.ingest.TimerJobRunner">
+		<property name="taskExecutor" ref="taskExecutor"/>
+
+	</bean>
+
+	<task:scheduler id="scheduler" pool-size="20"/>
+
+	<task:scheduled-tasks>
+		<task:scheduled ref="jobRunner" method="run" fixed-delay="5000" initial-delay="3000"/>
+	</task:scheduled-tasks>
+
+	<bean id="jobRepository" class="org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean">
+      <property name="transactionManager" ref="transactionManager"/>  
+    </bean>
+	
+	<bean id="transactionManager" class="org.springframework.batch.support.transaction.ResourcelessTransactionManager" />
+
+	 <bean name="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">         
+	  <property name="driverClass" value="com.mysql.jdbc.Driver" />
+		<property name="jdbcUrl" value="jdbc:mysql://121.41.162.23:30003/ecrp_saas_ziyan?characterEncoding=utf-8&amp;zeroDateTimeBehavior=convertToNull" />
+		<property name="user" value="root" />
+		<property name="password" value="southinfo@best1" />
+		<property name="initialPoolSize" value="10" />
+	    <property name="minPoolSize" value="5"/>
+	    <property name="maxPoolSize" value="15"/>
+	</bean> 
+	
+<!-- 	<bean name="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">         
+	  <property name="driverClass" value="com.mysql.jdbc.Driver" />
+		<property name="jdbcUrl" value="jdbc:mysql://10.10.201.83:3306/ecrp_saas_ziyan?characterEncoding=utf-8&amp;zeroDateTimeBehavior=convertToNull" />
+		<property name="user" value="root" />
+		<property name="password" value="ziyan001.," />
+		<property name="initialPoolSize" value="10" />
+	    <property name="minPoolSize" value="5"/>
+	    <property name="maxPoolSize" value="15"/>
+	</bean>  -->
+	
+	 <bean id="repoService" class="com.nascent.plugins.spring.support.RepositoryServiceImpl">
+    	<constructor-arg>
+	    	<map>
+	    		<entry key="" value-ref="dataSource"></entry>
+	    	</map>
+    	</constructor-arg>
+    </bean>
+    
+   <bean id="sqlContext" class="com.nascent.plugins.spring.SqlContext">
+   		<constructor-arg name="scanner">
+   			<bean id="pluginLoader" class="com.nascent.plugins.spring.support.ClassScanner">
+   				<property name="includeJars">
+		   			<list><value>-</value></list>
+		   		</property>
+		   		<property name="classPatterns">
+		   			<list><value>-</value></list>
+		   		</property>
+		   		<property name="parsers">
+		   			<list>
+		   				<bean class="com.nascent.plugins.spring.support.TableBindParser" />
+		   			</list>
+		   		</property>
+		   </bean>
+   		</constructor-arg>
+   		<constructor-arg name="lazyProxy" value="true"/>
+   </bean>
+</beans>

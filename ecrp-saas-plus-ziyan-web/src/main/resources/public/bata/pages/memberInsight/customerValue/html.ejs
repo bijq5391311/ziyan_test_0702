@@ -1,0 +1,38 @@
+<% include ../../../include/layout/start.ejs %>
+<div id="example" v-cloak>
+  <div class="template-page">
+    <div class="tmp-page__content">
+      <el-panel type="gray" border title="ECRP会员价值分数公式">
+        <div class="formula">
+          <el-button icon="check"  class="save-part" >保存公式</el-button>
+          <div class="formula-box">
+            <div class="addon">
+              <i class="bui-tongji"></i>
+            </div>
+            S<sub>dv</sub>=S<sub>R</sub>*<input id="srPercent" name="formula.sr_percent"
+                                                type="text" value=""
+                                                maxLength="2"/>%+S<sub>F</sub>*<input
+              id="sfPercent" name="formula.sf_percent" type="text" value="" maxLength="2"/>%
+            +S<sub>M</sub>*<input id="smPercent" name="formula.sm_percent" type="text" value=""
+                                  maxLength="2"/>%
+            +S<sub>S</sub>*<input id="ssPercent" name="formula.ss_percent" type="text" value=""
+                                  maxLength="2"/>%
+            +S<sub>E</sub>*<input id="sePercent" name="formula.se_percent" type="text" value=""
+                                  maxLength="2"/>%
+          </div>
+        </div>
+        <div class="formula-word">
+          <p>公式说明：</p>
+          <p>1、每一个百分比系数都可以修改，用于调整各项参数在客户价值分数中的权重;</p>
+          <p>2、SR表示上次购买距离当前时间的分数，其中0~45天=100，45~90天=80，90~180天=70，180~360天=60，360天以上=0分</p>
+          <p>3、SF表示购买的频率的分数，仅根据最近1年的购买频率进行计算，其中，一年内4次以上=100，3次=80，2次=70，1次=60，0次=0分</p>
+          <p>4、SM表示购买金额的分数，仅根据最近1年每次购买的总额进行计算，其中，购买总额大于500=100，大于300=80，大于200=70，大于0=60，没有消费=0</p>
+          <p>5、SS表示服务指数，是指会员等级的得分情况。非会员得分60分、n级会员得分=60+（100-60）*n/最高等级；未启用会员体系的企业，默认分值80分</p>
+          <p>6、SE表示客户期望值，是指客户对企业品牌的最近一年内的交易记录中每件商品的得分均值=（分值1+分值2+…+分值n）/n。单件商品评价得分值：好评=100、中评=80、差评=60。不开放评价的B2C商城、天猫等，默认分值为100分</p>
+        </div>
+      </el-panel>
+    </div>
+
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

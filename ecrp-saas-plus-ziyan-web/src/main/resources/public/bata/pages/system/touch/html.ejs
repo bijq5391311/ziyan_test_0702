@@ -1,0 +1,56 @@
+<% include ../../../include/layout/start.ejs %>
+<div id="example" v-cloak>
+  <div class="template-page">
+    <div class="template-page-location">
+      <el-breadcrumb separator=">">
+        <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+        <el-breadcrumb-item>系统设置</el-breadcrumb-item>
+        <el-breadcrumb-item>客户触达管理</el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>
+    <el-form label-width="120px">
+      <el-form-item label="营销短信：">
+        <el-form-grid size="sm" width="60">
+          <el-input value="3" class="text-right"></el-input>
+        </el-form-grid>
+        <el-form-grid>次/单会员日接收量限定</el-form-grid>
+        <el-form-grid class="text-warning">
+          <el-tooltip class="item" effect="dark" placement="right">
+            <i class="bui-question"></i>
+            <div slot="content">为了保证您客户的体验，建议<br/>单店铺营销类手机短信每日同<br/>一个客户接收短信1次。</div>
+          </el-tooltip>
+        </el-form-grid>
+      </el-form-item>
+      <el-form-item label="触发类短信：">
+        <el-form-grid size="sm" width="60">
+          <el-input value="3" class="text-right"></el-input>
+        </el-form-grid>
+        <el-form-grid>次/每日每个电话号码可重复发送短信条数</el-form-grid>
+        <el-form-grid class="text-warning">
+          <el-tooltip class="item" effect="dark" placement="right">
+            <i class="bui-question"></i>
+            <div slot="content">触发类短信每日每个电话号码可重复<br/>发送短信条数(除了营销、测试通道的<br/>短信之外，其他的都是触发类短信)。</div>
+          </el-tooltip>
+        </el-form-grid>
+      </el-form-item>
+      <el-form-item label="营销附加手机号：">
+        <el-form-grid size="xlg">
+          <el-input type="textarea"></el-input>
+        </el-form-grid>
+        <div class="tmp-tips text-info"><i class="bui-info"></i>请输入发送短信时附加的测试号码，多个时需用<span class="text-warning">英文逗号</span>隔开
+        </div>
+      </el-form-item>
+      <el-form-item label="营销附加邮件：">
+        <el-form-grid size="xlg">
+          <el-input type="textarea"></el-input>
+        </el-form-grid>
+        <div class="tmp-tips text-info"><i class="bui-info"></i>请输入发送短邮件时附加的测试号码，多个时需用<span class="text-warning">英文逗号</span>隔开
+        </div>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary">保存</el-button>
+      </el-form-item>
+    </el-form>
+  </div>
+</div>
+<% include ../../../include/layout/end.ejs %>

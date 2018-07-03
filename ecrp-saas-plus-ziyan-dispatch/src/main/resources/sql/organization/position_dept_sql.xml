@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="organization.SysPositionDepartment">
+		<sql id="queryDeptByCode" value="select  * from sys_position_department where 1=1">
+			<if  value="and position_code like ${'position_code%'} and state=1 and group_id=#{group_id}"></if>
+		</sql>
+		<sql id="deleteDeptBatch" value="">
+			<if value="delete from sys_position_department where department_code=?"></if>
+		</sql>
+		<sql id="deletePositionById" value="">
+			<if test="#positionId!=null" 
+				value="	update sys_position_department pd
+					inner join sys_position p
+					on p.code=pd.position_code
+					set pd.state=0
+					where p.id=#{id}">
+			</if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>

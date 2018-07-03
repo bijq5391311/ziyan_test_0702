@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="base.organization">
+<!-- 	    <sql id="queryGroup" value="select img as img, id as id, name as name ,code as code, tb_remain_count as tbRemainCount, email_send_name as emailSendName, email_send_address as emailSendAddress, marketing_append_email as marketingAppendEmail, marketing_append_mobiles as marketingAppMobile, app_key as appKey, -->
+<!-- 	         app_secret as appSecret from sys_group where 1=1"> -->
+<!-- 	      <if value=" and name=#{name}"></if> -->
+<!-- 	      <if value=" and id=#{id}"></if> -->
+<!-- 	      <if value=" and state=1"/> -->
+<!-- 	    </sql> -->
+	    
+	     <sql id="queryGroupByIdOrName" value="select img as img, id as id, name as name ,code as code, tb_remain_count as tbRemainCount, email_send_name as emailSendName, email_send_address as emailSendAddress, marketing_append_email as marketingAppendEmail, marketing_append_mobiles as marketingAppMobile, app_key as appKey,
+	         app_secret as appSecret from sys_group where 1=1">
+	      <if value=" and name=#{name}"></if>
+	      <if value=" and id=#{id}"></if>
+	      <if value=" and state=1"/>
+	    </sql>
+	    <sql id="queryPositionMenu" value="select b.id as id,b.code as code,b.parent_id as parentId,b.parent_ids as parentIds,b.name as name,b.type as `type`,b.icon as icon,b.sort as sort,b.url as url 
+		      from sys_position_menu a,sys_menu b where a.menu_id=b.id and a.position_code=#{positionCode} and b.parent_id!=0 and b.state=1  ">
+		      <if value=" and  b.type=#{type}"></if>
+		      <if value="order by b.sort asc"></if>
+		</sql>
+		
+		<sql id="queryShopNameByMobile" value="select sg.name as name from sys_group sg where 1=1 ">
+			<if value="sg.marketing_append_mobiles=#{target}"></if>
+ 		</sql>
+ 		
+ 		<sql id="queryTaoAndOwnShopList" value="select sse.code as shopCode,sse.name as shopName from sys_shop_ext sse left join  sys_position_shop sps on 
+		sse.code = sps.shop_code left join sys_user_department sud on sud.position_code = sps.position_code
+		left join sys_user su on su.id = sud.user_id where sse.state=1 and su.id=#{id}  and sse.plat_from_type = 1 or sse.plat_from_type = 101">
+        </sql>
+        
+        <sql id="queryTaoShopList" value="select code as shopCode,name as shopName from sys_shop_ext where 1=1 ">
+            <if value = "and id in (${id})"></if>
+            <if value="and out_sid =#{outSid}"></if>
+        </sql>
+
+		<sql id="queryShopList" value="select shop_count as shopCount, id as id, name as shopName, code as shopCode,brand_id as brandId from sys_shop where 1=1 ">
+			<if value="and is_shop = #{isShop}"></if>
+			<if value="and code in(${'shopCodes'})"></if>
+			<if value = "and id in (${id})"></if>
+			<if value="and out_sid =#{outSid}"></if>
+		</sql>
+        
+        <sql id="queryShopAndExtList" value="select s.id, s.name as shopname, s.code as shopcode, s.group_id as groupid, s.out_sid as outsid, e.app_key as appkey,e.app_secret as appsecret
+                    ,e.access_token as accesstoken, e.uid as uid, e.plat_from_type as platfromtype, s.brand_id as brandId
+                    from sys_shop s inner join sys_shop_ext e on s.code= e.code where 1=1 ">
+             <if value = "and s.state = #{state}"></if>
+            <if value="and s.is_shop = #{isShop}"></if>
+        </sql>
+        <sql id="queryshopByIds" value="select DISTINCT id as id, parent_id as parentId,code as shopCode,name as shopName,brand_id as brandId from sys_shop where is_shop =1">
+           <if value="and id in (${'ids'})"></if>
+        </sql>
+        <sql id="loadChannelTree" value="select id as id,name as label, parent_id as parentId, code as code from sys_shop where 1=1 ">
+        <if value = " and is_shop = #{isShop}"></if>
+        <if value = " and state = #{state}"> </if>
+       </sql>
+		<sql id="loadChannel" value="select id as id,name as shopName, parent_id as parentId, code as shopCode from sys_shop where 1=1 ">
+			<if value = " and is_shop = #{isShop}"></if>
+			<if value = " and state = #{state}"> </if>
+		</sql>
+       
+       <sql id="loadShopTree" value="select id as id,name as label, parent_id as parentId, code as code,id as ref,if(is_shop = 1, true,false) as showAdd
+                 from sys_shop where 1=1">
+        <if test ="true" value="and is_shop=0 or is_shop = 1 and code in (${'shopCodes'})"></if>
+        <if value ="and brand_id in (${brandIds})"></if>
+        <if value = "and state = #{state}"> </if>
+       </sql>
+		<!-- 店铺组建店铺获取-->
+		<sql id="loadShopTable" value="select i.id as id,i.name as label, i.parent_id as parentId, i.code as code
+                 from sys_shop i left join sys_shop_ext sse on i.code = sse.code where 1=1 and i.is_shop = 1">
+			<bind name="shopCode" value="#shopCode == null?null:('%'+#shopCode+'%')"></bind>
+			<if  value=" and i.code like #{shopCode}"></if>
+			<if  value=" and i.code in (${'shopCodes'})"></if>
+			<!--<if value ="and brand_id in (${brandIds})"></if>-->
+			<if value = "and i.parent_id = #{channel}"> </if>
+			<if value = "and sse.province = #{sheng}"> </if>
+			<if value = "and sse.city = #{shi}"> </if>
+			<if value = "and sse.district = #{qu}"> </if>
+			<if value = "and i.state = #{state}"> </if>
+			<bind name="shopName" value="#shopName == null?null:('%'+#shopName+'%')"></bind>
+			<if  value = "and i.name like #{shopName}"> </if>
+			<if value=" and i.brand_id = #{brand}"></if>
+		</sql>
+		<!-- 店铺组建外部店铺获取-->
+		<sql id="loadOutShopTable" value="select i.id as id,i.name as label, i.parent_id as parentId, os.out_code as code,i.code as shopcode
+                 from sys_shop i left join out_shop os on i.out_sid = os.id where 1=1 and i.is_shop = 1 ">
+			<bind name="shopCode" value="#shopCode == null?null:('%'+#shopCode+'%')"></bind>
+			<if  value=" and os.out_code like #{shopCode}"></if>
+			<!-- <if  value=" and i.code in (${'shopCodes'})"></if> -->
+			<if value ="and brand_id in (${brandIds})"></if>
+			<if value = "and i.parent_id in (${channel}) "> </if>
+			<if value = "and os.province = #{sheng}"> </if>
+			<if value = "and os.city = #{shi}"> </if>
+			<if value = "and os.district = #{qu}"> </if>
+			<if value = "and i.state = #{state}"> </if>
+			<bind name="shopName" value="#shopName == null?null:('%'+#shopName+'%')"></bind>
+			<if  value = "and os.out_name like #{shopName}"> </if>
+			<if value="  and os.is_related = 1  and i.brand_id = #{brand}"></if>
+		</sql>
+		<!-- 店铺组建线下店铺获取-->
+		<sql id="loadOutShopTableNoRight" value="select os.id as id,os.out_name as label, os.out_code as code
+                 from  out_shop os  where 1=1 and os.province is not null  and os.is_related = 0 " >
+			<bind name="shopCode" value="#shopCode == null?null:('%'+#shopCode+'%')"></bind>
+			<if  value=" and os.out_code like #{shopCode}"></if>
+			<if value =" and brand_id in (${brandIds})"></if>
+			<if value = " and os.province = #{sheng}"> </if>
+			<if value = " and os.city = #{shi}"> </if>
+			<if value = " and os.district = #{qu}"> </if>
+			<if value = " and os.state = #{state}"> </if>
+			<bind name="shopName" value="#shopName == null?null:('%'+#shopName+'%')"></bind>
+			<if  value = " and os.out_name like #{shopName}"> </if>
+			<if  value = " order by os.create_time desc "> </if>
+		</sql>
+       <!-- 查找品牌下淘宝店铺树 -->
+       <sql id="loadShopExtTree" value="select s.id as id,s.name as label, s.parent_id as parentId, s.code as code,s.id as ref,if(s.is_shop = 1, true,false) as showAdd 
+                from sys_shop s  
+                    left join sys_shop_ext se on s.code=se.code 
+                where 1 = 1">
+		       <if value = "and (s.is_shop=0 or s.is_shop =1 and s.brand_id in (${brandIds}))"></if>
+		       <if value = "and (s.is_shop=0 or s.is_shop = 1 and se.plat_from_type = #{platFromType})"></if>
+               <if test ="true" value = "and (s.is_shop=0 or s.is_shop = 1 and s.code in (${'shopCodes'}))"></if>
+		       <if value = "and s.state = #{state}"> </if>
+       </sql>
+        <sql id="loadShopTreeByBrandID" value="select id as id,name as label, parent_id as parentId, code as code,id as ref,if(is_shop = 1, true,false) as showAdd from sys_shop where 1=1 ">
+        <if value =" and  brand_id in (${brandIds})"></if>
+        <if value = " and state = #{state}"> </if>
+       </sql>
+       <sql id="loadShopTreeByCode" value="select id as id,name as label, parent_id as parentId, code as code,id as ref,if(is_shop = 1, true,false) as showAdd from sys_shop where 1=1 ">
+        <if value =" and  code in (${code})"></if>
+        <if value = " and state = #{state}"> </if>
+       </sql>
+       
+        <sql id="loadDeptTree" value="select id as id,name as label, parent_id as parentId, code as code from sys_department where 1=1 ">
+       	 <if value = " and state = #{state}"> </if>
+       </sql>
+       
+         <sql id="loadDeptartmetTree" value="select name as label, parent_id as parentId, code as id  from sys_department where  state =1 ">
+       	  <if value =" and  code in (${code})"></if>
+       </sql>
+       
+        <sql id="loadDeptTree" value="select id as id,name as label, parent_id as parentId, code as code from sys_department where 1=1 ">
+       	 <if value = " and state = #{state}"> </if>
+       </sql>
+       
+       <sql id="queryShopExtList" value="select *,code as shopCode,name as shopName,open_shop_id as openShopId,out_sid as tbSid from sys_shop_ext  where 1=1 and state = 1">
+        <if value = "and code = #{code}"> </if>
+         <if value = "and id in (${id})"> </if>
+         <if value = "and name in (${'name'})"> </if>
+         <if value="and uid=#{uid}"></if>
+         <if value="and open_shop_id = #{openShopId}"></if>
+         </sql>
+
+        <sql id="queryShopExtBycode" value="select name ,uid, plat_from_type as platFromType, code,app_key as appKey,app_secret as appSecret,access_token as accessToken, jl_session_key as jlSessionKey,jlkey_expire_time as jlkeyExpireTime from sys_shop_ext where 1=1 and state = 1">
+            <if value = " and code = #{code}"> </if>
+        </sql>
+       
+       <sql id="queryListByplatTypeanddeptCode" value="select * from  sys_shop_ext join sys_position_shop on sys_position_shop.shop_code =sys_shop_ext.`code` where 1=1">
+          <if value="and sys_position_shop.department_code=#{code}"></if>
+          <if value="and plat_from_type = #{type}"></if>
+       </sql>
+       <!--权限内的淘系店铺  -->
+       <sql id="queryShopExtListByAuth" value="select se.*,s.code as shopCode,s.name as shopName from sys_shop s
+             inner join  sys_shop_ext se on s.code = se.code where s.state = 1">
+            <if value="and se.plat_from_type = #{platFromType}"></if>
+            <if test="true" value = "and s.code in (${'shopCodes'})"></if>
+      </sql>
+               
+       <sql id="queryDepartmentById" value="select code from sys_department where id=#{id}"></sql>
+       <!--根据用户id查询品牌  -->
+       <sql id="querySysBrandByUserIdList" value="select distinct sb.id as brandId, sb.brand_name as brandName,sb.logo,sb.remark from sys_brand sb 
+                 inner join sys_shop ss on sb.id=ss.brand_id
+                 inner join sys_position_shop sps on sps.shop_code=ss.code 
+                 inner join sys_user_department sud on sps.department_code like concat(sud.department_code,'%')
+             where sb.state=sps.state=sud.state=1 and sud.user_id=#{userId}"></sql>
+       <!--获取某一级菜单下面子菜单  -->
+        <sql id="queryChildMenuByCode" value="select a.id as id,a.code as code,a.parent_id as parentId,a.parent_ids as parentIds,a.name as name,a.type as `type`,a.icon as icon,a.sort as sort,a.url as url 
+          from sys_menu a inner join sys_position_menu b on a.id=b.menu_id inner join (select id from sys_menu where code=#{code}) c on a.parent_id=c.id  where  b.position_code=#{positionCode} and a.state=1 ">
+       </sql>
+
+        <sql id="loadBrandById" value="select id as brandId, brand_name as brandName,logo,remark from sys_brand where 1 = 1 ">
+        	<if value = " and id = #{id}"></if>
+        </sql>
+		<sql id="querySysUser" value="select  user_name as k , id as v from sys_user   "></sql>
+		<sql id="getSysUser" value="select s.*  from sys_user s  where id= #{id} "></sql>
+		<sql id="queryChannelList" value="select id as id,parent_id as parentId,code as shopCode,name as shopName 
+		       from  sys_shop where state = 1">
+		  	<auth tenant="group_id"></auth>
+		</sql>
+		<!-- 
+		<sql id="queryShopByCode" value="select app_key as appKey,app_secret as appSecret,access_token as accessToken,plat_from_type as platFromType,id,uid,name
+		 from sys_shop_ext where code = #{code} and state = 1"></sql>
+		 -->
+		 
+		 <sql id="queryShopByCode" value="select s.out_sid as outSid,ext.app_key as appKey,ext.app_secret as appSecret,ext.access_token as accessToken,ext.plat_from_type as platFromType,ext.id,ext.uid,ext.name,ext.jl_session_key,ext.jlkey_expire_time
+		 from sys_shop_ext ext
+		 inner join sys_shop  s on s.code = ext.code
+		 where ext.code = #{code} and ext.state = 1"></sql>
+		 		 
+	    <sql id="queryListShopInfo" value="select sys_shop_ext.id as id,sys_shop.group_id as groupId,brand_id as brandId,access_token as accessToken,app_key as appKey,app_secret  as appSecret ,plat_from_type as platFromType, uid ,sys_shop_ext.name,sys_shop.code from sys_shop_ext 
+	    join sys_shop on sys_shop.code = sys_shop_ext.code
+        where sys_shop_ext.state=1 and is_syn=1"></sql>
+		
+		<sql id="getSysShopExtByplatFromType" value=" select id as id, access_token as accessToken,app_key as appKey,app_secret  as appSecret ,plat_from_type as platFromType, uid ,name,code from sys_shop_ext where state=1 and is_syn=1">
+	           <if value = "and plat_from_type = #{platFromType}"></if>
+		</sql>
+        
+        <sql id="querySysUserByDepartmentCode" value="select d.department_code, u.user_name as v, u.id as k from sys_user u, sys_user_department d where u.state = 1 and u.id = d.user_id and d.department_code = #{department_code}">
+		</sql>
+		
+		<sql id="queryLoginInfoByAccount" value="select u.id,u.login_account as loginAccount,u.password,u.user_name as userName,u.group_id as groupId,p.code as positionCode
+				from sys_user u inner join sys_user_department udept on udept.user_id=u.id
+				inner join sys_position p on p.code=udept.position_code
+				where 1=1">
+			<if value="and u.login_account=#{login_account}"></if>
+		</sql>
+		
+		<sql id="queryLoginByAccount" value="select u.id,u.login_account as loginAccount,u.password,u.user_name as userName,u.group_id as groupId
+				from sys_user u
+				where 1=1">
+			<if value="and u.login_account=#{login_account}"></if>
+		</sql>
+		<sql id="queryShopListByCodes" value="select name as shopName from sys_shop where 1=1">
+			<if value=" and code in (${'codes'})"></if>
+			<if value=" and is_shop = #{isShop}"></if>
+		</sql>
+		
+		<sql id="queryShopByCurrentDeptCode" value="select shop.code ,shop.name
+			from sys_shop shop inner join sys_position_shop ps on shop.code like concat(ps.shop_code,'%')
+			inner join sys_department dept on ps.department_code like concat(dept.code,'%')
+			where 1=1">
+			<bind name="code" value="#code+'%'"></bind>
+			<if value="and dept.code like #{code}"></if>
+		</sql>
+		
+		<sql id="queryBrandAuthorizeList" value="select * from kd_brand_authorize where 1 = 1">
+		      <if value="and brand_id = #{brandId}"></if>
+		      <if value="and is_group = #{isGroup}"></if>
+		      <if value="and group_id = #{groupId} "></if>
+		</sql>
+			<sql id="queryCurrentDeptByUserId" value="select department_code from sys_user_department where state =	1 ">
+		      <if value="and user_id  = #{id}"></if>
+		</sql>
+			<sql id="queryCurrentDepts" value="select * from sys_department where state = 1 ">
+		      <if value="and code = #{code}"></if>
+			  <bind name="codes" value="#code+'%'"></bind>
+			  <if value=" or code like #{codes}"></if>
+		</sql>
+		<sql id="queryLowCurrentDepts" value="select * from sys_department where state = 1 ">
+			 <!-- <bind name="codes" value="${'code%'}"></bind>-->
+		      <if value=" and code != #{code}"></if>
+			  <if value=" and code like ${'code%'} "></if>
+		</sql>
+			<sql id="queryCurrentDeptsNoSee" value="select * from sys_department where state = 1 ">
+		      <if value="and code not in (${'code'})"></if>
+		</sql>
+		<sql id="queryDepartmentByShopCode" value="select department_code as code from sys_position_shop where 1=1 and shop_code = #{shopCode}"></sql>
+	</sqlGroup>
+</sqlRoot>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="voice.archivedEvaluate">
+		<sql id="loadEvaluateCatagory"
+			value="select count(1) from  evaluate_category  where name=#{name} and state=1  and parent_id=#{parentid} ">
+		</sql>
+		<sql id="deleteEvaluateCatagoryByid"
+			value="update evaluate_category set state = 0  where id = #{id} ">
+		</sql>
+		<sql id="batchdelete"
+			value="update evaluate_category set state = 0  where id = ? ">
+		</sql>
+		
+		<sql id="loadBycategoryIds"
+			value="select count(*) from evaluate_sort_record where 1=1">
+			  <if value="  and  category_ids in (#{categoryIds})"></if>
+		</sql>
+		
+	</sqlGroup>
+</sqlRoot>

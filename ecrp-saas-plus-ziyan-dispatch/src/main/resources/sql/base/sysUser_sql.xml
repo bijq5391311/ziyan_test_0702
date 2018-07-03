@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="base.sysuser">
+		<sql id="querySysUser" value="select user_name as v , id as k from sys_user where state =1">
+		</sql>
+	</sqlGroup>
+</sqlRoot>

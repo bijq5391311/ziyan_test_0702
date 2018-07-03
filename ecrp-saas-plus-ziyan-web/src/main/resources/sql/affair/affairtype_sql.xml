@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="core.affair">
+		<sql id="findList" value="select 
+				(select GROUP_CONCAT(u.user_name) From sys_user u where CONCAT(',',t.user_id,',') like CONCAT('%,',u.id,',%')) 
+			user_name, (SELECT type_name FROM kd_affair_type WHERE id = t.parent_id ) as parent_name,t.*
+			from kd_affair_type t where 1=1 and code is null ">
+			<if test="#affairID > 0" value=" and parent_id = #{affairID}"></if>
+			<if test="#type_name != null" value=" and t.type_name like ${'%type_name%'}"></if>
+			<if value=" ORDER BY create_time DESC"></if>
+		</sql>
+		<sql id="batchdelete" value="">
+			<if value="delete from kd_affair_type where id = ?"></if>
+		</sql>
+		
+		<!-- 	    获取树 -->
+	      <sql id="queryAffairTree" value="SELECT id AS id, parent_id AS parent_id, `type_name` AS label,
+										'false' AS checked, 'false' AS showAdd, 'false' AS showEdit 
+										from kd_affair_type WHERE state = 1 and parent_id = (select id from kd_affair_type where `code` = 'ALL') OR `code` = 'ALL'">
+			<if test="#group_id != null" value=" and group_id = #{group_id}"></if>
+			<if value=" ORDER BY type_order"></if>
+		  </sql>
+		
+		<sql id="loadAffairLog" value="select * from kd_affair_handle_log where state=1">
+			<if test="#group_id != null" value=" and group_id=#{grou_id}"></if>
+			<if test="#affair_id != null" value=" and affair_list_id=#{affair_id}"></if>
+		</sql>
+		<sql id="loadParentId" value="select parent_id from kd_affair_type where id = #{id}">
+		</sql>
+<!-- 		BABA要把所有的都写成活的?  获取事务来源 -->
+		<sql id="querysource" value="select id as v, type_name as k, code as code from kd_affair_type where parent_id = (select ID from kd_affair_type k where k.code = 'ALL')">
+			<if value=" ORDER BY type_order"></if>
+		</sql>
+<!-- 		级联选择使用 -->
+		<sql id="querysourcetoCascader" value="select id as ID, type_name as type_name, code as code from kd_affair_type where parent_id = (select ID from kd_affair_type k where k.code = 'ALL')">
+			<if value=" ORDER BY type_order"></if>
+		</sql>
+	</sqlGroup>
+</sqlRoot>

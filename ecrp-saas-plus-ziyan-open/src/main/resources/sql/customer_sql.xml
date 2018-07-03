@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="customer">
+	    <sql id="findUserInfoList" value="select c.customer_name as userName,
+	    	c.mobile as mobile,c.member_card as memberCard,c.state as grade,
+	    	c.total_grouth_value as growthValue,c.hd_grouth_value as score 
+	    	from kd_customer c where 1=1 and c.state=1 ">
+	    <if value=" and c.update_time between #{startDate} and #{endDate}"></if>
+	    <if value=" and c.member_card is not null"></if>
+	    </sql>
+	    
+	    <sql id="findUserInfo" value="select * from kd_customer c 
+	    	where 1=1 and c.state=1 ">
+	    <if value=" and c.sys_customer_id = #{sysCustomerId}"></if>
+	    </sql>
+	    
+	    <sql id="getSectionUserInfo" value="select c.total_grouth_value,
+	    	c.trade_grouth_value,c.trade_total_score,c.defeat_rate,c.member_grade,c.sys_customer_id,c.point_reset_msg 
+	 		from kd_customer c 
+	    	where 1=1 and c.state=1">
+	    <if value=" and c.kd_open_id = #{openId}"></if>
+	    </sql>
+	    <!-- 查询用户信息给紫燕 -->
+	     <sql id="getCusetomerToZiYan" value="SELECT
+	kc.customer_name AS userName,
+	kc.mobile AS mobile,
+	kc.birthday AS birthday,
+	kc.member_card AS memberCard,
+CASE 
+	WHEN kc.sex = -1 THEN '未知'
+	WHEN kc.sex = 0 THEN '女'
+	WHEN kc.sex = 1 THEN '男'
+END AS sex,
+	kc.develop_time AS joinDate,
+	kcd.score AS score,
+	grd.grade_name AS gradeName,
+	kcd.consume_total AS consumeValue
+FROM
+	kd_customer kc INNER JOIN kd_customer_brand kcd on kc.sys_customer_id = kcd.sys_customer_id
+	LEFT JOIN grade_rule_detail grd  ON grd.grade = kcd.member_grade
+WHERE	1 = 1
+AND kc.state = 1">
+	    <if  value=" and kc.member_card = #{memberCard}"></if>
+	     <if  value=" and kc.mobile = #{mobile}"></if>
+	    </sql>
+	</sqlGroup>
+</sqlRoot>

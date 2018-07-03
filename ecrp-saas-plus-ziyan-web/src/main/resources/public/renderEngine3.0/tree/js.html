@@ -1,0 +1,35 @@
+<th:block th:fragment="renderjs(dslJSON, context)">
+	<th:block th:inline="javascript", 
+		th:with="
+		    methods = ${context.get('tree_method_map')}
+		"
+	>
+		
+		tree_mixin = {
+			methods: {
+				[#th:block th:each="item,stat : ${methods}"]
+					[[${item.key}]]:[(${item.value})],
+				[/th:block]
+			},
+			mounted: function() {
+				this.$nextTick(() => {
+				/*
+				      // body视图高度 - （底部栏高度 offsetHeight+ 当前声明区域#example距离浏览器顶部高度offsetHeight + 当前滚动区域顶部距离父级结构的间距大小 offsetTop + tab页签高度
+				      let leftLimitHeight = document.getElementsByTagName('footer') > 0 ? 
+				    		  document.body.offsetHeight - (document.getElementsByTagName('footer')[0].offsetHeight + this.$el.offsetTop + this.$refs.layoutLeftScroll.$el.offsetTop + 36) : document.body.offsetHeight;
+				      // 右侧栏高度固定
+				      if(this.$refs.layoutLeftScroll) {
+				      	this.$refs.layoutLeftScroll.$el.children[0].style.maxHeight = leftLimitHeight + 'px'
+				      	this.$refs.layoutLeftScroll.$el.children[0].style.oveflowY = 'scroll'
+				      }
+				      */
+				      
+				     
+				      let leftLimitHeight = document.body.offsetHeight - (60 + 46 + 23)
+					      this.$refs.layoutLeftScroll.$el.children[0].style.height = leftLimitHeight + 'px'
+				})
+			}
+		}
+	
+	</th:block>
+</th:block>

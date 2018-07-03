@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="dataaccess.dataaccess">
+		<sql id="updatestatus" value="update data_access_rule set status=2 where id = #{id}">
+		</sql>
+	</sqlGroup>
+	
+</sqlRoot>

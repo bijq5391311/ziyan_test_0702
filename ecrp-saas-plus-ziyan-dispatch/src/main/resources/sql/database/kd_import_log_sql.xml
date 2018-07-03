@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlRoot>
+	<sqlGroup name="database.KdImportLog">
+		<sql id="queryList" value="select im.*,shop.name from kd_import_log im
+			left join sys_shop shop on shop.code = im.shop_code 
+			where im.state =1">
+			<bind name="operate_name" value="#operate_name == null ? null : ('%'+#operate_name+'%')"></bind>
+			<bind name="real_file_name" value="#real_file_name == null ? null : ('%'+#real_file_name+'%')"></bind>
+			<if value="and im.operate_name like #{operate_name}"></if>
+			<if value="and im.real_file_name like #{real_file_name}"></if>
+			<if value="and im.type=#{type}"></if>
+			<auth tenant="im.group_id"></auth>
+			<if value="order by im.update_time desc"></if>
+			
+		</sql>
+		
+		<sql id="queryUploadLogByFilePath" value="select id from kd_import_log 
+		        where upload_absolute_file_path=#{upload_absolute_file_path} and upload_status = 1 and state =1"></sql>
+	</sqlGroup>
+</sqlRoot>

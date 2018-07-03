@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sqlRoot>
+	<sqlGroup name="base.sysBrand">
+	    <sql id="queryIdandName" value="SELECT  sys_brand.id ,sys_brand.brand_name from sys_position_shop 
+	    join sys_shop ON sys_position_shop.shop_code=sys_shop.`code`
+	    join sys_brand on sys_shop.brand_id=sys_brand.id where 1=1
+	    ">
+	      <if value=" and sys_position_shop.department_code=#{departmentCode}"></if>
+	    </sql>
+	    
+	    <sql id="queryBrand" value="select id,brand_name as brandName from sys_brand where 1=1 "></sql>
+	</sqlGroup>
+</sqlRoot>

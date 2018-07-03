@@ -1,0 +1,884 @@
+<root>
+<sql id="qgpstep1"  setter="shops">
+    <query><![CDATA[select ext.app_key,ext.access_token,ext.`name`,ext.plat_from_type,ext.app_secret,shop.brand_id,ext.group_id,ext.code
+                                   from  sys_shop_ext ext join sys_shop shop on ext.code=shop.code  where
+                                    ext.code in (00000000)  ]]></query>
+    <params></params>
+    <result type="List">
+    </result>
+</sql>
+
+<!--获取开始时间-->
+<sql id="qgpgetStartTime"  setter="getTime">
+    <query><![CDATA[select start_time,minutes from data_access_rule where code = 'qgp']]></query>
+    <params></params>
+    <result type="Object">
+    </result>
+    <output><![CDATA[]]></output>
+</sql>
+
+<!--获取开始时间-->
+<sql id="qgpsetStartTime" >
+    <query><![CDATA[update data_access_rule set start_time=if(?<=SYSDATE(),?,?)  where code = 'qgp']]></query>
+    <params>
+		<field bind="T(java.time.LocalDateTime).parse(#getTime.get('start_time')).plusMinutes(#getTime.get('minutes'))"/>
+		<field bind="T(java.time.LocalDateTime).parse(#getTime.get('start_time')).plusMinutes(#getTime.get('minutes')).toString()"/>
+		<field bind="T(java.time.LocalDateTime).now().toString()"/>
+    </params>
+    <result type="Int">
+    </result>
+    <output><![CDATA[]]></output>
+</sql>
+
+<!--遍历多家店数据-->
+<foreach id="qgpstep2" list="#shops" item="shop">
+    <tasklet name="step2_" />
+    <tasklet name="step3" />
+</foreach>
+
+<http id="step2_" url="http://api.nascent.cn/Trade/TopTrade" api="" method="GET">
+    <session>
+        <field name="oauth_appkey" bind="#shop.get('app_key')"/>
+        <field name="oauth_timestamp" bind="TIMESTAMP"/>
+        <field name="oauth_nonce" bind="NONCE"/>
+        <field name="oauth_signature_method" bind="'HMAC-SHA1'"/>
+        <field name="oauth_accesstoken" bind="#shop.get('access_token')"/>
+    </session>
+	<paginate nextPage="page,#page+1" testPage="#root!=null and !#root.isEmpty()" >
+	                     <field name="pageSize" bind="1"/>
+						 <field name="page" bind="1"/>
+	                     <field name="startTime" bind="#startTime!=null?#startTime:#getTime.get('start_time')"/>
+	                     <field name="endTime" bind="T(java.time.LocalDateTime).parse(#root['startTime']).plusMinutes(#getTime.get('minutes')).toString()"/>
+	                </paginate>
+    <sign name="oauth_signature" method="HMAC-SHA1">
+        <field name="method" bind="METHOD"/>
+        <field name="url" bind="URL"/>
+        <field name="params" bind="PARAMS"/>
+        <field name="appsecret" bind="#shop.get('app_secret')"/>
+    </sign>
+    <result>
+        <field name="trade" bind="$.Data.TopTrade"/>
+    </result>
+</http>
+
+<!--<http id="step2_" url="http://api.nascent.cn/Rds/TBTrade" api="" method="GET">
+    <session>
+        <field name="oauth_appkey" bind="#shop.get('app_key')"/>
+        <field name="oauth_timestamp" bind="TIMESTAMP"/>
+        <field name="oauth_nonce" bind="NONCE"/>
+        <field name="oauth_signature_method" bind="'HMAC-SHA1'"/>
+        <field name="oauth_accesstoken" bind="#shop.get('access_token')"/>
+    </session>
+    <paginate nextPage="tid,#root.get(#root.size()-1).get('trade_fullinfo_get_response').get('trade').get('tid')" testPage="#root!=null and !#root.isEmpty()"
+              nextDate="" testDate="">
+        <field name="pageSize" bind="100"/>
+        <field name="tid" bind="0"/>
+        <field name="startTime" bind="#startTime!=null?#startTime:#getTime.get('start_time')"/>
+        <field name="endTime" bind="T(java.time.LocalDateTime).parse(#root['startTime']).plusMinutes(#getTime.get('minutes')).toString()"/>
+    </paginate>
+    <sign name="oauth_signature" method="HMAC-SHA1">
+        <field name="method" bind="METHOD"/>
+        <field name="url" bind="URL"/>
+        <field name="params" bind="PARAMS"/>
+        <field name="appsecret" bind="#shop.get('app_secret')"/>
+    </sign>
+    <result>
+        <field name="trade" bind="#root.get('Data').get('TbTrade')!=null?#root.get('Data').get('TbTrade'):{}"/>
+    </result>
+</http>-->
+
+<mapping id="Trades_"  class="com.nascent.ecrpsaas.ingest.model.TestOrder">
+    <field name="id" bind="$.trade_fullinfo_get_response.trade.tid_str"/>
+    <field name="ReceiverAddress" bind="$.trade_fullinfo_get_response.trade.receiver_address"/>
+    <field name="BuyerEmail" bind="$.trade_fullinfo_get_response.trade.buyer_email"/>
+    <field name="ShopCode" bind="#shop.get('code')"/>
+    <field name="EndTime" bind="$.trade_fullinfo_get_response.trade.end_time"/>
+    <field name="GroupId" bind="#shop.get('group_id')"/>
+    <field name="ReceiverMobile" bind="$.trade_fullinfo_get_response.trade.receiver_mobile"/>
+    <field name="ReceiverProvince" bind="$.trade_fullinfo_get_response.trade.receiver_state"/>
+    <field name="StepTradeStatus" bind="$.trade_fullinfo_get_response.trade.step_trade_status"/>
+    <field name="ReceiverDistrict" bind="$.trade_fullinfo_get_response.trade.receiver_district"/>
+    <field name="UpdateTime" bind="T(java.time.LocalDateTime).now()"/>
+    <field name="CreateTime" bind="T(java.time.LocalDateTime).now()"/>
+    <field name="num" bind="$.trade_fullinfo_get_response.trade.num"/>
+    <field name="state" bind="1"/>
+    <field name="BrandId" bind="#shop.get('brand_id')"/>
+    <field name="SysCustomerId" bind=""/>
+    <field name="birthday" bind="$.trade_fullinfo_get_response.trade.birthday" />
+    <field name="SysTradeId" bind=""/> <!--通過平台加訂單id-->
+    <field name="OutTradeId" bind="$.trade_fullinfo_get_response.trade.tid"/>
+    <field name="TradeFrom" bind="$.trade_fullinfo_get_response.trade.trade_from"/>
+    <field name="AppEntrance" bind=""/>
+    <field name="DiscountFee" bind="$.trade_fullinfo_get_response.trade.discount_fee"/>
+    <field name="TotalFee" bind="$.trade_fullinfo_get_response.trade.total_fee"/>
+    <field name="payment" bind="$.trade_fullinfo_get_response.trade.payment"/>
+    <field name="OutNick" bind="$.trade_fullinfo_get_response.trade.buyer_nick"/>
+    <field name="SellerName" bind="$.trade_fullinfo_get_response.trade.seller_name"/>
+    <field name="TradeStatus" bind="$.trade_fullinfo_get_response.trade.status"/>
+    <field name="BuyerRate" bind="$.trade_fullinfo_get_response.trade.buyer_rate"/>
+    <field name="ModifyTime" bind="$.trade_fullinfo_get_response.trade.modified"/>
+    <field name="ReceiverState" bind="$.trade_fullinfo_get_response.trade.receiver_state"/>
+    <field name="ReceiverPhone" bind="$.trade_fullinfo_get_response.trade.receiver_phone"/>
+    <field name="PayType" bind="$.trade_fullinfo_get_response.trade.type"/>
+    <field name="PostFee" bind="$.trade_fullinfo_get_response.trade.post_fee"/>
+    <field name="SellerNick" bind="$.trade_fullinfo_get_response.trade.seller_nick"/>
+    <field name="PayTime" bind="$.trade_fullinfo_get_response.trade.pay_time"/>
+    <field name="RemarkSign" bind="$.trade_fullinfo_get_response.trade.seller_flag"/>
+    <field name="StepPaidFee" bind="$.trade_fullinfo_get_response.trade.step_paid_fee"/>
+    <field name="created" bind="$.trade_fullinfo_get_response.trade.created"/>
+    <field name="ReceiverName" bind="$.trade_fullinfo_get_response.trade.receiver_name"/>
+    <field name="ConsignTime" bind="$.trade_fullinfo_get_response.trade.consign_time"/>
+    <field name="AuditStatus" bind="$.trade_fullinfo_get_response.trade.rx_audit_status"/>
+    <field name="ReceiverCity" bind="$.trade_fullinfo_get_response.trade.receiver_city"/>
+    <field name="BuyerAlipayNo" bind="$.trade_fullinfo_get_response.trade.buyer_alipay_no"/>
+    <foreach id="mapping3" list="$.trade_fullinfo_get_response.trade.orders.order" setter="orders" >
+        <tasklet name="orders_"/></foreach>
+    <foreach id="mapping4" list="#o1.get('trade_fullinfo_get_response').get('trade').get('promotion_details')!= null ? #o1.get('trade_fullinfo_get_response').get('trade').get('promotion_details').get('promotion_detail'):{}" setter="detail" >
+        <tasklet name="childMap4"/></foreach>
+</mapping>
+<mapping id="orders_" class="com.nascent.ecrpsaas.ingest.model.TestOrder">
+    <field name="GroupId" bind="#shop.get('group_id')"/>
+    <field name="OutItemId" bind="$.num_iid"/>
+    <field name="OuterId" bind="#root.get('outer_sku_id') != null ? #root.get('outer_sku_id') : #root.get('sku_id')" /> <!-- 商家编码 add by hyy 2017-11-27-->
+    <!--<field name="OuterId" bind="$.outer_iid"/>-->
+    <field name="SysItemId" bind=""/> <!--  通过生成通知进行计算-->
+    <field name="UpdateTime" bind="T(java.time.LocalDateTime).now()"/>
+    <field name="id" bind="$.id"/>
+    <field name="CreateTime" bind="T(java.time.LocalDateTime).now()"/>
+    <field name="state" bind="1"/>
+    <field name="ShopCode" bind="#shop.get('code')"/>
+    <field name="SysCustomerId" bind=""/>
+    <field name="SysTradeId" bind=""/>  <!--平台 加// _tid-->
+    <field name="OutOrderId" bind="$.oid"/>
+    <field name="title" bind="$.title"/>
+    <field name="SkuId" bind="$.sku_id"/>
+    <field name="DiscountFee" bind="$.discount_fee"/>
+    <field name="TotalFee" bind="$.total_fee"/>
+    <field name="RefundStatus" bind="$.refund_status"/>
+    <field name="PicPath" bind="$.pic_path"/>
+    <field name="OrderFrom" bind="$.order_from"/>
+    <field name="payment" bind="#root.get('divide_order_fee')!=null?#root.get('divide_order_fee'):#root.get('payment')"/>
+    <field name="OrderStatus" bind="$.status"/>
+    <field name="number" bind="$.num"/>
+    <field name="SkuProperties" bind="$.sku_properties_name"/>
+    <field name="price" bind="$.price"/>
+</mapping>
+<mapping id="childMap4" class="com.nascent.ecrpsaas.ingest.model.TestOrder">
+    <field name="id" bind=""/>
+    <field name="state" bind="1"/>
+    <field name="CreateTime" bind="T(java.time.LocalDateTime).now()"/>
+    <field name="UpdateTime" bind="T(java.time.LocalDateTime).now()"/>
+    <field name="PromotionActivityId" bind=""/>
+    <field name="PromotionDetailId" bind=""/> <!--//通過解析-->
+    <field name="PromotionToolId" bind=""/>
+    <field name="DiscountFee" bind="$.discount_fee"/>
+    <field name="OutTradeId" bind="$.tid"/>
+    <field name="SysTradeId" bind=""/>  <!--平台 加// _tid-->
+    <field name="TbId" bind="$.id"/>
+    <field name="PromotionName" bind="$.promotion_name"/>
+    <field name="PromotionId" bind="$.promotion_id"/>
+    <field name="GiftItemNum" bind="$.gift_item_num"/>
+    <field name="PromotionDesc" bind="$.promotion_desc"/>
+    <field name="OutNick" bind="$.buyer_nick"/>
+    <field name="GiftItemId" bind="$.gift_item_id"/>
+    <field name="GiftItemName" bind="$.gift_item_name"/>
+</mapping>
+<mapping id="trdaesEXT"  class="com.nascent.ecrpsaas.ingest.model.TestOrder">
+    <field name="GroupId" bind="#shop.get('group_id')"/>
+    <field name="OutSid" bind=""/>   <!--订单号-->
+    <field name="ReceiverAddress" bind="$.trade_fullinfo_get_response.trade.receiver_address"/>
+    <field name="OutCompanyName" bind="$.trade_fullinfo_get_response.trade.orders.order"/> <!--设置order信息为了得到companyName-->
+    <field name="UpdateTime" bind="T(java.time.LocalDateTime).now()"/>
+    <field name="id" bind=""/>
+    <field name="CreateTime" bind="T(java.time.LocalDateTime).now()"/>
+    <field name="SysTradeId" bind="$.trade_fullinfo_get_response.trade.tid"/>
+    <field name="UrgeTimes" bind=""/>
+    <field name="SellerMemo" bind="$.trade_fullinfo_get_response.trade.seller_memo"/>
+    <field name="BuyerMessage" bind="$.trade_fullinfo_get_response.trade.buyer_message"/>
+    <field name="ShippingType" bind="$.trade_fullinfo_get_response.trade.shipping_type"/>
+    <field name="OutState" bind="''"/>
+    <field name="TradeType" bind="$.trade_fullinfo_get_response.trade.type"/>
+    <field name="ReceiverZip" bind="$.trade_fullinfo_get_response.trade.receiver_zip"/>
+    <field name="OutTime" bind="$.trade_fullinfo_get_response.trade.out_time"/>
+    <field name="GroupId" bind="#shop.get('group_id')"/>
+    <field name="state" bind="1"/>
+    <field name="ShopCode" bind="#shop.get('code')"/>
+</mapping>
+
+<foreach id="step3" list="#trade" item="o1">
+    <tasklet name="insertTradeJson"/>
+    <tasklet name="Trades_" bind="trade"/>
+    <tasklet name="trdaesEXT" bind="tradeext"/>
+    <tasklet name="getSysCustomerId" />
+    <tasklet name="Attr" bind="tradeSpel"/>
+    <tasklet name="setRFM"/>
+    <!-- <tasklet name="getRFM"/> -->
+	 <tasklet name="setREC"/>
+    <tasklet name="insertREC"/>
+    <tasklet name="selectMemberGrade" bind="memberGrade"/>
+	<!--<tasklet name="insertOperate"/>-->
+    <tasklet name="getTrade" bind="history" />
+    <tasklet name="getscore" bind="score_"/>
+    <tasklet name="expedit" bind="tradeSpel"/>
+    <tasklet name="getMaxPayTime" bind="trade_payTime"/>
+    <tasklet name="step6" bind="saveTrade"/>
+
+    <tasklet name="step7" bind="ordersql"/>
+    <tasklet name="step8" bind="promotionsql"/>
+    <tasklet name="step9" bind="ext"/>
+    <tasklet name="insertkd_customer_shop_rfm" bind="rfma"/>
+    <tasklet name="insertkd_customer_plat_rec_list" bind="rec"/>
+    <tasklet name="insertkd_customer_shop" bind="shop1"/>
+    <tasklet name="insertkd_customer" bind="customer"/>
+    <tasklet name="insertkd_customer_brand" bind="kd_customer_brand"/>
+
+    <tasklet name="InsertcareAutoNotify"  />
+    <tasklet name="InsertPointNotify"  />
+
+</foreach>
+
+<!--插入交易原始数据-->
+<sql id="insertTradeJson">
+    <query><![CDATA[insert into trade_json(create_time,kd_trade,shop_code,state) values(?,?,?,?);]]></query>
+    <params>
+        <field  bind="T(java.time.LocalDateTime).now()"/>
+        <field  bind="#o1.toString()"/>
+        <field  bind="#shop.get('code')"/>
+        <field  bind="1"/>
+    </params>
+    <result type="Int">
+    </result>
+    <output><![CDATA[]]></output>
+</sql>
+
+<!--设置订单的数量/系统交易/系统会员id-->
+<spel id="Attr">
+    <field  bind="T(com.nascent.ecrpsaas.utils.TradeAttribute).setAttribute(#trade,#shop.get('plat_from_type'),#SysCustomerid)"/>
+</spel>
+
+
+<!--设置修改RFM数据-->
+<spel id="setRFM">
+    <field name="rfm" bind="T(com.nascent.ecrpsaas.utils.ServiceTask).setRFM(#shop.get('code'), #SysCustomerid)"/>
+   <!--  <field name="rfm" bind="T(com.nascent.ecrpsaas.utils.ServiceTask).setRFM(#trade)"/> -->
+</spel>
+
+<!--设置修改REC数据-->
+<spel id="setREC">
+    <field name="rec" bind="T(com.nascent.ecrpsaas.utils.ServiceTask).setREC(#trade)"/>
+</spel>
+
+<!--设置催付信息-->
+<spel id="expedit">
+    <field  bind="T(com.nascent.ecrpsaas.utils.OrderExpediting).setExpeditingAndValues(#history,#trade,#shop,#tradeext,#score_!=null?#score_.get('score'):0)"/>
+</spel>
+
+<!--得到历史trade的信息-->
+<sql id="getTrade"  >
+    <query><![CDATA[select sys_trade_id,created,pay_time,consign_time,end_time from kd_trade where sys_trade_id = ? ]]></query>
+    <params>
+        <field name="SysTradeId" bind="#trade.get('SysTradeId')"/>
+    </params>
+    <result type="Object">
+    </result>
+    <output><![CDATA[]]></output>
+</sql>
+
+<!--得到SysCustomerId
+<sql id="getSysCustomerId"  >
+    <query><![CDATA[CALL proc_getsyscustomer_id(?,?)]]></query>
+    <params>
+        <field bind="#shop.get('plat_from_type')+'_'+#trade.get('OutNick')"/>
+        <field bind="#trade.get('BuyerAlipayNo')!=null?(#trade.get('BuyerAlipayNo').indexOf('.')==-1?#trade.get('BuyerAlipayNo'):(#trade.get('ReceiverMobile')==null or #trade.get('ReceiverMobile')==''?'':#trade.get('ReceiverMobile'))):(#trade.get('ReceiverMobile')==null or #trade.get('ReceiverMobile')==''?'':#trade.get('ReceiverMobile'))"/>
+    </params>
+    <result type="Object">
+
+    </result>
+    <output><![CDATA[]]></output>
+</sql>-->
+<spel id="getSysCustomerId">
+    <field name="SysCustomerid" bind="T(com.nascent.ecrpsaas.utils.CheckSysCustomerId).checkSysCustomerId(#shop.get('code'),#shop.get('plat_from_type')+'_'+#trade.get('OutNick'),#trade.get('BuyerAlipayNo')!=null?(#trade.get('BuyerAlipayNo').indexOf('.')==-1?#trade.get('BuyerAlipayNo'):(#trade.get('ReceiverMobile')==null or #trade.get('ReceiverMobile')==''?'':#trade.get('ReceiverMobile'))):(#trade.get('ReceiverMobile')==null or #trade.get('ReceiverMobile')==''?'':#trade.get('ReceiverMobile')))"/>
+</spel>
+
+
+<!--插入RFM修改语句-->
+<foreach id="getRFM" list="#rfm" item="rm">
+    <tasklet name="insertRFM" />
+</foreach>
+
+<!--插入RFM数据-->
+<sql id="insertRFM"  >
+    <query><![CDATA[INSERT INTO kd_customer_rfm_count_temp(shop_code,sys_customer_id,field,select_sql) VALUES (?,?,?,?);]]></query>
+    <params>
+        <field bind="#shop.get('code')"/>
+        <field bind="#trade.get('SysCustomerId')"/>
+        <field bind="#rm.get('field')"/>
+        <field bind="#rm.get('select_sql')"/>
+    </params>
+    <result type="Int">
+    </result>
+    <output><![CDATA[]]></output>
+</sql>
+
+<!--查找会员品牌的member_grade-->
+<sql id="selectMemberGrade"  >
+    <query><![CDATA[select member_grade from kd_customer_brand where sys_customer_id=? and brand_id=?;]]></query>
+    <params>
+        <field bind="#trade.get('SysCustomerId')"/>
+        <field bind="#trade.get('BrandId')"/>
+    </params>
+    <result type="Object">
+    </result>
+    <output><![CDATA[]]></output>
+</sql>
+
+<!--插入REC数据-->
+<sql id="insertREC"  >
+    <query><![CDATA[insert into kd_customer_rfm_update_task(update_sql) values(?);]]></query>
+    <params>
+        <field bind="#rec"/>
+    </params>
+    <result type="Int">
+    </result>
+    <output><![CDATA[]]></output>
+</sql>
+
+<!--插入部门操作部门表-->
+<sql id="insertOperate"  >
+    <query><![CDATA[INSERT INTO kd_operate_customer (state,create_time, update_time,sys_customer_id,group_id,department_code)
+				    select ?,?,?,?,?,? from dual
+					where not exists(select * from kd_operate_customer where sys_customer_id = ? and group_id = ? and department_code = ?);]]></query>
+    <params>
+        <field bind="1"/>
+        <field bind="T(java.time.LocalDateTime).now()"/>
+        <field bind="T(java.time.LocalDateTime).now()"/>
+        <field bind="#trade.get('SysCustomerId')"/>
+        <field bind="#shop.get('group_id')"/>
+        <field bind="#shop.get('department_code')"/>
+        <field bind="#trade.get('SysCustomerId')"/>
+        <field bind="#shop.get('group_id')"/>
+        <field bind="#shop.get('department_code')"/>
+    </params>
+    <result type="Int">
+    </result>
+    <output><![CDATA[]]></output>
+</sql>
+
+<!--得到score积分参数-->
+<sql id="getscore"  >
+    <query><![CDATA[select IFNULL(score,0) as score  from  kd_customer_brand where sys_customer_id =? ]]></query>
+    <params>
+        <field name="SysCustomerId" bind="#trade.get('SysCustomerId')"/>
+    </params>
+    <result type="Object">
+        <field name="score" bind="#root!=null?#root.get('score'):'0'"/>
+    </result>
+    <output><![CDATA[]]></output>
+</sql>
+
+<sql id="getMaxPayTime"  > <!--得到最大的付款时间-->
+    <query><![CDATA[select MAX(pay_time) from kd_trade where  sys_customer_id=? ]]></query>
+    <params>
+        <field name="sys_customer_id" bind="#trade.get('SysCustomerId')"/>
+    </params>
+    <result type="Object">
+    </result>
+    <output><![CDATA[]]></output>
+</sql>
+
+<sql id="step6">
+
+    <query><![CDATA[INSERT INTO `kd_trade` (
+                `state`, `create_time`, `update_time`, `group_id`, `shop_code`,
+                `out_trade_id`, `out_nick`, `sys_trade_id`, `sys_customer_id`, `trade_from`,
+                `trade_status`, `created`, `pay_time`, `consign_time`, `end_time`,
+                `num`, `payment`, `total_fee`, `modify_time`, `post_fee`,
+                `discount_fee`, `receiver_name`, `receiver_mobile`, `receiver_phone`, `buyer_email`,
+                `receiver_province`, `receiver_city`, `receiver_district`, `remark_sign`, `buyer_rate`,
+                `app_entrance`, `pay_type`, `step_trade_status`, `step_paid_fee`, `audit_status`,`brand_id`)
+				values( ?,?,?,?,?,
+                        ?,?,?,?,?,
+                        ?,?,?,?,?,
+                        ?,?,?,?,?,
+                        ?,?,?,?,?,
+                        ?,?,?,?,?,
+                        ?,?,?,?,?,?)
+				ON DUPLICATE KEY UPDATE
+				update_time=values(update_time),trade_status=values(trade_status),created=values(created),pay_time=values(pay_time),
+				consign_time=values(consign_time),end_time=values(end_time),num=values(num),payment=values(payment),
+				total_fee=values(total_fee),modify_time=values(modify_time),discount_fee=values(discount_fee)
+			    ;]]></query>
+    <params>
+        <field name="state" bind="1"/>
+        <field name="create_time" bind="T(java.time.LocalDateTime).now()"/>
+        <field name="update_time" bind="T(java.time.LocalDateTime).now()"/>
+        <field name="group_id" bind="#trade.get('GroupId')"/>
+        <field name="shop_code" bind="#trade.get('ShopCode')"/>
+
+        <field name="out_trade_id" bind="#trade.get('OutTradeId')"/>
+        <field name="out_nick" bind="#trade.get('OutNick')"/>
+        <field name="sys_trade_id" bind="#trade.get('SysTradeId')"/>
+        <field name="sys_customer_id" bind="#trade.get('SysCustomerId')"/>
+        <field name="trade_from" bind="#trade.get('TradeFrom')"/>
+
+        <field name="trade_status" bind="#trade.get('TradeStatus')"/>
+        <field name="created" bind="#trade.get('created')"/>
+        <field name="pay_time" bind="#trade.get('PayTime')"/>
+        <field name="consign_time" bind="#trade.get('ConsignTime')"/>
+        <field name="end_time" bind="#trade.get('EndTime')"/>
+
+        <field name="num" bind="#trade.get('num')"/>
+        <field name="payment" bind="#trade.get('payment')"/>
+        <field name="total_fee" bind="#trade.get('TotalFee')"/>
+        <field name="modify_time" bind="#trade.get('ModifyTime')"/>
+        <field name="post_fee" bind="#trade.get('PostFee')"/>
+
+        <field name="discount_fee" bind="#trade.get('DiscountFee')"/>
+        <field name="receiver_name" bind="#trade.get('ReceiverName')"/>
+        <field name="receiver_mobile" bind="#trade.get('ReceiverMobile')"/>
+        <field name="receiver_phone" bind="#trade.get('ReceiverPhone')"/>
+        <field name="buyer_email" bind="#trade.get('BuyerEmail')"/>
+
+        <field name="receiver_province" bind="#trade.get('ReceiverProvince')"/>
+        <field name="receiver_city" bind="#trade.get('ReceiverCity')"/>
+        <field name="receiver_district" bind="#trade.get('ReceiverDistrict')"/>
+        <field name="remark_sign" bind="#trade.get('RemarkSign')"/>
+        <field name="buyer_rate" bind="#trade.get('BuyerRate')"/>
+
+        <field name="app_entrance" bind="#trade.get('TradeFrom').indexOf('WAP')>-1?2:1"/>
+        <field name="pay_type" bind="0"/>
+        <field name="step_trade_status" bind="#trade.get('StepTradeStatus')"/>
+        <field name="step_paid_fee" bind="#trade.get('StepPaidFee')"/>
+        <field name="audit_status" bind="#trade.get('AuditStatus')!=null?2:0"/>
+        <field name="brand_id" bind="#trade.get('BrandId')"/>
+
+    </params>
+    <result type="Int"></result>
+    <output><![CDATA[]]></output>
+</sql>
+
+<!--得到商家编号-->
+<sql id="selectouterId"  >
+    <query><![CDATA[select outer_id from kd_item where out_item_id=?]]></query>
+    <params>
+        <field name="out_item_id" bind="#o.get('OutItemId')"/>
+    </params>
+    <result type="Object">
+    </result>
+    <output><![CDATA[]]></output>
+</sql>
+
+<foreach id="step7" list="#trade.get('orders')" setter="ordersql" item="o">
+    <!-- <tasklet name="selectouterId" bind="kdItem"/>-->
+    <tasklet name="sql7"/></foreach>
+<sql id="sql7"  >
+
+    <query><![CDATA[INSERT INTO `kd_order` (
+					  `state`, `create_time`, `update_time`, `group_id`, `sys_trade_id`,
+					  `sys_customer_id`, `out_order_id`, `sys_item_id`, `out_item_id`, `outer_id`,
+					  `title`, `sku_id`, `sku_properties`, `pic_path`, `order_status`,
+					  `order_from`, `number`, `price`, `total_fee`, `payment`,
+					  `discount_fee`, `refund_status`,`shop_code`)
+					  VALUES (?,?,?,?,?,
+						  ?,?,?,?,?,
+						  ?,?,?,?,?,
+						  ?,?,?,?,?,
+						  ?,?,?)
+					  ON DUPLICATE KEY UPDATE
+					  update_time=values(update_time),order_status=values(order_status),refund_status=values(refund_status);]]>
+    </query>
+    <params>
+        <field name="state" bind="1"/>
+        <field name="create_time" bind="#o.get('CreateTime')"/>
+        <field name="update_time" bind="#o.get('UpdateTime')"/>
+        <field name="group_id" bind="#o.get('GroupId')"/>
+        <field name="sys_trade_id" bind="#trade.get('SysTradeId')"/>
+
+        <field name="sys_customer_id" bind="#trade.get('SysCustomerId')"/>
+        <field name="out_order_id"  bind="#o.get('OutOrderId')==''?'':#o.get('OutOrderId')"/>
+        <field name="sys_item_id"  bind="#good!=null?#good.get('itemId'):0"/> <!--sys_item_id为空设置1-->
+        <field name="out_item_id"  bind="#o.get('OutItemId')"/>
+        <field name="outer_id" bind="#o.get('OuterId')!=null?#o.get('OuterId'):''"/>
+
+        <field name="title"  bind="#o.get('title')"/>
+        <field name="sku_id"  bind="#o.get('SkuId')"/>
+        <field name="sku_properties"  bind="#o.get('SkuProperties')"/>
+        <field name="pic_path"  bind="#o.get('PicPath')"/>
+        <field name="order_status"  bind="#o.get('OrderStatus')"/>
+
+        <field name="order_from" bind="#o.get('OrderFrom')"/>
+        <field name="number" bind="#o.get('number')"/>
+        <field name="price" bind="#o.get('price')"/>
+        <field name="total_fee" bind="#o.get('TotalFee')"/>
+        <field name="payment" bind="#o.get('payment')"/>
+
+        <field name="discount_fee" bind="#o.get('DiscountFee')"/>
+        <field name="refund_status" bind="#o.get('RefundStatus')"/>
+        <field name="shop_code" bind="#o.get('ShopCode')"/>
+
+    </params>
+    <result type="Int"></result>
+    <output><![CDATA[]]></output></sql>
+
+<foreach id="step8" list="#trade.get('detail')" setter="detail" item="o">
+    <tasklet name="sql8"/></foreach>
+<sql id="sql8"  >
+
+    <query><![CDATA[INSERT INTO `kd_promotion_detail` (
+							`state`, `create_time`, `update_time`,`sys_trade_id`,
+							`out_trade_id`, `out_nick`, `tb_id`, `promotion_name`, `discount_fee`,
+							`gift_item_name`, `gift_item_id`, `gift_item_num`, `promotion_desc`, `promotion_id`,
+							`promotion_tool_id`, `promotion_activity_id`, `promotion_detail_id`)
+							VALUES (?,?,?,?,
+									?,?,?,?,?,
+									?,?,?,?,?,
+									?,?,?);]]></query>
+    <params>
+        <field name="state" bind="#o.get('state')"/>
+        <field name="create_time" bind="#o.get('CreateTime')"/>
+        <field name="update_time" bind="#o.get('UpdateTime')"/>
+        <field name="sys_trade_id" bind="#trade.get('SysTradeId')"/>
+
+        <field name="out_trade_id" bind="#trade.get('OutTradeId')"/>
+        <field name="out_nick"  bind="#trade.get('OutNick')"/>
+        <field name="tb_id"  bind="#o.get('TbId')"/>
+        <field name="promotion_name"  bind="#o.get('PromotionName')"/>
+        <field name="discount_fee" bind="#o.get('DiscountFee')"/>
+
+        <field name="gift_item_name"  bind="#o.get('GiftItemName')"/>
+        <field name="gift_item_id"  bind="#o.get('GiftItemId')"/>
+        <field name="gift_item_num"  bind="#o.get('GiftItemNum')"/>
+        <field name="promotion_desc"  bind="#o.get('PromotionDesc')"/>
+        <field name="promotion_id"  bind="#o.get('PromotionId')"/>
+
+        <field name="promotion_tool_id" bind="#o.get('PromotionId')!=null?(#o.get('PromotionId').split('-').length==2?#o.get('PromotionId').split('-')[0]:#o.get('PromotionId')):''"/>
+        <field name="promotion_activity_id" bind="#o.get('PromotionId')!=null?(#o.get('PromotionId').split('-').length==2?#o.get('PromotionId').split('-')[1].split('_')[0]:''):''"/>
+        <field name="promotion_detail_id" bind="#o.get('PromotionId')!=null?(#o.get('PromotionId').split('-').length==2?#o.get('PromotionId').split('-')[1].split('_')[1]:''):''"/>
+
+    </params>
+    <result type="Int"></result>
+    <output><![CDATA[]]></output></sql>
+
+<sql id="step9"  >
+
+    <query><![CDATA[INSERT INTO `kd_trade_ext` (
+                `state`, `create_time`, `update_time`, `group_id`, `sys_trade_id`,
+                `buyer_alipay_no`, `out_sid`, `out_company_name`, `out_state`, `trade_type`,
+                `shipping_type`, `receiver_address`, `receiver_zip`, `buyer_message`, `seller_memo`,
+                `urge_times`, `out_time`, `shop_code`)
+                VALUES (?,?,?,?,?,
+                        ?,?,?,?,?,
+                        ?,?,?,?,?,
+                        ?,?,?)
+				ON DUPLICATE KEY UPDATE
+				update_time=values(update_time),out_state=values(out_state),trade_type=values(trade_type),
+				shipping_type=values(shipping_type),buyer_message=values(buyer_message),seller_memo=values(seller_memo),
+				urge_times=values(urge_times),out_time=values(out_time)
+				;]]></query>
+    <params>
+        <field name="state" bind="#tradeext.get('state')"/>
+        <field name="create_time" bind="#tradeext.get('CreateTime')"/>
+        <field name="update_time" bind="#tradeext.get('UpdateTime')"/>
+        <field name="group_id" bind="#tradeext.get('GroupId')"/>
+        <field name="sys_trade_id" bind="#trade.get('SysTradeId')"/>
+
+        <field name="buyer_alipay_no" bind="#trade.get('BuyerAlipayNo')"/>
+        <field name="out_sid" bind="#tradeext.get('OutSid')"/>
+        <field name="out_company_name" bind="#tradeext.get('OutCompanyName')"/>
+        <field name="out_state" bind="#tradeext.get('OutState')==''?-1:#tradeext.get('OutState')"/>
+        <field name="trade_type" bind="#tradeext.get('TradeType')"/>
+
+        <field name="shipping_type" bind="#tradeext.get('ShippingType')"/>
+        <field name="receiver_address" bind="#tradeext.get('ReceiverAddress')"/>
+        <field name="receiver_zip" bind="#tradeext.get('ReceiverZip')"/>
+        <field name="buyer_message" bind="#tradeext.get('BuyerMessage')"/>
+        <field name="seller_memo" bind="#tradeext.get('SellerMemo')"/>
+
+        <field name="urge_times" bind="0"/>
+        <field name="out_time" bind="#tradeext.get('OutTime')"/>
+        <field name="shop_code" bind="#tradeext.get('ShopCode')"/>
+    </params>
+    <result type="Int"></result>
+    <output><![CDATA[]]></output></sql>
+
+
+<sql id="insertkd_customer" >
+
+    <query><![CDATA[INSERT INTO kd_customer (
+                state, create_time, update_time, group_id, sys_customer_id,
+                member_card, customer_name, sex, user_type, birthday,
+                idcard, telphone, mobile, email, zip,
+                country, province, city, district, address,
+                develop_time, qq, weibo)
+				values(?,?,?,?,?,
+				?,?,?,?,?,
+				?,?,?,?,?,
+				?,?,?,?,?,
+				?,?,?)
+	                ON DUPLICATE KEY UPDATE
+				    update_time=values(update_time),customer_name=values(customer_name),
+					sex=values(sex),user_type=values(user_type),birthday=values(birthday),telphone=values(telphone),
+					mobile=values(mobile),email=values(email),zip=values(zip),country=values(country),province=values(province),
+					city=values(city),district=values(district),address=values(address),
+					develop_time=values(develop_time),qq=values(qq),weibo=values(weibo),
+					user_type=values(user_type);]]></query>
+    <params>
+        <field bind="1"/>
+        <field bind="T(java.time.LocalDateTime).now()"/>
+        <field bind="T(java.time.LocalDateTime).now()"/>
+        <field bind="#shop.get('group_id')"/>
+        <field bind="#trade.get('SysCustomerId')"/>
+
+        <field bind="''"/>
+        <field bind="#trade.get('ReceiverName')!=null?#trade.get('ReceiverName'):''"/>
+        <field bind="'-1'"/>
+        <field bind="#trade.get('TradeStatus').indexOf('TRADE_FINISHED')>-1?2:1"/>  <!--根据订单类型判断 客户类型：1.意向客户 2.成交客户-->
+        <field bind="NULL"/>
+
+        <field bind="''"/>
+        <field bind="#trade.get('ReceiverPhone')"/>
+        <field bind="#trade.get('BuyerAlipayNo')!=null?(#trade.get('BuyerAlipayNo').indexOf('.')==-1?#trade.get('BuyerAlipayNo'):(#trade.get('ReceiverMobile')==null or #trade.get('ReceiverMobile')==''?'':#trade.get('ReceiverMobile'))):(#trade.get('ReceiverMobile')==null or #trade.get('ReceiverMobile')==''?'':#trade.get('ReceiverMobile'))"/>
+        <field bind="#trade.get('BuyerEmail')"/>
+        <field bind="#trade.get('ReceiverZip')"/>
+
+        <field bind="'中国'"/>
+        <field bind="#trade.get('ReceiverProvince')"/>
+        <field bind="#trade.get('ReceiverCity')"/>
+        <field bind="#trade.get('ReceiverDistrict')"/>
+        <field bind="#trade.get('ReceiverAddress')"/>
+
+        <field bind="#trade.get('created')"/>
+        <field bind="''"/>
+        <field bind="''"/>
+    </params>
+    <result type="Int">
+    </result>
+    <output><![CDATA[]]></output>
+</sql>
+
+<sql id="insertkd_customer_brand" >
+
+    <query><![CDATA[insert into kd_customer_brand(state,create_time,update_time,sys_customer_id,group_id,
+					member_grade,brand_id)
+                          select ?,?,?,?,?,?,? from dual where not exists(select * from kd_customer_brand where sys_customer_id =? and brand_id = ?)]]></query>
+    <params>
+        <field bind="'1'"/>
+        <field bind="T(java.time.LocalDateTime).now()"/>
+        <field bind="T(java.time.LocalDateTime).now()"/>
+        <field bind="#trade.get('SysCustomerId')"/>
+        <field bind="#trade.get('GroupId')"/>
+
+        <field bind="0"/>
+        <field bind="#trade.get('BrandId')"/>
+        <field bind="#trade.get('SysCustomerId')"/>
+        <field bind="#trade.get('BrandId')"/>
+    </params>
+    <result type="Int">
+    </result>
+    <output><![CDATA[]]></output>
+</sql>
+
+
+
+
+<sql id="insertkd_customer_plat_rec_list" >
+
+    <query><![CDATA[INSERT INTO `kd_customer_plat_rec_list` (
+					`state`, `create_time`, `update_time`, `shop_code`, `group_id`,
+					`sys_customer_id`, `customer_name`, `telphone`, `mobile`, `email`,
+					`zip`, `country`, `province`, `city`, `district`,
+					`address`, `hash_code`, `last_use_time`, `use_times`, `pay_times`,
+					`last_pay_time`)
+					values( ?,?,?,?,?,
+							?,?,?,?,?,
+							?,?,?,?,?,
+							?,?,?,?,?,
+							?)
+				    ON DUPLICATE KEY UPDATE
+					update_time=values(update_time),customer_name=values(customer_name),telphone=values(telphone),mobile=values(mobile),
+					email=values(email),zip=values(zip),country=values(country),province=values(province),city=values(city),district=values(district),
+					address=values(address);]]></query>
+    <params>
+        <field bind="'1'"/>
+        <field bind="T(java.time.LocalDateTime).now()"/>
+        <field bind="T(java.time.LocalDateTime).now()"/>
+        <field bind="#trade.get('ShopCode')"/>
+        <field bind="#trade.get('GroupId')"/>
+
+        <field bind="#trade.get('SysCustomerId')"/>
+        <field bind="#trade.get('ReceiverName')"/>
+        <field bind="#trade.get('ReceiverPhone')"/>
+        <field bind="#trade.get('ReceiverMobile')"/>
+        <field bind="#trade.get('BuyerEmail')!=null?#trade.get('BuyerEmail'):NULL"/>
+
+        <field bind="#tradeext.get('ReceiverZip')"/>
+        <field bind="'中国'"/>
+        <field bind="#trade.get('ReceiverProvince')"/>
+        <field bind="#trade.get('ReceiverCity')"/>
+        <field bind="#trade.get('ReceiverDistrict')"/>
+
+        <field bind="#tradeext.get('ReceiverAddress')"/>
+        <field bind="(#trade.get('ShopCode')+#trade.get('SysCustomerId')).hashCode()"/>
+        <field bind="#trade.get('created')"/>
+        <field bind="'0'"/>
+        <field bind="'0'"/>
+
+        <field bind="#trade_payTime!=null?#trade_payTime.get('pay_time'):NULL"/>  <!--当前客户最大的付款时间max(pay_time)-->
+    </params>
+    <result type="Int">
+    </result>
+    <output><![CDATA[]]></output>
+</sql>
+
+<sql id="insertkd_customer_shop" >
+
+    <query><![CDATA[INSERT INTO kd_customer_shop (
+                state, create_time, update_time, group_id, shop_code,
+                sys_customer_id, out_id, out_nick, mobile, plat_from_type)
+				select ?,?,?,?,?,
+				        ?,?,?,?,? from dual
+					where not exists(select * from kd_customer_shop where shop_code=? and out_nick=?);]]></query>
+    <params>
+        <field bind="1"/>
+        <field bind="T(java.time.LocalDateTime).now()"/>
+        <field bind="T(java.time.LocalDateTime).now()"/>
+        <field bind="#shop.get('group_id')"/>
+        <field bind="#shop.get('code')"/>
+
+        <field bind="#trade.get('SysCustomerId')"/>
+        <field bind="0"/>
+        <field bind="#trade.get('OutNick')"/>
+        <field bind="#trade.get('BuyerAlipayNo')!=null?(#trade.get('BuyerAlipayNo').indexOf('.')==-1?#trade.get('BuyerAlipayNo'):(#trade.get('ReceiverMobile')==null or #trade.get('ReceiverMobile')==''?'':#trade.get('ReceiverMobile'))):(#trade.get('ReceiverMobile')==null or #trade.get('ReceiverMobile')==''?'':#trade.get('ReceiverMobile'))"/>
+        <field bind="#shop.get('plat_from_type')"/>
+
+        <field bind="#shop.get('code')"/>
+        <field bind="#trade.get('OutNick')"/>
+    </params>
+    <result type="Int">
+    </result>
+    <output><![CDATA[]]></output>
+</sql>
+<sql id="insertkd_customer_shop_rfm" >
+
+    <query><![CDATA[INSERT INTO `kd_customer_shop_rfm` (
+					`state`, `create_time`, `update_time`, `group_id`, `shop_code`,
+					`sys_customer_id`, `order_times`, `order_amount`,`pay_times`, `pay_amount`,
+					`trade_times`, `trade_amount`, `price_unit`, `item_unit`, `count_unit`)
+					 select ?,?,?,?,?,?,?,?,?,?,?,?,?,?,? from dual
+					 where not exists(select * from kd_customer_shop_rfm where sys_customer_id=?);]]></query>
+    <params>
+        <field bind="'1'"/>
+        <field bind="T(java.time.LocalDateTime).now()"/>
+        <field bind="T(java.time.LocalDateTime).now()"/>
+        <field bind="#trade.get('GroupId')"/>
+        <field bind="#trade.get('ShopCode')"/>
+
+
+        <field bind="#trade.get('SysCustomerId')"/>
+        <field bind="0"/>
+        <field bind="0"/>
+        <field bind="0"/>
+        <field bind="0"/>
+
+        <field bind="0"/>
+        <field bind="0"/>
+        <field bind="0"/>
+        <field bind="0"/>
+        <field bind="0"/>
+        <field bind="#trade.get('SysCustomerId')"/>
+    </params>
+    <result type="Int">
+    </result>
+    <output><![CDATA[]]></output>
+</sql>
+
+<sql id="InsertcareAutoNotify" >
+
+    <query><![CDATA[INSERT INTO care_auto_notify (
+                state, create_time, update_time, mark, sys_customer_id,
+                grade_rule_detail_id, sys_trade_id, out_trade_id, out_nick, notify_status,
+                mobile, email, mobile_status, email_status, wx_status, notify_time,`values`, group_id, `shop_code`)
+        select ?,?,?,?,?,
+               ?,?,?,?,?,
+             ?,?,?,?,?,
+             ?,?,?,?from dual
+        where if(''!=?,if((select COUNT(0) from care_auto_notify where sys_trade_id =? and mark=? and group_id =?),false,true),false);
+        ;]]></query>
+    <params>
+        <field bind="1"/>
+        <field bind="T(java.time.LocalDateTime).now()"/>
+        <field bind="T(java.time.LocalDateTime).now()"/>
+        <field bind="#trade.get('mark')!=null?#trade.get('mark'):''"/> <!--取值已经在springEL里面设置完-->
+        <field bind="#trade.get('SysCustomerId')"/>
+
+        <field bind="#memberGrade==null?0:#memberGrade.get('member_grade')"/>  <!--设置初始为1 care_auto_notify表的grade_rule_detail_id值取kd_customer_brand表的member_grade-->
+        <field bind="#trade.get('SysTradeId')"/>
+        <field bind="#trade.get('OutTradeId')"/>
+        <field bind="#trade.get('OutNick')"/>
+        <field bind="#trade.get('notify_status')!=null?#trade.get('notify_status'):''"/> <!--取值已经在springEL里面设置完-->
+
+        <field bind="#trade.get('ReceiverMobile')"/>
+        <field bind="#trade.get('BuyerEmail')"/>
+        <field bind="0"/>
+        <field bind="0"/>
+        <field bind="0"/>
+
+        <field bind="#trade.get('notify_time')!=null?#trade.get('notify_time'):T(java.time.LocalDateTime).now()"/>  <!--取值已经在springEL里面设置完-->
+        <field bind="#trade.get('Values')"/>  <!--取值已经在springEL里面设置完-->
+        <field bind="#trade.get('GroupId')"/>
+        <field bind="#trade.get('ShopCode')"/>
+
+        <field bind="#trade.get('Values')"/>
+        <field bind="#trade.get('SysTradeId')"/>
+        <field bind="#trade.get('mark')!=null?#trade.get('mark'):''"/>
+        <field bind="#trade.get('GroupId')"/>
+
+    </params>
+    <result type="Int">
+    </result>
+    <output><![CDATA[]]></output>
+</sql>
+
+<sql id="InsertPointNotify" >
+
+    <query><![CDATA[INSERT INTO  `kd_point_trade_notify` (
+				`state`, `create_time`, `update_time`, `shop_code`, `sys_trade_id`,
+				`remark`,`sys_customer_id`, `member_grade`, `notify_type`, `trade_status`,
+				`trade_payment`,`notify_time`, `p_status`, `order_values`,`exp_values`,
+				`brand_id`)
+				 select
+					?,?,?,?,?,
+					?,?, IFNULL((select member_grade from kd_customer_brand where sys_customer_id=? and brand_id=?),1),?,?,
+					?,?,?,?,IFNULL((select trade_times from kd_customer_shop_rfm where sys_customer_id=? and shop_code=?),0),
+					? from dual
+				where if('TRADE_FINISHED'=?,true,false) and not exists(select * from kd_point_trade_notify where sys_trade_id=?);]]></query>
+    <params>
+        <field bind="1"/>
+        <field bind="T(java.time.LocalDateTime).now()"/>
+        <field bind="T(java.time.LocalDateTime).now()"/>
+        <field bind="#shop.get('code')"/>
+        <field bind="#trade.get('SysTradeId')"/>
+
+        <field bind="''"/>
+        <field bind="#trade.get('SysCustomerId')"/>
+        <field bind="#trade.get('SysCustomerId')"/>  <!--会员等级查询表-->
+        <field bind="#trade.get('BrandId')"/>
+        <field bind="2"/>
+        <field bind="#trade.get('TradeStatus')"/>
+
+        <field bind="#trade.get('payment')"/>
+        <field bind="#trade.get('EndTime')"/>
+        <field bind="0"/>
+        <field name="order_values" bind="#trade.get('orderValues')"/>  <!--在Region里面设置-->
+        <field bind="#trade.get('SysCustomerId')"/><!--查rfm表-->
+        <field bind="#trade.get('ShopCode')"/>
+
+        <field bind="#shop.get('brand_id')"/>
+        <field bind="#trade.get('TradeStatus')"/>
+        <field bind="#trade.get('SysTradeId')"/>
+    </params>
+    <result type="Int">
+    </result>
+    <output><![CDATA[]]></output>
+</sql>
+</root>

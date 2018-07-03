@@ -1,0 +1,57 @@
+<th:block th:fragment="attributes">
+<el-collapse-item style="margin-left: 10px"   :title="item.key"  name= "trade" :key="index"  id="trade" v-if="item.value.length>0 && item.key =='交易属性'"  v-for="(item, index) in A1">
+                <el-form-item    v-if="tradeDatas.key === 'tradeData' && tradeDatas.value.length >0" :key="tradeDataindexs" v-for="(tradeDatas,tradeDataindexs) in item.value">
+                <el-form-item   label-width="130px" :key="tradeDataindex" v-for="(tradeData,tradeDataindex) in tradeDatas.value">
+                  <el-form :ref="tradeDatas.key" placement="right" :model="tradeData">
+                  <p>交易属性<a>{{tradeData.manzu == 0?"满足":"不满足"}}</a>下面条件：</p>
+                  <el-form v-if="tradeData.timetype == 1">
+                  <p v-if="tradeData.orderdatebegin != '' || tradeData.orderdateend != ''">下单时间：{{tradeData.orderdatebegin==''?"不限":tradeData.orderdatebegin.split(" ")[0]}}~{{tradeData.orderdateend==''?"不限":tradeData.orderdateend.split(" ")[0]}}</p>
+                  <p v-if="tradeData.paydatebegin != ''||tradeData.paydateend != ''">付款时间：{{tradeData.paydatebegin==''?"不限":tradeData.paydatebegin.split(" ")[0]}}~{{tradeData.paydateend==''?"不限":tradeData.paydateend.split(" ")[0]}}</p>
+                  <p v-if="tradeData.deliverydatebegin != ''||tradeData.deliverydateend != ''">发货时间：{{tradeData.deliverydatebegin==''?"不限":tradeData.deliverydatebegin.split(" ")[0]}}~{{tradeData.deliverydateend==''?"不限":tradeData.deliverydateend.split(" ")[0]}}</p>
+                  <p v-if="tradeData.finaldatebegin != ''||tradeData.finaldateend != ''">结束时间：{{tradeData.finaldatebegin==''?"不限":tradeData.finaldatebegin.split(" ")[0]}}~{{tradeData.finaldateend==''?"不限":tradeData.finaldateend.split(" ")[0]}}</p>
+                  </el-form>
+                  <el-form v-if="tradeData.timetype == '2'">
+                  <p v-if="tradeData.orderdaybegin !='' || tradeData.orderdayend!=''">下单时间：距离当前{{tradeData.orderdaybegin==''?"不限":tradeData.orderdaybegin}}~{{tradeData.orderdayend==''?"不限":tradeData.orderdayend}}天</p> 
+                  <p v-if="tradeData.paydaybegin !='' || tradeData.paydayend!=''">付款时间：距离当前{{tradeData.paydaybegin==''?"不限":tradeData.paydaybegin}}~{{tradeData.paydayend==''?"不限":tradeData.paydayend}}天</p> 
+                  <p v-if="tradeData.deliverydaybegin !='' || tradeData.deliverydateend!=''">发货时间：距离当前{{tradeData.deliverydaybegin==''?"不限":tradeData.deliverydaybegin}}~{{tradeData.deliverydayend==''?"不限":tradeData.deliverydayend}}天</p> 
+                  <p v-if="tradeData.finaldaybegin !='' || tradeData.finaldayend!=''">结束时间：距离当前{{tradeData.finaldaybegin==''?"不限":tradeData.finaldaybegin}}~{{tradeData.finaldayend==''?"不限":tradeData.finaldayend}}天</p> 
+                  </el-form>
+                  <p v-if="tradeData.timesbegin !='' || tradeData.timesend!=''">交易次数：{{tradeData.timesbegin==''?"不限":tradeData.timesbegin}}~{{tradeData.timesend==''?"不限":tradeData.timesend}}次 </p> 
+                  <p v-if="tradeData.piecebegin !='' || tradeData.pieceend!=''">交易件数：{{tradeData.piecebegin==''?"不限":tradeData.piecebegin}}~{{tradeData.pieceend==''?"不限":tradeData.pieceend}}件</p> 
+                  <p v-if="tradeData.moneybegin !='' || tradeData.moneyend!=''">交易金额：{{tradeData.moneybegin==''?"不限":tradeData.moneybegin}}~{{tradeData.moneyend==''?"不限":tradeData.moneyend}}元</p> 
+                  <p v-if="tradeData.tradetype!=''&& tradeData.tradetype!='step' ">订单类型：{{tradeData.tradetypeValue}}</p> 
+                  <p v-if="tradeData.trademoneybegin !='' || tradeData.trademoneyend!=''">单件订单金额：{{tradeData.trademoneybegin==''?"不限":tradeData.trademoneybegin}}~{{tradeData.trademoneyend==''?"不限":tradeData.trademoneyend}}元</p> 
+                  <p v-if="tradeData.tradepiecebegin !='' || tradeData.tradepieceend!=''">单件订单件数：{{tradeData.tradepiecebegin==''?"不限":tradeData.tradepiecebegin}}~{{tradeData.tradepieceend==''?"不限":tradeData.tradepieceend}}件</p> 
+                  <p v-if="tradeData.tradestatelist.length>0">订单状态：{{tradeData.tradestatelistValue}}</p> 
+                  <p v-if="tradeData.tradetype=='step'">订单类型：{{tradeData.tradetypeValue}}，预定状态：{{tradeData.reservetype==''?"不限":tradeData.reservetype}}</p>
+                  <p v-if="tradeData.postage == '1'">邮费区间：{{tradeData.postagebegin==''?"不限":tradeData.postagebegin}}~{{tradeData.postageend==''?"不限":tradeData.postageend}}元</p>
+                  <p v-if="tradeData.coupon == '0'">优惠券：不限</p> 
+                  <p v-if="tradeData.coupon == '1' && tradeData.couponmoney !=''">优惠券金额：{{tradeData.couponmoney}}元</p> 
+                  <p v-if="tradeData.markflag == '-1'">备注旗帜：不限</p> 
+                  <p v-if="tradeData.markflag == '0'">备注旗帜：不插旗</i></p> 
+                  <p v-if="tradeData.markflag == '1'">备注旗帜：<i class="bui-flag text-danger"></i></p> 
+                  <p v-if="tradeData.markflag == '2'">备注旗帜：<i class="bui-flag text-warning"></i></p> 
+                  <p v-if="tradeData.markflag == '3'">备注旗帜：<i class="bui-flag text-success"></i></p> 
+                  <p v-if="tradeData.markflag == '4'">备注旗帜：<i class="bui-flag text-info"></i></p> 
+                  <p v-if="tradeData.markflag == '5'">备注旗帜：<i class="bui-flag text-purple"></i></p> 
+                  <p v-if="tradeData.trademark != ''">订单备注：{{tradeData.trademark}}</p> 
+                  <p v-if="tradeData.tradechannelbrandValue != ''">订单渠道来源：{{tradeData.tradechannelbrandValue}}</p> 
+                  <p v-if="tradeData.tagend != ''">终端：{{tradeData.tagendValue}}</p> 
+                  <p v-if="tradeData.goods_ids.length > 0">订单商品：{{tradeData.goods_names}}</p> 
+                     
+                  <el-form-grid size="xxs" v-if="tradeDataindex !== tradeDatas.value.length - 1">
+                          <el-select v-model="tradeData.relation" placeholder="请选择" class="is-gray">
+                            <el-option label="并且" value="and"></el-option>
+                            <el-option label="或者" value="or"></el-option>
+                          </el-select>
+                 </el-form-grid> 
+                  <el-form-grid>
+                  <a class="member-choose__edit" @click="editTrade(tradeDataindex,tradeDataindexs,tradeDatas,item,index)"><i class="bui-edit"></i></a>
+                  <a class="member-choose__delete" @click="deleteSubdivisionCondition(tradeDataindex,tradeDataindexs,tradeDatas,item,index)"><i class="bui-delete"></i></a>
+                  </el-form-grid>
+                  </el-form>
+                   </el-form-item> 
+                </el-form-item> 
+            
+            </el-collapse-item>
+</th:block>
